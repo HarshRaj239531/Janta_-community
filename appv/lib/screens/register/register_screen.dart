@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/otp_input_field.dart';
-import 'home_screen.dart';
+import '../../widgets/otp_input_field.dart';
+import '../home/home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

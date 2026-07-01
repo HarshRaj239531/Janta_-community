@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'membership_status_screen.dart';
+import '../membership_status/membership_status_screen.dart';
 
 class TermsConditionsScreen extends StatefulWidget {
   final String name;

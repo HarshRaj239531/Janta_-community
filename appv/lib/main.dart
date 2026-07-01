@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'screens/splash_screen.dart';
+import 'screens/splash/splash_screen.dart';
 
 void main() {
   // Ensure system navigation/status bar styling matches app theme

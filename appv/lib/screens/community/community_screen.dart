@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'community_details_screen.dart';
+import '../community_details/community_details_screen.dart';
 
 class CommunityScreen extends StatefulWidget {
   final bool showAppBar;

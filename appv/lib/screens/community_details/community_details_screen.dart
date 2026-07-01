@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/custom_bottom_navbar.dart';
-import 'terms_conditions_screen.dart';
+import '../../widgets/custom_bottom_navbar.dart';
+import '../terms_conditions/terms_conditions_screen.dart';
 
 class CommunityDetailsScreen extends StatefulWidget {
   final String name;
