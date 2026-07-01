@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/app_colors.dart';
 import '../membership_status/membership_status_screen.dart';
 
 class TermsConditionsScreen extends StatefulWidget {
@@ -41,6 +42,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
   @override
   Widget build(BuildContext context) {
     final cleanPlanValue = widget.plan.replaceAll('Monthly ', '').replaceAll('Daily ', '');
+    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -48,14 +50,14 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0F4C3A)),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Terms & Conditions',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF0F4C3A),
+            color: theme.colorScheme.primary,
             fontSize: 20,
           ),
         ),
@@ -75,7 +77,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                       style: GoogleFonts.outfit(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF9CA3AF),
+                        color: AppColors.textMuted,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -85,7 +87,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                       style: GoogleFonts.outfit(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -93,14 +95,14 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                       'By joining the ${widget.name} within the FinTrust ecosystem, you agree to comply with and be bound by the following terms and conditions. These terms ensure a secure and profitable environment for all members of our exclusive circle.',
                       style: GoogleFonts.outfit(
                         fontSize: 13,
-                        color: const Color(0xFF475569),
+                        color: AppColors.textSecondary,
                         height: 1.4,
                       ),
                     ),
                     const SizedBox(height: 28),
 
                     // 1. Membership Eligibility
-                    _buildSectionHeader('1', 'Membership Eligibility', false),
+                    _buildSectionHeader(context, '1', 'Membership Eligibility', false),
                     const SizedBox(height: 8),
                     _buildSectionContent(
                       'Membership is restricted to individuals who have reached the legal age of majority in their jurisdiction. All applicants must undergo a mandatory identity verification (KYC) process and provide proof of financial standing to maintain the group\'s accreditation status.',
@@ -108,14 +110,14 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     const SizedBox(height: 24),
 
                     // 2. Investment Contributions (Bordered Box)
-                    _buildSectionHeader('2', 'Investment Contributions', false),
+                    _buildSectionHeader(context, '2', 'Investment Contributions', false),
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: AppColors.backgroundAlt,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: AppColors.borderLight),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,26 +126,26 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                             'To maintain active status, members must adhere to the following contribution schedule:',
                             style: GoogleFonts.outfit(
                               fontSize: 13,
-                              color: const Color(0xFF475569),
+                              color: AppColors.textSecondary,
                               height: 1.4,
                             ),
                           ),
                           const SizedBox(height: 16),
                           _buildContributionBullet(
                             icon: Icons.check_circle_outline_rounded,
-                            iconColor: const Color(0xFF10B981),
+                            iconColor: AppColors.successGreen,
                             text: 'A mandatory Monthly commitment of $cleanPlanValue.',
                           ),
                           const SizedBox(height: 12),
                           _buildContributionBullet(
                             icon: Icons.access_time_rounded,
-                            iconColor: const Color(0xFF10B981),
+                            iconColor: AppColors.successGreen,
                             text: 'Contributions must be made by the 5th of every month.',
                           ),
                           const SizedBox(height: 12),
                           _buildContributionBullet(
                             icon: Icons.error_outline_rounded,
-                            iconColor: const Color(0xFFEF4444),
+                            iconColor: AppColors.errorAccent,
                             text: 'Late fees of 2% apply to any contribution delayed beyond the 10th.',
                           ),
                         ],
@@ -152,7 +154,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     const SizedBox(height: 24),
 
                     // 3. Withdrawal Policy
-                    _buildSectionHeader('3', 'Withdrawal Policy', false),
+                    _buildSectionHeader(context, '3', 'Withdrawal Policy', false),
                     const SizedBox(height: 8),
                     _buildSectionContent(
                       'Elite funds are subject to a 12-month initial lock-in period to ensure capital stability. Subsequent withdrawals require a written notice of at least 30 business days. Early withdrawals may be subject to a 5% liquidity adjustment fee.',
@@ -160,20 +162,20 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     const SizedBox(height: 24),
 
                     // 4. Risk Disclosure (Red Alert Box)
-                    _buildSectionHeader('4', 'Risk Disclosure', true),
+                    _buildSectionHeader(context, '4', 'Risk Disclosure', true),
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFEF2F2),
+                        color: AppColors.errorLight,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFFCA5A5)),
+                        border: Border.all(color: AppColors.errorBorder),
                       ),
                       child: RichText(
                         text: TextSpan(
                           style: GoogleFonts.outfit(
                             fontSize: 13,
-                            color: const Color(0xFF991B1B),
+                            color: AppColors.errorDark,
                             height: 1.4,
                           ),
                           children: [
@@ -195,7 +197,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     const SizedBox(height: 24),
 
                     // 5. Data Privacy & Security
-                    _buildSectionHeader('5', 'Data Privacy & Security', false),
+                    _buildSectionHeader(context, '5', 'Data Privacy & Security', false),
                     const SizedBox(height: 8),
                     _buildSectionContent(
                       'Your financial data is protected using AES-256 encryption. We do not share your personal information with third-party marketers. For a detailed breakdown, please refer to our Global Privacy Policy.',
@@ -206,7 +208,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: AppColors.backgroundAlt,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -214,7 +216,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
-                          color: const Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -247,7 +249,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     children: [
                       Checkbox(
                         value: _isAgreed,
-                        activeColor: const Color(0xFF0F4C3A),
+                        activeColor: theme.colorScheme.primary,
                         onChanged: (value) {
                           setState(() {
                             _isAgreed = value ?? false;
@@ -260,7 +262,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF334155),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ),
@@ -273,7 +275,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     child: ElevatedButton(
                       onPressed: _isAgreed ? _acceptAndContinue : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0F4C3A),
+                        backgroundColor: theme.colorScheme.primary,
                         disabledBackgroundColor: Colors.grey.shade300,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -300,7 +302,8 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
   }
 
   // Header Builder helper for Number tag + title
-  Widget _buildSectionHeader(String index, String title, bool isRed) {
+  Widget _buildSectionHeader(BuildContext context, String index, String title, bool isRed) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         Container(
@@ -308,7 +311,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
           height: 24,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: const Color(0xFFEEF2F6),
+            color: AppColors.lavenderSoft,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -316,7 +319,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
             style: GoogleFonts.outfit(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: isRed ? const Color(0xFFEF4444) : const Color(0xFF0F4C3A),
+              color: isRed ? AppColors.errorAccent : theme.colorScheme.primary,
             ),
           ),
         ),
@@ -326,7 +329,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
           style: GoogleFonts.outfit(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: isRed ? const Color(0xFFEF4444) : const Color(0xFF0F4C3A),
+            color: isRed ? AppColors.errorAccent : theme.colorScheme.primary,
           ),
         ),
       ],
@@ -339,7 +342,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
       text,
       style: GoogleFonts.outfit(
         fontSize: 13,
-        color: const Color(0xFF475569),
+        color: AppColors.textSecondary,
         height: 1.4,
       ),
     );
@@ -365,7 +368,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
             text,
             style: GoogleFonts.outfit(
               fontSize: 13,
-              color: const Color(0xFF475569),
+              color: AppColors.textSecondary,
               height: 1.3,
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/app_colors.dart';
 import '../home/home_screen.dart';
 import 'widgets/loan_detail_tab.dart';
 import 'widgets/payment_history_tab.dart';
@@ -16,6 +17,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   int _activeSwitcherIndex = 0; // 0: Loan Detail, 1: Payment History, 2: Documents
 
   void _showPayEmiBottomSheet() {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -45,13 +47,13 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE6F0EA),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withAlpha(25),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.payments_rounded,
-                        color: Color(0xFF0F4C3A),
+                        color: theme.colorScheme.primary,
                         size: 24,
                       ),
                     ),
@@ -64,14 +66,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1F2937),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           'Elite Investors Group • Due Oct 24',
                           style: GoogleFonts.outfit(
                             fontSize: 12,
-                            color: const Color(0xFF6B7280),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -82,9 +84,9 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: AppColors.backgroundAlt,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: AppColors.borderLight),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,7 +96,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF475569),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                       Text(
@@ -102,7 +104,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF0F4C3A),
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                     ],
@@ -116,7 +118,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                          side: const BorderSide(color: AppColors.borderLight),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -126,7 +128,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -139,7 +141,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                           _showEmiPaymentSuccess();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F4C3A),
+                          backgroundColor: theme.colorScheme.primary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -167,6 +169,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   void _showEmiPaymentSuccess() {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) {
@@ -175,20 +178,20 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Color(0xFF0F4C3A), size: 28),
+              Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary, size: 28),
               const SizedBox(width: 8),
               Text(
                 'EMI Paid Successfully!',
                 style: GoogleFonts.outfit(
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF111827),
+                  color: AppColors.textDark,
                 ),
               ),
             ],
           ),
           content: Text(
             'Your monthly EMI payment of ₹1,200.00 has been debited. Next due: Nov 24, 2023.',
-            style: GoogleFonts.outfit(fontSize: 14, color: const Color(0xFF6B7280)),
+            style: GoogleFonts.outfit(fontSize: 14, color: AppColors.textSecondary),
           ),
           actions: [
             TextButton(
@@ -196,7 +199,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
               child: Text(
                 'Awesome',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF0F4C3A),
+                  color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -209,13 +212,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundSoft,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B)),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary),
           onPressed: () {
             HomeScreen.activeTabNotifier.value = 0; // Return to Home dashboard
           },
@@ -224,13 +228,13 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           'Loan Details',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF1E293B),
+            color: AppColors.textPrimary,
             fontSize: 20,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF1E293B)),
+            icon: const Icon(Icons.more_vert_rounded, color: AppColors.textPrimary),
             onPressed: () {},
           ),
         ],
@@ -247,11 +251,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildSwitcherTab(0, Icons.account_balance_wallet_rounded, 'Loan Detail'),
+                      _buildSwitcherTab(context, 0, Icons.account_balance_wallet_rounded, 'Loan Detail'),
                       const SizedBox(width: 8),
-                      _buildSwitcherTab(1, Icons.history_rounded, 'Payment History'),
+                      _buildSwitcherTab(context, 1, Icons.history_rounded, 'Payment History'),
                       const SizedBox(width: 8),
-                      _buildSwitcherTab(2, Icons.description_outlined, 'Documents'),
+                      _buildSwitcherTab(context, 2, Icons.description_outlined, 'Documents'),
                     ],
                   ),
                 ),
@@ -272,7 +276,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
             right: 16,
             child: FloatingActionButton(
               onPressed: _showPayEmiBottomSheet,
-              backgroundColor: const Color(0xFF0F4C3A),
+              backgroundColor: theme.colorScheme.primary,
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               child: const Icon(
@@ -302,7 +306,8 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   // Switcher Tab button helper
-  Widget _buildSwitcherTab(int index, IconData icon, String label) {
+  Widget _buildSwitcherTab(BuildContext context, int index, IconData icon, String label) {
+    final theme = Theme.of(context);
     final isActive = _activeSwitcherIndex == index;
     return GestureDetector(
       onTap: () {
@@ -313,17 +318,17 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF0F4C3A) : Colors.transparent,
+          color: isActive ? theme.colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: isActive ? Colors.transparent : const Color(0xFFE2E8F0),
+            color: isActive ? Colors.transparent : AppColors.borderLight,
           ),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: isActive ? Colors.white : const Color(0xFF64748B),
+              color: isActive ? Colors.white : AppColors.textSecondary,
               size: 16,
             ),
             const SizedBox(width: 8),
@@ -332,7 +337,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
               style: GoogleFonts.outfit(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: isActive ? Colors.white : const Color(0xFF64748B),
+                color: isActive ? Colors.white : AppColors.textSecondary,
               ),
             ),
           ],

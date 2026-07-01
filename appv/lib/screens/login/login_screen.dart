@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/app_colors.dart';
 import '../../widgets/secure_chip_widget.dart';
 import '../register/register_screen.dart';
 import '../home/home_screen.dart';
@@ -35,8 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB), // Clean off-white background
+      backgroundColor: AppColors.backgroundSoft, // Clean off-white background
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -54,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF111827), // Dark grey
+                    color: theme.colorScheme.onSurface, // Dark grey
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -64,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 15,
-                    color: const Color(0xFF6B7280), // Muted grey
+                    color: theme.colorScheme.onSurfaceVariant, // Muted grey
                   ),
                 ),
                 
@@ -77,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: const Color(0xFFE5E7EB),
+                      color: AppColors.borderMuted,
                       width: 1,
                     ),
                     boxShadow: [
@@ -97,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF4B5563),
+                          color: theme.colorScheme.onSurfaceVariant,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -108,10 +111,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           hintText: 'name@example.com',
                           hintStyle: GoogleFonts.outfit(
-                            color: const Color(0xFF9CA3AF),
+                            color: AppColors.textMuted,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF3F4F6),
+                          fillColor: AppColors.backgroundSoft,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -142,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF4B5563),
+                              color: theme.colorScheme.onSurfaceVariant,
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -163,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: GoogleFonts.outfit(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF0F4C3A), // Forest green
+                                color: theme.colorScheme.primary, // Forest green
                               ),
                             ),
                           ),
@@ -176,10 +179,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           hintText: '••••••••',
                           hintStyle: GoogleFonts.outfit(
-                            color: const Color(0xFF9CA3AF),
+                            color: AppColors.textMuted,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF3F4F6),
+                          fillColor: AppColors.backgroundSoft,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -190,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _isPasswordObscured
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: const Color(0xFF9CA3AF),
+                              color: AppColors.textMuted,
                             ),
                             onPressed: () {
                               setState(() {
@@ -217,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF92D7B1), // Mint green
+                          backgroundColor: theme.colorScheme.secondary, // Mint green
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -232,13 +235,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: GoogleFonts.outfit(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF0F4C3A), // Dark green text
+                                color: theme.colorScheme.primary, // Dark green text
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(
+                            Icon(
                               Icons.arrow_forward_rounded,
-                              color: Color(0xFF0F4C3A),
+                              color: theme.colorScheme.primary,
                               size: 20,
                             ),
                           ],
@@ -260,14 +263,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               "Don't have an account? ",
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFF6B7280),
+                                color: theme.colorScheme.onSurfaceVariant,
                                 fontSize: 14,
                               ),
                             ),
                             Text(
                               "Create one",
                               style: GoogleFonts.outfit(
-                                color: const Color(0xFF0F4C3A), // Forest green
+                                color: theme.colorScheme.primary, // Forest green
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -285,9 +288,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.shield_outlined,
-                      color: Color(0xFF9CA3AF),
+                      color: AppColors.textMuted,
                       size: 16,
                     ),
                     const SizedBox(width: 6),
@@ -295,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Bank-grade 256-bit encryption',
                       style: GoogleFonts.outfit(
                         fontSize: 12,
-                        color: const Color(0xFF6B7280),
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

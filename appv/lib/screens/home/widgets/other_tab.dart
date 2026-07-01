@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../constants/app_colors.dart';
 import '../home_screen.dart';
 
 class OtherTab extends StatelessWidget {
@@ -16,7 +17,7 @@ class OtherTab extends StatelessWidget {
           style: GoogleFonts.outfit(
             fontSize: 11,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF6B7280),
+            color: AppColors.textSecondary,
             letterSpacing: 1.0,
           ),
         ),
@@ -29,7 +30,7 @@ class OtherTab extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF111827),
+                color: AppColors.textDark,
                 letterSpacing: -0.5,
               ),
             ),
@@ -48,7 +49,7 @@ class OtherTab extends StatelessWidget {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F4C3A),
+                backgroundColor: AppColors.primaryGreen,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 shape: RoundedRectangleBorder(
@@ -66,7 +67,7 @@ class OtherTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: AppColors.borderMuted),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(6),
@@ -86,7 +87,7 @@ class OtherTab extends StatelessWidget {
                     style: GoogleFonts.outfit(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF6B7280),
+                      color: AppColors.textSecondary,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -94,7 +95,7 @@ class OtherTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF0F4C3A), // Dark Green
+                      color: AppColors.primaryGreen, // Dark Green
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -113,7 +114,7 @@ class OtherTab extends StatelessWidget {
                     style: GoogleFonts.outfit(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF0F4C3A), // Green rupee sign
+                      color: AppColors.primaryGreen, // Green rupee sign
                     ),
                   ),
                   Text(
@@ -121,7 +122,7 @@ class OtherTab extends StatelessWidget {
                     style: GoogleFonts.outfit(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF111827),
+                      color: AppColors.textDark,
                     ),
                   ),
                 ],
@@ -132,13 +133,13 @@ class OtherTab extends StatelessWidget {
                 children: [
                   _buildStatusPill(
                     icon: Icons.circle,
-                    iconColor: const Color(0xFF10B981), // Green dot
+                    iconColor: AppColors.successGreen, // Green dot
                     label: 'Live Tracking Active',
                   ),
                   const SizedBox(width: 8),
                   _buildStatusPill(
                     icon: Icons.stars_rounded,
-                    iconColor: const Color(0xFFFBBF24), // Gold star
+                    iconColor: AppColors.warningAmber, // Gold star
                     label: 'Gold Tier Member',
                   ),
                 ],
@@ -161,25 +162,25 @@ class OtherTab extends StatelessWidget {
               title: 'Total Paid Amount',
               value: '₹8,280.00',
               icon: Icons.payments_outlined,
-              iconColor: const Color(0xFF10B981),
+              iconColor: AppColors.successGreen,
             ),
             _buildStatCard(
               title: 'Remaining Balance',
               value: '₹4,250.00',
               icon: Icons.account_balance_wallet_outlined,
-              iconColor: const Color(0xFF3B82F6),
+              iconColor: AppColors.infoBlue,
             ),
             _buildStatCard(
               title: 'Next Due Date',
               value: 'Oct 24, 2023',
               icon: Icons.calendar_today_outlined,
-              iconColor: const Color(0xFFEF4444),
+              iconColor: AppColors.errorAccent,
             ),
             _buildStatCard(
               title: 'Active Committees',
               value: '3',
               icon: Icons.groups_outlined,
-              iconColor: const Color(0xFF0F4C3A),
+              iconColor: AppColors.primaryGreen,
             ),
           ],
         ),
@@ -194,7 +195,7 @@ class OtherTab extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF111827),
+                color: AppColors.textDark,
               ),
             ),
             GestureDetector(
@@ -202,7 +203,7 @@ class OtherTab extends StatelessWidget {
               child: Text(
                 'View Community Details',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF0F4C3A),
+                  color: AppColors.primaryGreen,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -218,19 +219,19 @@ class OtherTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: AppColors.borderMuted),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
+                  color: AppColors.backgroundSoft,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.people_alt_rounded,
-                  color: Color(0xFF6B7280),
+                  color: AppColors.textSecondary,
                   size: 24,
                 ),
               ),
@@ -244,7 +245,7 @@ class OtherTab extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF111827),
+                        color: AppColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -269,7 +270,7 @@ class OtherTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: AppColors.borderMuted),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,7 +281,7 @@ class OtherTab extends StatelessWidget {
                   style: GoogleFonts.outfit(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF6B7280),
+                    color: AppColors.textSecondary,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -297,12 +298,12 @@ class OtherTab extends StatelessWidget {
                         child: SizedBox(
                           width: 120,
                           height: 120,
-                          child: CircularProgressIndicator(
+                          child: const CircularProgressIndicator(
                             value: 0.65,
                             strokeWidth: 10,
-                            backgroundColor: const Color(0xFFE5E7EB),
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFF0F4C3A),
+                            backgroundColor: AppColors.borderMuted,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.primaryGreen,
                             ),
                           ),
                         ),
@@ -316,14 +317,14 @@ class OtherTab extends StatelessWidget {
                               style: GoogleFonts.outfit(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF111827),
+                                color: AppColors.textDark,
                               ),
                             ),
                             Text(
                               'Success Rate',
                               style: GoogleFonts.outfit(
                                 fontSize: 10,
-                                color: const Color(0xFF6B7280),
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],
@@ -340,14 +341,14 @@ class OtherTab extends StatelessWidget {
                 children: [
                   Text(
                     'Completed',
-                    style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF6B7280)),
+                    style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textSecondary),
                   ),
                   Text(
                     '13 Installments',
                     style: GoogleFonts.outfit(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF065F46),
+                      color: AppColors.successDark,
                     ),
                   ),
                 ],
@@ -358,14 +359,14 @@ class OtherTab extends StatelessWidget {
                 children: [
                   Text(
                     'Remaining',
-                    style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF6B7280)),
+                    style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textSecondary),
                   ),
                   Text(
                     '7 Installments',
                     style: GoogleFonts.outfit(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1E40AF),
+                      color: AppColors.infoBlueDark,
                     ),
                   ),
                 ],
@@ -384,7 +385,7 @@ class OtherTab extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF111827),
+                color: AppColors.textDark,
               ),
             ),
             GestureDetector(
@@ -392,7 +393,7 @@ class OtherTab extends StatelessWidget {
               child: Text(
                 'View All History',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF0F4C3A),
+                  color: AppColors.primaryGreen,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -407,7 +408,7 @@ class OtherTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: AppColors.borderMuted),
           ),
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
@@ -424,7 +425,7 @@ class OtherTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF4B5563),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -435,7 +436,7 @@ class OtherTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF4B5563),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -447,7 +448,7 @@ class OtherTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF4B5563),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -459,14 +460,14 @@ class OtherTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF4B5563),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const Divider(color: Color(0xFFE5E7EB), height: 1),
+              const Divider(color: AppColors.borderMuted, height: 1),
 
               // Item 1
               _buildHistoryTableItem(
@@ -476,7 +477,7 @@ class OtherTab extends StatelessWidget {
                 status: 'Paid',
                 icon: Icons.calendar_month_outlined,
               ),
-              const Divider(color: Color(0xFFE5E7EB), height: 1),
+              const Divider(color: AppColors.borderMuted, height: 1),
 
               // Item 2
               _buildHistoryTableItem(
@@ -486,7 +487,7 @@ class OtherTab extends StatelessWidget {
                 status: 'Overdue',
                 icon: Icons.warning_amber_rounded,
               ),
-              const Divider(color: Color(0xFFE5E7EB), height: 1),
+              const Divider(color: AppColors.borderMuted, height: 1),
 
               // Item 3
               _buildHistoryTableItem(
@@ -513,7 +514,7 @@ class OtherTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFFEEF2F6), // Light blue-grey background
+          color: AppColors.lavenderSoft, // Light blue-grey background
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -532,7 +533,7 @@ class OtherTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF475569),
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
@@ -553,7 +554,7 @@ class OtherTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.borderMuted),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -580,7 +581,7 @@ class OtherTab extends StatelessWidget {
                 title,
                 style: GoogleFonts.outfit(
                   fontSize: 10,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -590,7 +591,7 @@ class OtherTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF111827),
+                  color: AppColors.textDark,
                 ),
               ),
             ],
@@ -604,7 +605,7 @@ class OtherTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFEEF2F6),
+        color: AppColors.lavenderSoft,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -612,7 +613,7 @@ class OtherTab extends StatelessWidget {
         style: GoogleFonts.outfit(
           fontSize: 9,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFF475569),
+          color: AppColors.textSecondary,
         ),
       ),
     );
@@ -630,17 +631,17 @@ class OtherTab extends StatelessWidget {
     Color statusTextColor;
 
     if (status.toLowerCase() == 'paid') {
-      statusBgColor = const Color(0xFFD1FAE5);
-      statusBorderColor = const Color(0xFF10B981);
-      statusTextColor = const Color(0xFF065F46);
+      statusBgColor = AppColors.successLight;
+      statusBorderColor = AppColors.successGreen;
+      statusTextColor = AppColors.successDark;
     } else if (status.toLowerCase() == 'overdue') {
-      statusBgColor = const Color(0xFFFEE2E2);
-      statusBorderColor = const Color(0xFFEF4444);
-      statusTextColor = const Color(0xFF991B1B);
+      statusBgColor = AppColors.errorLight;
+      statusBorderColor = AppColors.errorAccent;
+      statusTextColor = AppColors.errorDark;
     } else {
-      statusBgColor = const Color(0xFFDBEAFE);
-      statusBorderColor = const Color(0xFF3B82F6);
-      statusTextColor = const Color(0xFF1E40AF);
+      statusBgColor = AppColors.infoBlueLight;
+      statusBorderColor = AppColors.infoBlue;
+      statusTextColor = AppColors.infoBlueDark;
     }
 
     return Padding(
@@ -654,14 +655,14 @@ class OtherTab extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF3F4F6),
+                    color: AppColors.backgroundSoft,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
                     color: status.toLowerCase() == 'overdue'
-                        ? const Color(0xFFEF4444)
-                        : const Color(0xFF6B7280),
+                        ? AppColors.errorAccent
+                        : AppColors.textSecondary,
                     size: 18,
                   ),
                 ),
@@ -676,7 +677,7 @@ class OtherTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF111827),
+                          color: AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -684,7 +685,7 @@ class OtherTab extends StatelessWidget {
                         date,
                         style: GoogleFonts.outfit(
                           fontSize: 11,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -701,7 +702,7 @@ class OtherTab extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF111827),
+                color: AppColors.textDark,
               ),
             ),
           ),

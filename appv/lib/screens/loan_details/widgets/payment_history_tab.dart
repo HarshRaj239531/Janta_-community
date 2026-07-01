@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../constants/app_colors.dart';
 
 class PaymentHistoryTab extends StatelessWidget {
   final VoidCallback onPayEmiPressed;
@@ -11,6 +12,7 @@ class PaymentHistoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -19,15 +21,15 @@ class PaymentHistoryTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderLight),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(
                   left: BorderSide(
-                    color: Color(0xFF0F4C3A),
+                    color: theme.colorScheme.primary,
                     width: 4,
                   ),
                 ),
@@ -41,7 +43,7 @@ class PaymentHistoryTab extends StatelessWidget {
                     style: GoogleFonts.outfit(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF94A3B8),
+                      color: AppColors.textMuted,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -51,7 +53,7 @@ class PaymentHistoryTab extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                       children: [
                         const TextSpan(text: '₹ 4,52,000'),
@@ -59,7 +61,7 @@ class PaymentHistoryTab extends StatelessWidget {
                           text: '  /  ₹ 12,00,000',
                           style: GoogleFonts.outfit(
                             fontSize: 13,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -70,10 +72,10 @@ class PaymentHistoryTab extends StatelessWidget {
                   // Progress bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
-                    child: const LinearProgressIndicator(
+                    child: LinearProgressIndicator(
                       value: 0.38, // 4.52L / 12L ~37.6%
-                      backgroundColor: Color(0xFFEEF2FA),
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F4C3A)),
+                      backgroundColor: AppColors.lavenderSoft,
+                      valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                       minHeight: 6,
                     ),
                   ),
@@ -88,7 +90,7 @@ class PaymentHistoryTab extends StatelessWidget {
                             'Installments Paid',
                             style: GoogleFonts.outfit(
                               fontSize: 10,
-                              color: const Color(0xFF64748B),
+                              color: AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -97,7 +99,7 @@ class PaymentHistoryTab extends StatelessWidget {
                             style: GoogleFonts.outfit(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF1E293B),
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -109,7 +111,7 @@ class PaymentHistoryTab extends StatelessWidget {
                             'Next Due',
                             style: GoogleFonts.outfit(
                               fontSize: 10,
-                              color: const Color(0xFF64748B),
+                              color: AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -118,7 +120,7 @@ class PaymentHistoryTab extends StatelessWidget {
                             style: GoogleFonts.outfit(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF0F4C3A),
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                         ],
@@ -126,7 +128,7 @@ class PaymentHistoryTab extends StatelessWidget {
                       ElevatedButton(
                         onPressed: onPayEmiPressed,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F4C3A),
+                          backgroundColor: theme.colorScheme.primary,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           shape: RoundedRectangleBorder(
@@ -155,9 +157,9 @@ class PaymentHistoryTab extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFEEF2FA),
+            color: AppColors.lavenderSoft,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderLight),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +170,7 @@ class PaymentHistoryTab extends StatelessWidget {
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.account_balance_rounded, color: Color(0xFF0F4C3A), size: 20),
+                child: Icon(Icons.account_balance_rounded, color: theme.colorScheme.primary, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -182,14 +184,14 @@ class PaymentHistoryTab extends StatelessWidget {
                           'Loan Reference',
                           style: GoogleFonts.outfit(
                             fontSize: 11,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD1FAE5),
+                            color: AppColors.successLight,
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Text(
@@ -197,7 +199,7 @@ class PaymentHistoryTab extends StatelessWidget {
                             style: GoogleFonts.outfit(
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF0F4C3A),
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                         ),
@@ -209,7 +211,7 @@ class PaymentHistoryTab extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -217,7 +219,7 @@ class PaymentHistoryTab extends StatelessWidget {
                       'Last Payment Date',
                       style: GoogleFonts.outfit(
                         fontSize: 11,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -227,7 +229,7 @@ class PaymentHistoryTab extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -244,7 +246,7 @@ class PaymentHistoryTab extends StatelessWidget {
           style: GoogleFonts.outfit(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -266,6 +268,7 @@ class PaymentHistoryTab extends StatelessWidget {
 
         // Transactions list items
         _buildTransactionItem(
+          context,
           title: 'EMI Installment #12',
           date: 'Oct 15, 2023 • 14:22',
           amount: '₹ 38,458',
@@ -274,6 +277,7 @@ class PaymentHistoryTab extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildTransactionItem(
+          context,
           title: 'EMI Installment #11',
           date: 'Sep 15, 2023 • 09:45',
           amount: '₹ 38,450',
@@ -282,6 +286,7 @@ class PaymentHistoryTab extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildTransactionItem(
+          context,
           title: 'EMI Installment #10',
           date: 'Aug 15, 2023 • 11:15',
           amount: '₹ 38,458',
@@ -290,6 +295,7 @@ class PaymentHistoryTab extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildTransactionItem(
+          context,
           title: 'EMI Installment #9',
           date: 'Jul 15, 2023 • 10:02',
           amount: '₹ 38,458',
@@ -298,6 +304,7 @@ class PaymentHistoryTab extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildTransactionItem(
+          context,
           title: 'EMI Installment #8',
           date: 'Jun 15, 2023 • 16:40',
           amount: '₹ 38,450',
@@ -315,10 +322,10 @@ class PaymentHistoryTab extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
-            label: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF64748B), size: 16),
+            label: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondary, size: 16),
           ),
         ),
         const SizedBox(height: 80),
@@ -332,18 +339,18 @@ class PaymentHistoryTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF64748B), size: 14),
+          Icon(icon, color: AppColors.textSecondary, size: 14),
           const SizedBox(width: 6),
           Text(
             label,
             style: GoogleFonts.outfit(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -351,29 +358,31 @@ class PaymentHistoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionItem({
+  Widget _buildTransactionItem(
+    BuildContext context, {
     required String title,
     required String date,
     required String amount,
     required String status,
     required IconData icon,
   }) {
+    final theme = Theme.of(context);
     Color statusBgColor;
     Color statusTextColor;
     Color amountColor;
 
     if (status == 'Success') {
-      statusBgColor = const Color(0xFFD1FAE5);
-      statusTextColor = const Color(0xFF0F4C3A);
-      amountColor = const Color(0xFF0F4C3A);
+      statusBgColor = AppColors.successLight;
+      statusTextColor = theme.colorScheme.primary;
+      amountColor = theme.colorScheme.primary;
     } else if (status == 'Pending') {
-      statusBgColor = const Color(0xFFEEF2FA);
-      statusTextColor = const Color(0xFF3B82F6);
-      amountColor = const Color(0xFF1E293B);
+      statusBgColor = AppColors.lavenderSoft;
+      statusTextColor = AppColors.infoBlue;
+      amountColor = AppColors.textPrimary;
     } else {
-      statusBgColor = const Color(0xFFFEF2F2);
-      statusTextColor = const Color(0xFFEF4444);
-      amountColor = const Color(0xFF94A3B8); // Gray for failed
+      statusBgColor = AppColors.errorLight;
+      statusTextColor = AppColors.errorAccent;
+      amountColor = AppColors.textMuted; // Gray for failed
     }
 
     final isFailed = status == 'Failed';
@@ -383,19 +392,19 @@ class PaymentHistoryTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isFailed ? const Color(0xFFFEF2F2) : const Color(0xFFEEF2FA),
+              color: isFailed ? AppColors.errorLight : AppColors.lavenderSoft,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
-              color: isFailed ? const Color(0xFFEF4444) : const Color(0xFF0F4C3A),
+              color: isFailed ? AppColors.errorAccent : theme.colorScheme.primary,
               size: 20,
             ),
           ),
@@ -409,7 +418,7 @@ class PaymentHistoryTab extends StatelessWidget {
                   style: GoogleFonts.outfit(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -417,7 +426,7 @@ class PaymentHistoryTab extends StatelessWidget {
                   date,
                   style: GoogleFonts.outfit(
                     fontSize: 10,
-                    color: const Color(0xFF94A3B8),
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],

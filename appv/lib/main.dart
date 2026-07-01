@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/splash/splash_screen.dart';
+import 'themes/app_theme.dart';
 
 void main() {
   // Ensure system navigation/status bar styling matches app theme
@@ -24,13 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ProsperFin',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFDCA134),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       home: const SplashScreen(),
     );
   }

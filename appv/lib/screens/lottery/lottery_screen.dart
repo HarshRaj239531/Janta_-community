@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/app_colors.dart';
 
 class LotteryScreen extends StatefulWidget {
   const LotteryScreen({super.key});
@@ -58,6 +59,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
   }
 
   void _showBuyTicketDialog() {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -87,13 +89,13 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE6F0EA),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withAlpha(25),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.local_activity_rounded,
-                        color: Color(0xFF0F4C3A),
+                        color: theme.colorScheme.primary,
                         size: 24,
                       ),
                     ),
@@ -106,14 +108,14 @@ class _LotteryScreenState extends State<LotteryScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1F2937),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
                           'Wealth Multiplier #453',
                           style: GoogleFonts.outfit(
                             fontSize: 12,
-                            color: const Color(0xFF6B7280),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -125,9 +127,9 @@ class _LotteryScreenState extends State<LotteryScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: AppColors.backgroundAlt,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: AppColors.borderLight),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -137,7 +139,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF475569),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                       Text(
@@ -145,7 +147,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF0F4C3A),
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                     ],
@@ -160,7 +162,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                          side: const BorderSide(color: AppColors.borderLight),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -170,7 +172,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                           style: GoogleFonts.outfit(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -183,7 +185,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                           _showPurchaseSuccess();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F4C3A),
+                          backgroundColor: theme.colorScheme.primary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -211,6 +213,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
   }
 
   void _showPurchaseSuccess() {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) {
@@ -219,20 +222,20 @@ class _LotteryScreenState extends State<LotteryScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Color(0xFF0F4C3A), size: 28),
+              Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary, size: 28),
               const SizedBox(width: 8),
               Text(
                 'Ticket Purchased!',
                 style: GoogleFonts.outfit(
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF111827),
+                  color: AppColors.textDark,
                 ),
               ),
             ],
           ),
           content: Text(
             'Your Wealth Multiplier ticket has been purchased successfully. Draw starts in $_days days.',
-            style: GoogleFonts.outfit(fontSize: 14, color: const Color(0xFF6B7280)),
+            style: GoogleFonts.outfit(fontSize: 14, color: AppColors.textSecondary),
           ),
           actions: [
             TextButton(
@@ -240,7 +243,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
               child: Text(
                 'Great',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF0F4C3A),
+                  color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -253,17 +256,18 @@ class _LotteryScreenState extends State<LotteryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundSoft,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.account_balance_rounded,
-              color: Color(0xFF0F4C3A),
+              color: theme.colorScheme.primary,
               size: 24,
             ),
             const SizedBox(width: 8),
@@ -271,7 +275,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
               'FinTrust Elite',
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF0F4C3A),
+                color: theme.colorScheme.primary,
                 fontSize: 20,
               ),
             ),
@@ -279,7 +283,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0F4C3A)),
+            icon: Icon(Icons.notifications_none_rounded, color: theme.colorScheme.primary),
             onPressed: () {},
           ),
         ],
@@ -295,9 +299,9 @@ class _LotteryScreenState extends State<LotteryScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F6F3), // Muted green tint
+                    color: AppColors.successBgSoft, // Muted green tint
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: AppColors.borderLight),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,15 +310,15 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE2ECE7),
+                          color: AppColors.mintLight,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.calendar_today_rounded,
-                              color: Color(0xFF0F4C3A),
+                              color: theme.colorScheme.primary,
                               size: 14,
                             ),
                             const SizedBox(width: 6),
@@ -323,7 +327,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                               style: GoogleFonts.outfit(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF0F4C3A),
+                                color: theme.colorScheme.primary,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -336,7 +340,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -345,7 +349,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                         'Join the elite circle of participants. Secure your ticket today for a chance to win the ₹ 1,500,000 prize pool.',
                         style: GoogleFonts.outfit(
                           fontSize: 13,
-                          color: const Color(0xFF475569),
+                          color: AppColors.textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -366,7 +370,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                               style: GoogleFonts.outfit(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF94A3B8),
+                                color: AppColors.textMuted,
                                 letterSpacing: 1.0,
                               ),
                             ),
@@ -374,11 +378,11 @@ class _LotteryScreenState extends State<LotteryScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildCountdownItem(_days, 'Days'),
-                                _buildCountdownDivider(),
-                                _buildCountdownItem(_hours, 'Hours'),
-                                _buildCountdownDivider(),
-                                _buildCountdownItem(_minutes, 'Mins'),
+                                _buildCountdownItem(context, _days, 'Days'),
+                                _buildCountdownDivider(context),
+                                _buildCountdownItem(context, _hours, 'Hours'),
+                                _buildCountdownDivider(context),
+                                _buildCountdownItem(context, _minutes, 'Mins'),
                               ],
                             ),
                           ],
@@ -395,14 +399,14 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.stars_rounded, color: Color(0xFF0F4C3A), size: 20),
+                        Icon(Icons.stars_rounded, color: theme.colorScheme.primary, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Winner\'s Circle',
                           style: GoogleFonts.outfit(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -411,7 +415,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       'View All Stories',
                       style: GoogleFonts.outfit(
                         fontSize: 12,
-                        color: const Color(0xFF0F4C3A),
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -424,6 +428,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       _buildWinnerCard(
+                        context,
                         name: 'Marcus Sterling',
                         amount: 'Won ₹ 450,000',
                         date: 'October 12, 2023',
@@ -431,6 +436,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       ),
                       const SizedBox(width: 12),
                       _buildWinnerCard(
+                        context,
                         name: 'Sarah Jenkins',
                         amount: 'Won ₹ 320,000',
                         date: 'October 05, 2023',
@@ -438,6 +444,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       ),
                       const SizedBox(width: 12),
                       _buildWinnerCard(
+                        context,
                         name: 'David Miller',
                         amount: 'Won ₹ 150,000',
                         date: 'September 28, 2023',
@@ -451,14 +458,14 @@ class _LotteryScreenState extends State<LotteryScreen> {
                 // 3. Past Results History Section
                 Row(
                   children: [
-                    const Icon(Icons.history_rounded, color: Color(0xFF0F4C3A), size: 20),
+                    Icon(Icons.history_rounded, color: theme.colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       'Past Results History',
                       style: GoogleFonts.outfit(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -468,7 +475,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                    border: Border.all(color: AppColors.borderMuted),
                   ),
                   child: Column(
                     children: [
@@ -476,7 +483,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: const BoxDecoration(
-                          color: Color(0xFFF1F5F9),
+                          color: AppColors.backgroundSoft,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(20),
                             topRight: Radius.circular(20),
@@ -492,7 +499,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                                 style: GoogleFonts.outfit(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF64748B),
+                                  color: AppColors.textSecondary,
                                 ),
                               ),
                             ),
@@ -504,7 +511,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                                   style: GoogleFonts.outfit(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF64748B),
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                               ),
@@ -518,7 +525,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                                   style: GoogleFonts.outfit(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF64748B),
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                               ),
@@ -528,22 +535,25 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       ),
                       // History rows
                       _buildHistoryRow(
+                        context,
                         date: 'Oct 12, 2023',
                         drawId: 'Draw #452',
                         numbers: '88-29-01-44',
                         pool: '1,200,000',
                         isSpecial: true,
                       ),
-                      const Divider(color: Color(0xFFF1F5F9), height: 1),
+                      const Divider(color: AppColors.backgroundSoft, height: 1),
                       _buildHistoryRow(
+                        context,
                         date: 'Oct 05, 2023',
                         drawId: 'Draw #451',
                         numbers: '12-45-78-23',
                         pool: '950,000',
                         isSpecial: false,
                       ),
-                      const Divider(color: Color(0xFFF1F5F9), height: 1),
+                      const Divider(color: AppColors.backgroundSoft, height: 1),
                       _buildHistoryRow(
+                        context,
                         date: 'Sep 28, 2023',
                         drawId: 'Draw #450',
                         numbers: '09-17-31-88',
@@ -559,7 +569,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                 OutlinedButton(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    side: const BorderSide(color: AppColors.borderLight),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -570,7 +580,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                     style: GoogleFonts.outfit(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF475569),
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ),
@@ -584,7 +594,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
             right: 16,
             child: FloatingActionButton(
               onPressed: _showBuyTicketDialog,
-              backgroundColor: const Color(0xFF0F4C3A),
+              backgroundColor: theme.colorScheme.primary,
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               child: const Icon(
@@ -600,7 +610,8 @@ class _LotteryScreenState extends State<LotteryScreen> {
   }
 
   // Timer item builder helper
-  Widget _buildCountdownItem(int value, String label) {
+  Widget _buildCountdownItem(BuildContext context, int value, String label) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Text(
@@ -608,7 +619,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
           style: GoogleFonts.outfit(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF0F4C3A),
+            color: theme.colorScheme.primary,
           ),
         ),
         const SizedBox(height: 2),
@@ -616,7 +627,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
           label,
           style: GoogleFonts.outfit(
             fontSize: 10,
-            color: const Color(0xFF94A3B8),
+            color: AppColors.textMuted,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -625,7 +636,8 @@ class _LotteryScreenState extends State<LotteryScreen> {
   }
 
   // Countdown divider helper
-  Widget _buildCountdownDivider() {
+  Widget _buildCountdownDivider(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Text(
@@ -633,26 +645,28 @@ class _LotteryScreenState extends State<LotteryScreen> {
         style: GoogleFonts.outfit(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: const Color(0xFF0F4C3A),
+          color: theme.colorScheme.primary,
         ),
       ),
     );
   }
 
   // Winner Card builder helper
-  Widget _buildWinnerCard({
+  Widget _buildWinnerCard(
+    BuildContext context, {
     required String name,
     required String amount,
     required String date,
     required String imageUrl,
   }) {
+    final theme = Theme.of(context);
     return Container(
       width: 220,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
         children: [
@@ -666,7 +680,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
               errorBuilder: (context, error, stackTrace) => Container(
                 width: 50,
                 height: 50,
-                color: const Color(0xFF0F4C3A),
+                color: theme.colorScheme.primary,
                 child: const Icon(Icons.person, color: Colors.white, size: 20),
               ),
             ),
@@ -684,7 +698,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 Text(
@@ -692,14 +706,14 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF0F4C3A),
+                    color: theme.colorScheme.primary,
                   ),
                 ),
                 Text(
                   date,
                   style: GoogleFonts.outfit(
                     fontSize: 10,
-                    color: const Color(0xFF94A3B8),
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],
@@ -711,13 +725,15 @@ class _LotteryScreenState extends State<LotteryScreen> {
   }
 
   // History row builder helper
-  Widget _buildHistoryRow({
+  Widget _buildHistoryRow(
+    BuildContext context, {
     required String date,
     required String drawId,
     required String numbers,
     required String pool,
     required bool isSpecial,
   }) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -734,14 +750,14 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 Text(
                   drawId,
                   style: GoogleFonts.outfit(
                     fontSize: 10,
-                    color: const Color(0xFF94A3B8),
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],
@@ -754,10 +770,10 @@ class _LotteryScreenState extends State<LotteryScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isSpecial ? const Color(0xFFEEF2FA) : const Color(0xFFF1F5F9),
+                  color: isSpecial ? AppColors.lavenderSoft : AppColors.backgroundSoft,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isSpecial ? const Color(0xFFD0DDF7) : const Color(0xFFE2E8F0),
+                    color: isSpecial ? AppColors.infoBorder : AppColors.borderLight,
                   ),
                 ),
                 child: Text(
@@ -765,7 +781,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isSpecial ? const Color(0xFF0F4C3A) : const Color(0xFF475569),
+                    color: isSpecial ? theme.colorScheme.primary : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -782,7 +798,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF0F4C3A),
+                    color: theme.colorScheme.primary,
                   ),
                   children: [
                     TextSpan(text: pool),
@@ -791,7 +807,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       style: GoogleFonts.outfit(
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],

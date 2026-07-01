@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../constants/app_colors.dart';
 import '../home_screen.dart';
 
 class TraderTab extends StatelessWidget {
@@ -16,8 +17,8 @@ class TraderTab extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [
-                Color(0xFF0F4C3A),
-                Color(0xFF0A3427),
+                AppColors.primaryGreen,
+                AppColors.primaryDark,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -79,19 +80,19 @@ class TraderTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: AppColors.borderMuted),
           ),
           child: Column(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFF0F5F2),
+                  color: AppColors.lightGreenTint,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.people_alt_rounded,
-                  color: Color(0xFF0F4C3A),
+                  color: AppColors.primaryGreen,
                   size: 24,
                 ),
               ),
@@ -101,7 +102,7 @@ class TraderTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF0F4C3A),
+                  color: AppColors.primaryGreen,
                 ),
               ),
               const SizedBox(height: 12),
@@ -110,7 +111,7 @@ class TraderTab extends StatelessWidget {
                   HomeScreen.activeTabNotifier.value = 1; // Switch to Community tab
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F4C3A),
+                  backgroundColor: AppColors.primaryGreen,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -140,7 +141,7 @@ class TraderTab extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF111827),
+                color: AppColors.textDark,
               ),
             ),
             TextButton(
@@ -148,7 +149,7 @@ class TraderTab extends StatelessWidget {
               child: Text(
                 'See all',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.textSecondary,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -168,21 +169,25 @@ class TraderTab extends StatelessWidget {
           childAspectRatio: 0.85,
           children: [
             _buildMaterialCard(
+              context,
               'Cement',
               '₹385/kg',
               'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=300',
             ),
             _buildMaterialCard(
+              context,
               'Concrete',
               '₹4500/m³',
               'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=300',
             ),
             _buildMaterialCard(
+              context,
               'Bricks',
               '₹ 7 / per brick',
               'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300',
             ),
             _buildMaterialCard(
+              context,
               'Steel',
               '₹85/gm',
               'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=300',
@@ -197,7 +202,7 @@ class TraderTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: AppColors.borderMuted),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -207,7 +212,7 @@ class TraderTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF111827),
+                  color: AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 24),
@@ -221,12 +226,12 @@ class TraderTab extends StatelessWidget {
                         child: SizedBox(
                           width: 130,
                           height: 130,
-                          child: CircularProgressIndicator(
+                          child: const CircularProgressIndicator(
                             value: 0.72,
                             strokeWidth: 12,
-                            backgroundColor: const Color(0xFFE5E7EB),
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFF0F4C3A),
+                            backgroundColor: AppColors.borderMuted,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.primaryGreen,
                             ),
                           ),
                         ),
@@ -240,14 +245,14 @@ class TraderTab extends StatelessWidget {
                               style: GoogleFonts.outfit(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF0F4C3A),
+                                color: AppColors.primaryGreen,
                               ),
                             ),
                             Text(
                               'Paid',
                               style: GoogleFonts.outfit(
                                 fontSize: 12,
-                                color: const Color(0xFF6B7280),
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],
@@ -268,7 +273,7 @@ class TraderTab extends StatelessWidget {
                         height: 8,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFF0F4C3A),
+                          color: AppColors.primaryGreen,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -277,7 +282,7 @@ class TraderTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF374151),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ],
@@ -289,7 +294,7 @@ class TraderTab extends StatelessWidget {
                         height: 8,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFFBFDBFE),
+                          color: AppColors.accentBlue,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -298,7 +303,7 @@ class TraderTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF374151),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ],
@@ -319,7 +324,7 @@ class TraderTab extends StatelessWidget {
               style: GoogleFonts.outfit(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF111827),
+                color: AppColors.textDark,
               ),
             ),
             IconButton(
@@ -332,6 +337,7 @@ class TraderTab extends StatelessWidget {
 
         // Installment History Items
         _buildHistoryItem(
+          context,
           title: 'Cement Bulk Order #827',
           date: '24 Oct, 2023 • 14:20',
           amount: '+ ₹ 24,500',
@@ -340,6 +346,7 @@ class TraderTab extends StatelessWidget {
           icon: Icons.store_rounded,
         ),
         _buildHistoryItem(
+          context,
           title: 'Concrete Mixture Installment',
           date: '22 Oct, 2023 • 09:15',
           amount: '+ ₹ 18,200',
@@ -348,6 +355,7 @@ class TraderTab extends StatelessWidget {
           icon: Icons.local_shipping_rounded,
         ),
         _buildHistoryItem(
+          context,
           title: 'Steel Rebar Purchase',
           date: '20 Oct, 2023 • 18:45',
           amount: '₹ 42,000',
@@ -360,12 +368,12 @@ class TraderTab extends StatelessWidget {
     );
   }
 
-  Widget _buildMaterialCard(String title, String price, String imageUrl) {
+  Widget _buildMaterialCard(BuildContext context, String title, String price, String imageUrl) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.borderMuted),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -380,7 +388,7 @@ class TraderTab extends StatelessWidget {
                 imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  color: const Color(0xFF0F4C3A),
+                  color: AppColors.primaryGreen,
                   child: const Icon(Icons.broken_image, color: Colors.white, size: 30),
                 ),
               ),
@@ -396,7 +404,7 @@ class TraderTab extends StatelessWidget {
                   style: GoogleFonts.outfit(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -404,7 +412,7 @@ class TraderTab extends StatelessWidget {
                   price,
                   style: GoogleFonts.outfit(
                     fontSize: 12,
-                    color: const Color(0xFF0F4C3A),
+                    color: AppColors.primaryGreen,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -416,7 +424,8 @@ class TraderTab extends StatelessWidget {
     );
   }
 
-  Widget _buildHistoryItem({
+  Widget _buildHistoryItem(
+    BuildContext context, {
     required String title,
     required String date,
     required String amount,
@@ -430,19 +439,19 @@ class TraderTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.borderMuted),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isSuccess ? const Color(0xFFF0F5F2) : const Color(0xFFFEF2F2),
+              color: isSuccess ? AppColors.lightGreenTint : AppColors.errorLight,
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              color: isSuccess ? const Color(0xFF0F4C3A) : const Color(0xFFEF4444),
+              color: isSuccess ? AppColors.primaryGreen : AppColors.errorAccent,
               size: 20,
             ),
           ),
@@ -458,7 +467,7 @@ class TraderTab extends StatelessWidget {
                   style: GoogleFonts.outfit(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -466,7 +475,7 @@ class TraderTab extends StatelessWidget {
                   date,
                   style: GoogleFonts.outfit(
                     fontSize: 10,
-                    color: const Color(0xFF9CA3AF),
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],
@@ -481,7 +490,7 @@ class TraderTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: isSuccess ? const Color(0xFF0F4C3A) : const Color(0xFFEF4444),
+                  color: isSuccess ? AppColors.primaryGreen : AppColors.errorAccent,
                 ),
               ),
               const SizedBox(height: 2),
@@ -490,7 +499,7 @@ class TraderTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 9,
                   fontWeight: FontWeight.bold,
-                  color: isSuccess ? const Color(0xFF10B981) : const Color(0xFFFBBF24),
+                  color: isSuccess ? AppColors.successGreen : AppColors.warningAmber,
                 ),
               ),
             ],

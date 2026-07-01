@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/otp_input_field.dart';
+import '../../constants/app_colors.dart';
 import '../home/home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -59,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 }
                 Navigator.pop(context);
               },
-              child: Text('Save', style: GoogleFonts.outfit(color: const Color(0xFF0F4C3A))),
+              child: Text('Save', style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.primary)),
             ),
           ],
         );
@@ -102,6 +103,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -121,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F4C3A), // Forest green
+                    color: theme.colorScheme.primary, // Forest green
                     letterSpacing: -1.0,
                   ),
                 ),
@@ -135,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF111827),
+                    color: theme.colorScheme.onSurface,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -145,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 15,
-                    color: const Color(0xFF6B7280),
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
 
@@ -155,10 +158,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Container(
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF4F6FA), // Tinted card color
+                    color: AppColors.backgroundSoft, // Tinted card color
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: const Color(0xFFE5E7EB),
+                      color: AppColors.borderMuted,
                       width: 1,
                     ),
                   ),
@@ -172,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFFE5E7EB),
+                            color: AppColors.borderMuted,
                           ),
                         ),
                         child: Row(
@@ -186,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     'OTP sent to',
                                     style: GoogleFonts.outfit(
                                       fontSize: 12,
-                                      color: const Color(0xFF0F4C3A),
+                                      color: theme.colorScheme.primary,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -197,7 +200,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     style: GoogleFonts.outfit(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF111827),
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
                                 ],
@@ -211,7 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 style: GoogleFonts.outfit(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF0F4C3A),
+                                  color: theme.colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -227,7 +230,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF374151),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -236,18 +239,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           hintText: 'John Doe',
                           hintStyle: GoogleFonts.outfit(
-                            color: const Color(0xFFBCBCBC),
+                            color: AppColors.textMuted,
                           ),
                           filled: true,
                           fillColor: Colors.white,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                            borderSide: const BorderSide(color: AppColors.borderMuted),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF0F4C3A), width: 1.5),
+                            borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
                           ),
                           errorStyle: GoogleFonts.outfit(fontSize: 12),
                         ),
@@ -267,7 +270,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF374151),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -294,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             style: GoogleFonts.outfit(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF0F4C3A),
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                         ),
@@ -308,7 +311,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF374151),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -318,13 +321,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           hintText: 'At least 6 characters',
                           hintStyle: GoogleFonts.outfit(
-                            color: const Color(0xFFBCBCBC),
+                            color: AppColors.textMuted,
                           ),
                           filled: true,
                           fillColor: Colors.white,
                           prefixIcon: const Icon(
                             Icons.lock_outline_rounded,
-                            color: Color(0xFF9CA3AF),
+                            color: AppColors.textMuted,
                             size: 20,
                           ),
                           suffixIcon: IconButton(
@@ -332,7 +335,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _isPasswordObscured
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: const Color(0xFF9CA3AF),
+                              color: AppColors.textMuted,
                               size: 20,
                             ),
                             onPressed: () {
@@ -343,11 +346,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                            borderSide: const BorderSide(color: AppColors.borderMuted),
                           ),
-                          focusedBorder: OutlineInputBorder(
+                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF0F4C3A), width: 1.5),
+                            borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
                           ),
                           errorStyle: GoogleFonts.outfit(fontSize: 12),
                         ),
@@ -370,7 +373,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF374151),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -380,13 +383,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           hintText: 'At least 6 characters',
                           hintStyle: GoogleFonts.outfit(
-                            color: const Color(0xFFBCBCBC),
+                            color: AppColors.textMuted,
                           ),
                           filled: true,
                           fillColor: Colors.white,
                           prefixIcon: const Icon(
                             Icons.lock_outline_rounded,
-                            color: Color(0xFF9CA3AF),
+                            color: AppColors.textMuted,
                             size: 20,
                           ),
                           suffixIcon: IconButton(
@@ -394,7 +397,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _isConfirmPasswordObscured
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: const Color(0xFF9CA3AF),
+                              color: AppColors.textMuted,
                               size: 20,
                             ),
                             onPressed: () {
@@ -405,11 +408,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                            borderSide: const BorderSide(color: AppColors.borderMuted),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF0F4C3A), width: 1.5),
+                            borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
                           ),
                           errorStyle: GoogleFonts.outfit(fontSize: 12),
                         ),
@@ -430,7 +433,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F4C3A), // Deep forest green
+                          backgroundColor: theme.colorScheme.primary, // Deep forest green
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -488,14 +491,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Text(
                         "Already have an account? ",
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF6B7280),
+                          color: theme.colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
                       Text(
                         "Login",
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF0F4C3A),
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -513,6 +516,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildFooterLink(String label) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -529,7 +533,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         style: GoogleFonts.outfit(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF6B7280),
+          color: theme.colorScheme.onSurfaceVariant,
         ),
       ),
     );

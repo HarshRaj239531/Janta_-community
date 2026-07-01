@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/app_colors.dart';
 import '../../widgets/custom_bottom_navbar.dart';
 import '../terms_conditions/terms_conditions_screen.dart';
 
@@ -47,20 +48,21 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F8),
+      backgroundColor: AppColors.backgroundSoft,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0F4C3A)),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Community Details',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF0F4C3A),
+            color: theme.colorScheme.primary,
             fontSize: 20,
           ),
         ),
@@ -77,7 +79,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                 errorBuilder: (context, error, stackTrace) => Container(
                   width: 36,
                   height: 36,
-                  color: const Color(0xFF0F4C3A),
+                  color: theme.colorScheme.primary,
                   child: const Icon(Icons.person, color: Colors.white, size: 18),
                 ),
               ),
@@ -103,7 +105,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0F4C3A),
+                          color: theme.colorScheme.primary,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Icon(
@@ -123,7 +125,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                         style: GoogleFonts.outfit(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -132,9 +134,9 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildGroupBadge(widget.groupId, false),
+                        _buildGroupBadge(context, widget.groupId, false),
                         const SizedBox(width: 8),
-                        _buildGroupBadge(widget.category, true),
+                        _buildGroupBadge(context, widget.category, true),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -145,7 +147,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                        border: Border.all(color: AppColors.borderMuted),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,16 +157,16 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                             style: GoogleFonts.outfit(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF9CA3AF),
+                              color: AppColors.textMuted,
                               letterSpacing: 0.5,
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildSummaryRow('Plan', widget.plan, true),
+                          _buildSummaryRow(context, 'Plan', widget.plan, true),
                           const SizedBox(height: 12),
-                          _buildSummaryRow('Goal', widget.goal, false),
+                          _buildSummaryRow(context, 'Goal', widget.goal, false),
                           const SizedBox(height: 12),
-                          _buildSummaryRow('Return', widget.returnRate, true),
+                          _buildSummaryRow(context, 'Return', widget.returnRate, true),
                         ],
                       ),
                     ),
@@ -201,15 +203,15 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
 
                     // 5. Monthly Declaration Box
                     Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF3F5FC),
-                        borderRadius: BorderRadius.only(
+                      decoration: BoxDecoration(
+                        color: AppColors.containerBgSoft,
+                        borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(12),
                           bottomRight: Radius.circular(12),
                         ),
                         border: Border(
                           left: BorderSide(
-                            color: Color(0xFF0F4C3A),
+                            color: theme.colorScheme.primary,
                             width: 4,
                           ),
                         ),
@@ -219,7 +221,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                         'By confirming, you agree to start your monthly contribution of ${widget.plan.replaceAll('Monthly ', '').replaceAll('Daily ', '')} to the ${widget.name} pool. Your first contribution will be debited within 24 hours.',
                         style: GoogleFonts.outfit(
                           fontSize: 13,
-                          color: const Color(0xFF475569),
+                          color: AppColors.textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -232,7 +234,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                       child: ElevatedButton(
                         onPressed: _confirmMembership,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F4C3A),
+                          backgroundColor: theme.colorScheme.primary,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -254,7 +256,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                         'View Terms & Conditions',
                         style: GoogleFonts.outfit(
                           fontSize: 12,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.textSecondary,
                           decoration: TextDecoration.underline,
                           fontWeight: FontWeight.w500,
                         ),
@@ -280,11 +282,12 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
   }
 
   // Group Badges builder helper
-  Widget _buildGroupBadge(String label, bool isCategory) {
+  Widget _buildGroupBadge(BuildContext context, String label, bool isCategory) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isCategory ? const Color(0xFFD1FAE5) : const Color(0xFFEEF2F6),
+        color: isCategory ? AppColors.successLight : AppColors.lavenderSoft,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
@@ -292,14 +295,15 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
         style: GoogleFonts.outfit(
           fontSize: 11,
           fontWeight: FontWeight.bold,
-          color: isCategory ? const Color(0xFF0F4C3A) : const Color(0xFF6B7280),
+          color: isCategory ? theme.colorScheme.primary : AppColors.textSecondary,
         ),
       ),
     );
   }
 
   // Summary row builder helper
-  Widget _buildSummaryRow(String key, String value, bool isGreen) {
+  Widget _buildSummaryRow(BuildContext context, String key, String value, bool isGreen) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -307,7 +311,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
           key,
           style: GoogleFonts.outfit(
             fontSize: 14,
-            color: const Color(0xFF6B7280),
+            color: AppColors.textSecondary,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -316,7 +320,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
           style: GoogleFonts.outfit(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: isGreen ? const Color(0xFF0F4C3A) : const Color(0xFF1E293B),
+            color: isGreen ? theme.colorScheme.primary : AppColors.textPrimary,
           ),
         ),
       ],
@@ -333,9 +337,9 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEEF2FA), // Light blue tint
+        color: AppColors.lavenderSoft, // Light blue tint
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
         mainAxisAlignment: isFullWidth ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
@@ -344,7 +348,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
             children: [
               Icon(
                 icon,
-                color: const Color(0xFF0F4C3A),
+                color: AppColors.primaryGreen,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -355,7 +359,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                     title,
                     style: GoogleFonts.outfit(
                       fontSize: 11,
-                      color: const Color(0xFF6B7280),
+                      color: AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -365,7 +369,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                     style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1E293B),
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],
@@ -375,7 +379,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
           if (isFullWidth)
             const Icon(
               Icons.info_outline_rounded,
-              color: Color(0xFF94A3B8),
+              color: AppColors.textMuted,
               size: 18,
             ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../constants/app_colors.dart';
 
 class LoanDetailTab extends StatelessWidget {
   final VoidCallback onPayEmiPressed;
@@ -11,6 +12,7 @@ class LoanDetailTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -19,15 +21,15 @@ class LoanDetailTab extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderLight),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(
                   left: BorderSide(
-                    color: Color(0xFF0F4C3A),
+                    color: theme.colorScheme.primary,
                     width: 4,
                   ),
                 ),
@@ -44,13 +46,13 @@ class LoanDetailTab extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE6F0EA),
+                          color: theme.colorScheme.primary.withAlpha(25),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
@@ -58,7 +60,7 @@ class LoanDetailTab extends StatelessWidget {
                           style: GoogleFonts.outfit(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF0F4C3A),
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ),
@@ -70,7 +72,7 @@ class LoanDetailTab extends StatelessWidget {
                     style: GoogleFonts.outfit(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF94A3B8),
+                      color: AppColors.textMuted,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -85,7 +87,7 @@ class LoanDetailTab extends StatelessWidget {
                               'Loan Amount',
                               style: GoogleFonts.outfit(
                                 fontSize: 11,
-                                color: const Color(0xFF64748B),
+                                color: AppColors.textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -95,7 +97,7 @@ class LoanDetailTab extends StatelessWidget {
                               style: GoogleFonts.outfit(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF1E293B),
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ],
@@ -109,7 +111,7 @@ class LoanDetailTab extends StatelessWidget {
                               'Principal Outstanding',
                               style: GoogleFonts.outfit(
                                 fontSize: 11,
-                                color: const Color(0xFF64748B),
+                                color: AppColors.textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -119,7 +121,7 @@ class LoanDetailTab extends StatelessWidget {
                               style: GoogleFonts.outfit(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF0F4C3A),
+                                color: theme.colorScheme.primary,
                               ),
                             ),
                           ],
@@ -128,21 +130,21 @@ class LoanDetailTab extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  const Divider(color: Color(0xFFE2E8F0), height: 1),
+                  const Divider(color: AppColors.borderLight, height: 1),
                   const SizedBox(height: 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today_rounded, color: Color(0xFF64748B), size: 16),
+                          const Icon(Icons.calendar_today_rounded, color: AppColors.textSecondary, size: 16),
                           const SizedBox(width: 8),
                           Text(
                             'EMI Paid: 12/24',
                             style: GoogleFonts.outfit(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF475569),
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -151,10 +153,10 @@ class LoanDetailTab extends StatelessWidget {
                         width: 90,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(4),
-                          child: const LinearProgressIndicator(
+                          child: LinearProgressIndicator(
                             value: 0.5,
-                            backgroundColor: Color(0xFFEEF2FA),
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F4C3A)),
+                            backgroundColor: AppColors.lavenderSoft,
+                            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                             minHeight: 6,
                           ),
                         ),
@@ -172,23 +174,23 @@ class LoanDetailTab extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFEEF2FA),
+            color: AppColors.lavenderSoft,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderLight),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.access_time_rounded, color: Color(0xFF0F4C3A), size: 18),
+                  Icon(Icons.access_time_rounded, color: theme.colorScheme.primary, size: 18),
                   const SizedBox(width: 8),
                   Text(
                     'Repayment Schedule',
                     style: GoogleFonts.outfit(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF0F4C3A),
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ],
@@ -244,9 +246,9 @@ class LoanDetailTab extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: const Color(0xFFEEF2FA),
+            color: AppColors.lavenderSoft,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.borderLight),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -256,19 +258,19 @@ class LoanDetailTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                 ),
               ),
               Row(
                 children: [
-                  const Icon(Icons.sync_rounded, color: Color(0xFF0F4C3A), size: 16),
+                  Icon(Icons.sync_rounded, color: theme.colorScheme.primary, size: 16),
                   const SizedBox(width: 6),
                   Text(
                     'Monthly',
                     style: GoogleFonts.outfit(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF0F4C3A),
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ],
@@ -296,7 +298,7 @@ class LoanDetailTab extends StatelessWidget {
             style: GoogleFonts.outfit(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF94A3B8),
+              color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 4),
@@ -305,7 +307,7 @@ class LoanDetailTab extends StatelessWidget {
             style: GoogleFonts.outfit(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: isGreen ? const Color(0xFF10B981) : const Color(0xFF1E293B),
+              color: isGreen ? AppColors.successGreen : AppColors.textPrimary,
             ),
           ),
         ],
@@ -314,11 +316,11 @@ class LoanDetailTab extends StatelessWidget {
   }
 
   Widget _buildMetricItem(String title, String value, bool isRed, bool isGreen) {
-    Color valueColor = const Color(0xFF1E293B);
+    Color valueColor = AppColors.textPrimary;
     if (isRed) {
-      valueColor = const Color(0xFFEF4444);
+      valueColor = AppColors.errorAccent;
     } else if (isGreen) {
-      valueColor = const Color(0xFF10B981);
+      valueColor = AppColors.successGreen;
     }
 
     return Container(
@@ -326,7 +328,7 @@ class LoanDetailTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,7 +337,7 @@ class LoanDetailTab extends StatelessWidget {
             title,
             style: GoogleFonts.outfit(
               fontSize: 11,
-              color: const Color(0xFF64748B),
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),

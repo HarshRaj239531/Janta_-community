@@ -76,7 +76,7 @@ class _OtpInputFieldState extends State<OtpInputField> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _focusNode.hasFocus
-                    ? const Color(0xFF0F4C3A) // Forest green focus
+                    ? Theme.of(context).colorScheme.primary // Forest green focus
                     : const Color(0xFFE5E7EB), // Muted grey border
                 width: 1.5,
               ),
@@ -86,6 +86,7 @@ class _OtpInputFieldState extends State<OtpInputField> {
               children: List.generate(6, (index) {
                 final isFilled = index < _currentLength;
                 final isCurrent = index == _currentLength && _focusNode.hasFocus;
+                final theme = Theme.of(context);
 
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
@@ -94,14 +95,14 @@ class _OtpInputFieldState extends State<OtpInputField> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isFilled
-                        ? const Color(0xFF374151) // Dark grey dot when filled
+                        ? theme.colorScheme.onSurface // Dark grey dot when filled
                         : Colors.transparent,
                     border: Border.all(
                       color: isFilled
-                          ? const Color(0xFF374151)
+                          ? theme.colorScheme.onSurface
                           : isCurrent
-                              ? const Color(0xFF0F4C3A)
-                              : const Color(0xFF9CA3AF),
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurfaceVariant,
                       width: isFilled ? 1 : 2,
                     ),
                   ),
@@ -110,9 +111,9 @@ class _OtpInputFieldState extends State<OtpInputField> {
                           child: Container(
                             width: 4,
                             height: 4,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(0xFF9CA3AF),
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         )

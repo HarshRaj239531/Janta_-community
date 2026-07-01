@@ -27,25 +27,26 @@ class CustomBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Expanded(child: _buildNavItem(0, Icons.home_rounded, 'Home')),
-          Expanded(child: _buildNavItem(1, Icons.people_alt_rounded, 'Community')),
-          Expanded(child: _buildNavItem(2, Icons.local_activity_rounded, 'Lottery')),
-          Expanded(child: _buildNavItem(3, Icons.monetization_on_rounded, 'Loan')),
-          Expanded(child: _buildNavItem(4, Icons.settings_rounded, 'Settings')),
+          Expanded(child: _buildNavItem(context, 0, Icons.home_rounded, 'Home')),
+          Expanded(child: _buildNavItem(context, 1, Icons.people_alt_rounded, 'Community')),
+          Expanded(child: _buildNavItem(context, 2, Icons.local_activity_rounded, 'Lottery')),
+          Expanded(child: _buildNavItem(context, 3, Icons.monetization_on_rounded, 'Loan')),
+          Expanded(child: _buildNavItem(context, 4, Icons.settings_rounded, 'Settings')),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
     final isActive = selectedIndex == index;
+    final theme = Theme.of(context);
 
     if (isActive) {
       return Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F4C3A), // Dark Green pill background
+            color: theme.colorScheme.primary, // Dark Green pill background
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -53,7 +54,7 @@ class CustomBottomNavBar extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: const Color(0xFF92D7B1), // Mint active color
+                color: theme.colorScheme.secondary, // Mint active color
                 size: 24,
               ),
               const SizedBox(height: 2),
@@ -62,7 +63,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF92D7B1),
+                  color: theme.colorScheme.secondary,
                 ),
               ),
             ],
@@ -79,7 +80,7 @@ class CustomBottomNavBar extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: const Color(0xFF6B7280), // Muted grey
+                color: theme.colorScheme.onSurfaceVariant, // Muted grey
                 size: 24,
               ),
               const SizedBox(height: 4),
@@ -88,7 +89,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF6B7280),
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
