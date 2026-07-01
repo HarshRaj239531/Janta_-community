@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'home_screen.dart';
+import '../../constants/app_colors.dart';
+import '../home/home_screen.dart';
 
 class MembershipStatusScreen extends StatelessWidget {
   final String name;
@@ -17,21 +18,22 @@ class MembershipStatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cleanPlanValue = plan.replaceAll('Monthly ', '').replaceAll('Daily ', '');
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F8),
+      backgroundColor: AppColors.backgroundSoft,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0F4C3A)),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Membership Status',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF0F4C3A),
+            color: theme.colorScheme.primary,
             fontSize: 20,
           ),
         ),
@@ -51,7 +53,7 @@ class MembershipStatusScreen extends StatelessWidget {
                         width: 70,
                         height: 70,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0F4C3A),
+                          color: theme.colorScheme.primary,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Icon(
@@ -68,7 +70,7 @@ class MembershipStatusScreen extends StatelessWidget {
                       style: GoogleFonts.outfit(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -77,7 +79,7 @@ class MembershipStatusScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
                         fontSize: 12,
-                        color: const Color(0xFF6B7280),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -88,7 +90,7 @@ class MembershipStatusScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                        border: Border.all(color: AppColors.borderMuted),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +100,7 @@ class MembershipStatusScreen extends StatelessWidget {
                             style: GoogleFonts.outfit(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF0F4C3A),
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -106,13 +108,14 @@ class MembershipStatusScreen extends StatelessWidget {
                             'We are currently reviewing your documents. This usually takes 24–48 hours.',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
-                              color: const Color(0xFF6B7280),
+                              color: AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 24),
 
                           // Custom Timeline Stepper
                           _buildTimelineStep(
+                            context,
                             isCompleted: true,
                             isActive: false,
                             title: 'Application Submitted',
@@ -121,6 +124,7 @@ class MembershipStatusScreen extends StatelessWidget {
                             showLine: true,
                           ),
                           _buildTimelineStep(
+                            context,
                             isCompleted: false,
                             isActive: true,
                             title: 'Document Verification',
@@ -129,6 +133,7 @@ class MembershipStatusScreen extends StatelessWidget {
                             showLine: true,
                           ),
                           _buildTimelineStep(
+                            context,
                             isCompleted: false,
                             isActive: false,
                             title: 'Final Approval',
@@ -145,23 +150,23 @@ class MembershipStatusScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEEF2FA), // Lavender tint
+                        color: AppColors.lavenderSoft, // Lavender tint
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: AppColors.borderLight),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.info_outline_rounded, color: Color(0xFF64748B), size: 18),
+                              const Icon(Icons.info_outline_rounded, color: AppColors.textSecondary, size: 18),
                               const SizedBox(width: 8),
                               Text(
                                 'GROUP DETAILS',
                                 style: GoogleFonts.outfit(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF64748B),
+                                  color: AppColors.textSecondary,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -178,12 +183,12 @@ class MembershipStatusScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE2E8F0),
+                              color: AppColors.borderLight,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.shield_outlined, color: Color(0xFF0F4C3A), size: 18),
+                                Icon(Icons.shield_outlined, color: theme.colorScheme.primary, size: 18),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
@@ -191,7 +196,7 @@ class MembershipStatusScreen extends StatelessWidget {
                                     style: GoogleFonts.outfit(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF334155),
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                 )
@@ -213,9 +218,9 @@ class MembershipStatusScreen extends StatelessWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFF0F4C3A), Color(0xFF0A3427)],
+                                  colors: [theme.colorScheme.primary, AppColors.primaryDark],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -232,12 +237,12 @@ class MembershipStatusScreen extends StatelessWidget {
                             return Container(
                               color: Colors.grey.shade100,
                               alignment: Alignment.center,
-                              child: const SizedBox(
+                              child: SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F4C3A)),
+                                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                                 ),
                               ),
                             );
@@ -281,7 +286,7 @@ class MembershipStatusScreen extends StatelessWidget {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F4C3A),
+                    backgroundColor: theme.colorScheme.primary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -312,7 +317,7 @@ class MembershipStatusScreen extends StatelessWidget {
             style: GoogleFonts.outfit(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           Text(
@@ -320,7 +325,7 @@ class MembershipStatusScreen extends StatelessWidget {
             style: GoogleFonts.outfit(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -329,7 +334,8 @@ class MembershipStatusScreen extends StatelessWidget {
   }
 
   // Timeline Stepper builder helper
-  Widget _buildTimelineStep({
+  Widget _buildTimelineStep(
+    BuildContext context, {
     required bool isCompleted,
     required bool isActive,
     required String title,
@@ -337,18 +343,19 @@ class MembershipStatusScreen extends StatelessWidget {
     required IconData icon,
     required bool showLine,
   }) {
+    final theme = Theme.of(context);
     Color iconColor;
     Color titleColor;
 
     if (isCompleted) {
-      iconColor = const Color(0xFF0F4C3A);
-      titleColor = const Color(0xFF1F2937);
+      iconColor = theme.colorScheme.primary;
+      titleColor = AppColors.textPrimary;
     } else if (isActive) {
-      iconColor = const Color(0xFF10B981);
-      titleColor = const Color(0xFF0F4C3A);
+      iconColor = AppColors.successGreen;
+      titleColor = theme.colorScheme.primary;
     } else {
-      iconColor = const Color(0xFFCBD5E1);
-      titleColor = const Color(0xFF94A3B8);
+      iconColor = AppColors.timelineMuted;
+      titleColor = AppColors.textMuted;
     }
 
     return IntrinsicHeight(
@@ -367,7 +374,7 @@ class MembershipStatusScreen extends StatelessWidget {
                 Expanded(
                   child: Container(
                     width: 2,
-                    color: isCompleted ? const Color(0xFF0F4C3A) : const Color(0xFFE2E8F0),
+                    color: isCompleted ? theme.colorScheme.primary : AppColors.borderLight,
                     margin: const EdgeInsets.symmetric(vertical: 4),
                   ),
                 ),
@@ -392,7 +399,7 @@ class MembershipStatusScreen extends StatelessWidget {
                   description,
                   style: GoogleFonts.outfit(
                     fontSize: 11,
-                    color: const Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     height: 1.3,
                   ),
                 ),

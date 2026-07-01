@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../constants/app_colors.dart';
 
 class SecureChipWidget extends StatefulWidget {
   const SecureChipWidget({super.key});
@@ -43,7 +44,7 @@ class _SecureChipWidgetState extends State<SecureChipWidget>
           ),
         ],
         border: Border.all(
-          color: const Color(0xFFE5E7EB),
+          color: Theme.of(context).colorScheme.outline,
           width: 1,
         ),
       ),
@@ -105,10 +106,10 @@ class _SecureChipWidgetState extends State<SecureChipWidget>
                           height: 8,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFF10B981),
+                            color: AppColors.successGreen,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF10B981).withAlpha((_controller.value * 255).round()),
+                                color: AppColors.successGreen.withAlpha((_controller.value * 255).round()),
                                 blurRadius: 6,
                                 spreadRadius: _controller.value * 2,
                               ),

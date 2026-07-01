@@ -27,58 +27,60 @@ class CustomBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(0, Icons.home_rounded, 'Home'),
-          _buildNavItem(1, Icons.people_alt_rounded, 'Community'),
-          _buildNavItem(2, Icons.local_activity_rounded, 'Lottery'),
-          _buildNavItem(3, Icons.monetization_on_rounded, 'Loan'),
-          _buildNavItem(4, Icons.settings_rounded, 'Settings'),
+          Expanded(child: _buildNavItem(context, 0, Icons.home_rounded, 'Home')),
+          Expanded(child: _buildNavItem(context, 1, Icons.people_alt_rounded, 'Community')),
+          Expanded(child: _buildNavItem(context, 2, Icons.local_activity_rounded, 'Lottery')),
+          Expanded(child: _buildNavItem(context, 3, Icons.monetization_on_rounded, 'Loan')),
+          Expanded(child: _buildNavItem(context, 4, Icons.settings_rounded, 'Settings')),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
     final isActive = selectedIndex == index;
+    final theme = Theme.of(context);
 
     if (isActive) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0F4C3A), // Dark Green pill background
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: const Color(0xFF92D7B1), // Mint active color
-              size: 24,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: GoogleFonts.outfit(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF92D7B1),
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary, // Dark Green pill background
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: theme.colorScheme.secondary, // Mint active color
+                size: 24,
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: GoogleFonts.outfit(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.secondary,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     } else {
       return GestureDetector(
         onTap: () => onTabSelected(index),
         behavior: HitTestBehavior.opaque,
-        child: SizedBox(
-          width: 60,
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
-                color: const Color(0xFF6B7280), // Muted grey
+                color: theme.colorScheme.onSurfaceVariant, // Muted grey
                 size: 24,
               ),
               const SizedBox(height: 4),
@@ -87,7 +89,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF6B7280),
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

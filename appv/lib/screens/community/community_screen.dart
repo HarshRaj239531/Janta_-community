@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'community_details_screen.dart';
+import '../../constants/app_colors.dart';
+import '../community_details/community_details_screen.dart';
 
 class CommunityScreen extends StatefulWidget {
   final bool showAppBar;
@@ -58,6 +59,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final body = SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: Column(
@@ -72,21 +74,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 style: GoogleFonts.outfit(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F4C3A),
+                  color: theme.colorScheme.primary,
                   height: 1.15,
                 ),
               ),
               // Filter Switcher
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
+                  color: AppColors.borderMuted,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding: const EdgeInsets.all(2),
                 child: Row(
                   children: [
-                    _buildFilterPill(0, 'All'),
-                    _buildFilterPill(1, 'Trending'),
+                    _buildFilterPill(context, 0, 'All'),
+                    _buildFilterPill(context, 1, 'Trending'),
                   ],
                 ),
               ),
@@ -96,6 +98,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
           // Community List Cards
           _buildCommunityCard(
+            context,
             name: 'Elite Investors Group',
             imageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=150',
             plan: 'Monthly ₹10,000',
@@ -104,6 +107,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ),
           const SizedBox(height: 16),
           _buildCommunityCard(
+            context,
             name: 'Infrastructure Collective',
             imageUrl: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?w=150',
             plan: 'Daily ₹500',
@@ -112,6 +116,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ),
           const SizedBox(height: 16),
           _buildCommunityCard(
+            context,
             name: 'Urban Developers',
             imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150',
             plan: 'Monthly ₹7,500',
@@ -125,12 +130,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
     if (widget.showAppBar) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF3F5F8),
+        backgroundColor: AppColors.backgroundSoft,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF111827)),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -138,14 +143,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
       );
     } else {
       return Container(
-        color: const Color(0xFFF3F5F8),
+        color: AppColors.backgroundSoft,
         child: body,
       );
     }
   }
 
   // Filter Pill Button builder
-  Widget _buildFilterPill(int index, String label) {
+  Widget _buildFilterPill(BuildContext context, int index, String label) {
+    final theme = Theme.of(context);
     final isActive = _activeFilterIndex == index;
     return GestureDetector(
       onTap: () {
@@ -156,7 +162,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF0F4C3A) : Colors.transparent,
+          color: isActive ? theme.colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Text(
@@ -164,7 +170,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           style: GoogleFonts.outfit(
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: isActive ? Colors.white : const Color(0xFF6B7280),
+            color: isActive ? Colors.white : AppColors.textSecondary,
           ),
         ),
       ),
@@ -172,19 +178,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   // Community list card item builder
-  Widget _buildCommunityCard({
+  Widget _buildCommunityCard(
+    BuildContext context, {
     required String name,
     required String imageUrl,
     required String plan,
     required String goal,
     required String returnRate,
   }) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.borderMuted),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(6),
@@ -209,7 +217,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: const Color(0xFF0F4C3A),
+                        color: theme.colorScheme.primary,
                         alignment: Alignment.center,
                         child: const Icon(
                           Icons.people_alt_rounded,
@@ -221,14 +229,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return Container(
-                        color: const Color(0xFFF3F4F6),
+                        color: AppColors.backgroundSoft,
                         alignment: Alignment.center,
-                        child: const SizedBox(
+                        child: SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F4C3A)),
+                            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                           ),
                         ),
                       );
@@ -243,7 +251,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF0F4C3A),
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ),
@@ -255,7 +263,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F5FC), // Muted details background
+              color: AppColors.containerBgSoft, // Muted details background
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -268,7 +276,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Divider(color: Color(0xFFE5E7EB), height: 1),
+                const Divider(color: AppColors.borderMuted, height: 1),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -292,7 +300,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 returnRate: returnRate,
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F4C3A),
+                backgroundColor: theme.colorScheme.primary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -323,7 +331,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           style: GoogleFonts.outfit(
             fontSize: 9,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF9CA3AF),
+            color: AppColors.textMuted,
             letterSpacing: 0.5,
           ),
         ),
@@ -333,7 +341,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           style: GoogleFonts.outfit(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: isReturn ? const Color(0xFF10B981) : const Color(0xFF1F2937),
+            color: isReturn ? AppColors.successGreen : AppColors.textPrimary,
           ),
         ),
       ],
