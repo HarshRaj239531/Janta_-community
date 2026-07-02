@@ -6,17 +6,18 @@ class AppTheme {
 
   static ThemeData get lightTheme {
     return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.goldAccent,
-        brightness: Brightness.light,
-      ).copyWith(
-        primary: AppColors.primaryGreen,
-        secondary: AppColors.accentMint,
-        surface: Colors.white,
-        onPrimary: Colors.white,
-        onSurface: AppColors.textPrimary,
-        onSurfaceVariant: AppColors.textSecondary,
-      ),
+      colorScheme:
+          ColorScheme.fromSeed(
+            seedColor: AppColors.goldAccent,
+            brightness: Brightness.light,
+          ).copyWith(
+            primary: AppColors.primaryGreen,
+            secondary: AppColors.accentMint,
+            surface: Colors.white,
+            onPrimary: Colors.white,
+            onSurface: AppColors.textPrimary,
+            onSurfaceVariant: AppColors.textSecondary,
+          ),
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.backgroundSoft,
     );

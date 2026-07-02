@@ -205,15 +205,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Other Tab Header layout
   Widget _buildOtherHeader() {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'FinTrust',
+          'Janta Trader',
           style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF0F4C3A), // Forest Green
+            color: theme.colorScheme.primary, // Navy Blue
             letterSpacing: -1.0,
           ),
         ),
