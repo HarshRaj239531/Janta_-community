@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../constants/app_colors.dart';
 import '../../widgets/custom_logo.dart';
 import '../login/login_screen.dart';
 
@@ -107,27 +105,9 @@ class _SplashScreenState extends State<SplashScreen> {
                     opacity: _logoOpacity,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Custom metallic gold PF logo
-                        const CustomLogo(size: 110.0),
-                        const SizedBox(height: 12),
-                        // Golden text name "ProsperFin"
-                        ShaderMask(
-                          shaderCallback: (bounds) => const LinearGradient(
-                            colors: AppColors.goldGradient,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ).createShader(bounds),
-                          child: Text(
-                            'ProsperFin',
-                            style: GoogleFonts.outfit(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white, // Required for shader to display
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ),
+                      children: const [
+                        // Janta Trader Brand Logo (includes wordmark)
+                        CustomLogo(size: 180.0),
                       ],
                     ),
                   ),

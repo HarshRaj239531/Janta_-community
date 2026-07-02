@@ -272,7 +272,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              'FinTrust Elite',
+              'Janta Trader Elite',
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,

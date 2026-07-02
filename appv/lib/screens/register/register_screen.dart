@@ -117,14 +117,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: 10),
 
-                // 1. FinTrust Header Logo
+                // 1. Janta Trader Header Logo
                 Text(
-                  'FinTrust',
+                  'Janta Trader',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
-                    color: theme.colorScheme.primary, // Forest green
+                    color: theme.colorScheme.primary, // Navy Blue
                     letterSpacing: -1.0,
                   ),
                 ),
@@ -144,7 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Join FinTrust to start managing your wealth.',
+                  'Join Janta Trader to start trading materials.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
                     fontSize: 15,

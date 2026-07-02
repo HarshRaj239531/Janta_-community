@@ -92,7 +92,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'By joining the ${widget.name} within the FinTrust ecosystem, you agree to comply with and be bound by the following terms and conditions. These terms ensure a secure and profitable environment for all members of our exclusive circle.',
+                      'By joining the ${widget.name} within the Janta Trader ecosystem, you agree to comply with and be bound by the following terms and conditions. These terms ensure a secure and profitable environment for all members of our exclusive circle.',
                       style: GoogleFonts.outfit(
                         fontSize: 13,
                         color: AppColors.textSecondary,
@@ -212,7 +212,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '“FinTrust acts solely as an intermediary platform. The ${widget.name} is a self-governed body, and FinTrust assumes no liability for internal group disputes or investment decisions made by the group council.”',
+                        '“Janta Trader acts solely as an intermediary platform. The ${widget.name} is a self-governed body, and Janta Trader assumes no liability for internal group disputes or investment decisions made by the group council.”',
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
