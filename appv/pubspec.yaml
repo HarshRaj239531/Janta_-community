@@ -66,6 +66,7 @@ flutter:
     - assets/images/gold_logo_icon.png
     - assets/images/microchip_secure.png
     - assets/images/janta_trader_logo.jpg
+    - assets/images/agent_performance.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -4,6 +4,7 @@ import '../../constants/app_colors.dart';
 import '../../widgets/secure_chip_widget.dart';
 import '../register/register_screen.dart';
 import '../home/home_screen.dart';
+import '../../agent_screen/screens/agent_main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,10 +28,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // Simulate success and navigate to HomeScreen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      final email = _emailController.text.trim().toLowerCase();
+      if (email == 'agent@gmail.com') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const AgentMainScreen()),
+        );
+      } else {
+        // Simulate success and navigate to HomeScreen
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
     }
   }
 
