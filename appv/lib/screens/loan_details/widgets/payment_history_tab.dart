@@ -1,18 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../../constants/app_colors.dart';
+import '../../../models/loan_model.dart';
 
 class PaymentHistoryTab extends StatelessWidget {
+  final LoanModel? loan;
   final VoidCallback onPayEmiPressed;
 
   const PaymentHistoryTab({
     super.key,
+    required this.loan,
     required this.onPayEmiPressed,
   });
+
+  String _formatCurrency(double amount) {
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
+    return formatter.format(amount);
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return 'N/A';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy • HH:mm').format(date);
+    } catch (_) {
+      return dateStr;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (loan == null) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(40.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final totalAmount = loan!.amount ?? 0;
+    final interestRate = loan!.interestRate ?? 0;
+    final totalWithInterest = totalAmount * (1 + interestRate / 100);
+    final duration = loan!.duration ?? 0;
+    final emi = loan!.monthlyEmi;
+    final paidCount = loan!.paidCount;
+    final totalRepaid = emi * paidCount;
+    final progress = duration > 0 ? paidCount / duration : 0.0;
+
+    final installments = loan!.installments ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -51,16 +91,16 @@ class PaymentHistoryTab extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       style: GoogleFonts.outfit(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       ),
                       children: [
-                        const TextSpan(text: '₹ 4,52,000'),
+                        TextSpan(text: _formatCurrency(totalRepaid)),
                         TextSpan(
-                          text: '  /  ₹ 12,00,000',
+                          text: '  /  ${_formatCurrency(totalWithInterest)}',
                           style: GoogleFonts.outfit(
-                            fontSize: 13,
+                            fontSize: 12,
                             color: AppColors.textSecondary,
                             fontWeight: FontWeight.bold,
                           ),
@@ -73,7 +113,7 @@ class PaymentHistoryTab extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.38, // 4.52L / 12L ~37.6%
+                      value: progress.clamp(0.0, 1.0),
                       backgroundColor: AppColors.lavenderSoft,
                       valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                       minHeight: 6,
@@ -95,7 +135,7 @@ class PaymentHistoryTab extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '12  /  36',
+                            '$paidCount  /  $duration',
                             style: GoogleFonts.outfit(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -108,7 +148,7 @@ class PaymentHistoryTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Next Due',
+                            'Upcoming EMI',
                             style: GoogleFonts.outfit(
                               fontSize: 10,
                               color: AppColors.textSecondary,
@@ -116,7 +156,7 @@ class PaymentHistoryTab extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '₹ 38,450',
+                            _formatCurrency(emi),
                             style: GoogleFonts.outfit(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -125,25 +165,26 @@ class PaymentHistoryTab extends StatelessWidget {
                           ),
                         ],
                       ),
-                      ElevatedButton(
-                        onPressed: onPayEmiPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                      if (loan!.status == 'active' && paidCount < duration)
+                        ElevatedButton(
+                          onPressed: onPayEmiPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text(
+                            'Pay EMI',
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          'Pay EMI',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ],
@@ -181,7 +222,7 @@ class PaymentHistoryTab extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Loan Reference',
+                          'Loan Account Ref',
                           style: GoogleFonts.outfit(
                             fontSize: 11,
                             color: AppColors.textSecondary,
@@ -195,7 +236,7 @@ class PaymentHistoryTab extends StatelessWidget {
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Text(
-                            'Active Loan',
+                            (loan!.status ?? 'pending').toUpperCase(),
                             style: GoogleFonts.outfit(
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -207,7 +248,7 @@ class PaymentHistoryTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'LX-EM-2024-9981',
+                      'REF-LN-${loan!.id}',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -225,7 +266,9 @@ class PaymentHistoryTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Oct 15, 2023',
+                      installments.any((i) => i.status == 'paid')
+                          ? _formatDate(installments.firstWhere((i) => i.status == 'paid').paidDate).split(' •').first
+                          : 'No payments made yet',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -242,7 +285,7 @@ class PaymentHistoryTab extends StatelessWidget {
 
         // Transaction History Header
         Text(
-          'Transaction History',
+          'Installments Schedule',
           style: GoogleFonts.outfit(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -251,110 +294,42 @@ class PaymentHistoryTab extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // Quick Filters row
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildFilterChip(Icons.calendar_today_rounded, 'Date Range'),
-              const SizedBox(width: 8),
-              _buildFilterChip(Icons.filter_list_rounded, 'Status'),
-              const SizedBox(width: 8),
-              _buildFilterChip(Icons.download_rounded, 'Statement'),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
         // Transactions list items
-        _buildTransactionItem(
-          context,
-          title: 'EMI Installment #12',
-          date: 'Oct 15, 2023 • 14:22',
-          amount: '₹ 38,458',
-          status: 'Success',
-          icon: Icons.account_balance_rounded,
-        ),
-        const SizedBox(height: 10),
-        _buildTransactionItem(
-          context,
-          title: 'EMI Installment #11',
-          date: 'Sep 15, 2023 • 09:45',
-          amount: '₹ 38,450',
-          status: 'Pending',
-          icon: Icons.payment_rounded,
-        ),
-        const SizedBox(height: 10),
-        _buildTransactionItem(
-          context,
-          title: 'EMI Installment #10',
-          date: 'Aug 15, 2023 • 11:15',
-          amount: '₹ 38,458',
-          status: 'Success',
-          icon: Icons.account_balance_rounded,
-        ),
-        const SizedBox(height: 10),
-        _buildTransactionItem(
-          context,
-          title: 'EMI Installment #9',
-          date: 'Jul 15, 2023 • 10:02',
-          amount: '₹ 38,458',
-          status: 'Success',
-          icon: Icons.account_balance_rounded,
-        ),
-        const SizedBox(height: 10),
-        _buildTransactionItem(
-          context,
-          title: 'EMI Installment #8',
-          date: 'Jun 15, 2023 • 16:40',
-          amount: '₹ 38,450',
-          status: 'Failed',
-          icon: Icons.error_outline_rounded,
-        ),
-        const SizedBox(height: 16),
-
-        // Load older transactions
-        Center(
-          child: TextButton.icon(
-            onPressed: () {},
-            icon: Text(
-              'Load older transactions',
-              style: GoogleFonts.outfit(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
+        if (installments.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.borderLight),
+            ),
+            child: Center(
+              child: Text(
+                'No installments scheduled',
+                style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textMuted),
               ),
             ),
-            label: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondary, size: 16),
-          ),
-        ),
+          )
+        else
+          ...installments.map((inst) {
+            String dateText = 'Due ${_formatDate(inst.dueDate).split(' •').first}';
+            if (inst.status == 'paid') {
+              dateText = 'Paid ${_formatDate(inst.paidDate ?? inst.dueDate).split(' •').first}';
+            }
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: _buildTransactionItem(
+                context,
+                title: 'EMI Installment #${inst.id}',
+                date: dateText,
+                amount: _formatCurrency(inst.amount ?? 0),
+                status: inst.status == 'paid' ? 'Success' : 'Pending',
+                icon: inst.status == 'paid' ? Icons.account_balance_rounded : Icons.payment_rounded,
+              ),
+            );
+          }),
         const SizedBox(height: 80),
       ],
-    );
-  }
-
-  Widget _buildFilterChip(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.borderLight),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.textSecondary, size: 14),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: GoogleFonts.outfit(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -382,7 +357,7 @@ class PaymentHistoryTab extends StatelessWidget {
     } else {
       statusBgColor = AppColors.errorLight;
       statusTextColor = AppColors.errorAccent;
-      amountColor = AppColors.textMuted; // Gray for failed
+      amountColor = AppColors.textMuted;
     }
 
     final isFailed = status == 'Failed';

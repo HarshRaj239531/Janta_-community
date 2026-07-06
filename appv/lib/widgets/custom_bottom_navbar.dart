@@ -4,11 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
+  final bool showAllTabs;
 
   const CustomBottomNavBar({
     super.key,
     required this.selectedIndex,
     required this.onTabSelected,
+    required this.showAllTabs,
   });
 
   @override
@@ -26,13 +28,18 @@ class CustomBottomNavBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Expanded(child: _buildNavItem(context, 0, Icons.home_rounded, 'Home')),
-          Expanded(child: _buildNavItem(context, 1, Icons.people_alt_rounded, 'Community')),
-          Expanded(child: _buildNavItem(context, 2, Icons.local_activity_rounded, 'Lottery')),
-          Expanded(child: _buildNavItem(context, 3, Icons.monetization_on_rounded, 'Loan')),
-          Expanded(child: _buildNavItem(context, 4, Icons.settings_rounded, 'Settings')),
-        ],
+        children: showAllTabs
+            ? [
+                Expanded(child: _buildNavItem(context, 0, Icons.home_rounded, 'Home')),
+                Expanded(child: _buildNavItem(context, 1, Icons.people_alt_rounded, 'Community')),
+                Expanded(child: _buildNavItem(context, 2, Icons.local_activity_rounded, 'Lottery')),
+                Expanded(child: _buildNavItem(context, 3, Icons.monetization_on_rounded, 'Loan')),
+                Expanded(child: _buildNavItem(context, 4, Icons.settings_rounded, 'Settings')),
+              ]
+            : [
+                Expanded(child: _buildNavItem(context, 0, Icons.home_rounded, 'Home')),
+                Expanded(child: _buildNavItem(context, 4, Icons.settings_rounded, 'Settings')),
+              ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import '../../widgets/custom_bottom_navbar.dart';
 import '../terms_conditions/terms_conditions_screen.dart';
 
 class CommunityDetailsScreen extends StatefulWidget {
+  final int committeeId;
   final String name;
   final String plan;
   final String goal;
@@ -14,6 +15,7 @@ class CommunityDetailsScreen extends StatefulWidget {
 
   const CommunityDetailsScreen({
     super.key,
+    required this.committeeId,
     this.name = 'Elite Investors Group',
     this.plan = 'Monthly ₹10,000',
     this.goal = '₹50 Lakhs',
@@ -34,6 +36,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => TermsConditionsScreen(
+          committeeId: widget.committeeId,
           name: widget.name,
           plan: widget.plan,
           returnRate: widget.returnRate,
@@ -270,6 +273,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
             // Custom Bottom Navigation Footer
             CustomBottomNavBar(
               selectedIndex: _selectedNavIndex,
+              showAllTabs: true,
               onTabSelected: (index) {
                 // Return to HomeScreen while passing target index
                 Navigator.pop(context, index);

@@ -1,18 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../../constants/app_colors.dart';
+import '../../../models/loan_model.dart';
 
 class LoanDetailTab extends StatelessWidget {
+  final LoanModel? loan;
   final VoidCallback onPayEmiPressed;
 
   const LoanDetailTab({
     super.key,
+    required this.loan,
     required this.onPayEmiPressed,
   });
+
+  String _formatCurrency(double amount) {
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
+    return formatter.format(amount);
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return 'N/A';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (_) {
+      return dateStr;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (loan == null) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(40.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final totalAmount = loan!.amount ?? 0;
+    final interestRate = loan!.interestRate ?? 0;
+    final duration = loan!.duration ?? 0;
+    final emi = loan!.monthlyEmi;
+    final paidCount = loan!.paidCount;
+    final totalRepaid = emi * paidCount;
+    final outstanding = (totalAmount * (1 + interestRate / 100)) - totalRepaid;
+    final progress = duration > 0 ? paidCount / duration : 0.0;
+
+    // Find next due date
+    String nextDue = 'N/A';
+    if (loan!.installments != null) {
+      final pendingList = loan!.installments!.where((i) => i.status == 'pending').toList();
+      if (pendingList.isNotEmpty) {
+        pendingList.sort((a, b) => (a.dueDate ?? '').compareTo(b.dueDate ?? ''));
+        nextDue = _formatDate(pendingList.first.dueDate);
+      }
+    }
+
+    String startDate = _formatDate(loan!.createdAt);
+    String endDate = 'N/A';
+    if (loan!.createdAt != null && duration > 0) {
+      try {
+        final start = DateTime.parse(loan!.createdAt!);
+        final end = DateTime(start.year, start.month + duration, start.day);
+        endDate = DateFormat('MMM dd, yyyy').format(end);
+      } catch (_) {}
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -42,7 +100,7 @@ class LoanDetailTab extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Elite Investors Group',
+                        'Janta Loan Account',
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -56,7 +114,7 @@ class LoanDetailTab extends StatelessWidget {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
-                          'ACTIVE',
+                          (loan!.status ?? 'pending').toUpperCase(),
                           style: GoogleFonts.outfit(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -68,7 +126,7 @@ class LoanDetailTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'LOAN NO. #FT-8892-LX',
+                    'LOAN NO. #LN-${loan!.id}',
                     style: GoogleFonts.outfit(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -93,12 +151,12 @@ class LoanDetailTab extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '₹25,000.00',
+                              _formatCurrency(totalAmount),
                               style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                  letterSpacing: -0.5),
                             ),
                           ],
                         ),
@@ -108,7 +166,7 @@ class LoanDetailTab extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Principal Outstanding',
+                              'Outstanding Balance',
                               style: GoogleFonts.outfit(
                                 fontSize: 11,
                                 color: AppColors.textSecondary,
@@ -117,12 +175,12 @@ class LoanDetailTab extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '₹12,450.00',
+                              _formatCurrency(outstanding.clamp(0, double.infinity)),
                               style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
-                              ),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.primary,
+                                  letterSpacing: -0.5),
                             ),
                           ],
                         ),
@@ -140,7 +198,7 @@ class LoanDetailTab extends StatelessWidget {
                           const Icon(Icons.calendar_today_rounded, color: AppColors.textSecondary, size: 16),
                           const SizedBox(width: 8),
                           Text(
-                            'EMI Paid: 12/24',
+                            'EMI Paid: $paidCount/$duration',
                             style: GoogleFonts.outfit(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -154,7 +212,7 @@ class LoanDetailTab extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
-                            value: 0.5,
+                            value: progress.clamp(0.0, 1.0),
                             backgroundColor: AppColors.lavenderSoft,
                             valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                             minHeight: 6,
@@ -199,15 +257,15 @@ class LoanDetailTab extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: _buildScheduleDateCard('Start Date', 'Jan 15, 2023', false),
+                    child: _buildScheduleDateCard('Start Date', startDate, false),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildScheduleDateCard('End Date', 'Jan 15, 2025', false),
+                    child: _buildScheduleDateCard('End Date', endDate, false),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _buildScheduleDateCard('Next Due', 'Oct 24, 2023', true),
+                    child: _buildScheduleDateCard('Next Due', nextDue, true),
                   ),
                 ],
               ),
@@ -220,11 +278,11 @@ class LoanDetailTab extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _buildMetricItem('EMI Overdue', '₹0.00', true, false),
+              child: _buildMetricItem('EMI Paid Amount', _formatCurrency(totalRepaid), false, false),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildMetricItem('Upcoming EMI', '₹1,200.00', false, true),
+              child: _buildMetricItem('Upcoming EMI', _formatCurrency(emi), false, true),
             ),
           ],
         ),
@@ -232,11 +290,11 @@ class LoanDetailTab extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _buildMetricItem('Charges Overdue', '₹0.00', true, false),
+              child: _buildMetricItem('Interest Rate', '$interestRate% p.a.', false, false),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildMetricItem('Interest Rate', '12% p.a.', false, false),
+              child: _buildMetricItem('Loan Duration', '$duration Months', false, false),
             ),
           ],
         ),

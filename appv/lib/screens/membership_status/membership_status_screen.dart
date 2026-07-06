@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../home/home_screen.dart';
 
@@ -112,14 +113,13 @@ class MembershipStatusScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 24),
-
-                          // Custom Timeline Stepper
+                           // Custom Timeline Stepper
                           _buildTimelineStep(
                             context,
                             isCompleted: true,
                             isActive: false,
                             title: 'Application Submitted',
-                            description: 'October 24, 2023 • 10:45 AM',
+                            description: DateFormat('MMMM dd, yyyy • hh:mm a').format(DateTime.now()),
                             icon: Icons.check_circle_rounded,
                             showLine: true,
                           ),
@@ -137,7 +137,7 @@ class MembershipStatusScreen extends StatelessWidget {
                             isCompleted: false,
                             isActive: false,
                             title: 'Final Approval',
-                            description: 'Estimated completion by October 26, 2023.',
+                            description: 'Estimated completion by ${DateFormat('MMMM dd, yyyy').format(DateTime.now().add(const Duration(days: 2)))}.',
                             icon: Icons.lock_outline_rounded,
                             showLine: false,
                           ),

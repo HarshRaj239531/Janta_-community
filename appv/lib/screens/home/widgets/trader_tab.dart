@@ -1,426 +1,374 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../constants/app_colors.dart';
+import '../../../provider/dashboard_provider.dart';
 import '../home_screen.dart';
 
 class TraderTab extends StatelessWidget {
   const TraderTab({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // 1. Digital Passbook Balance Card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                AppColors.primaryGreen,
-                AppColors.primaryDark,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Digital Passbook balance',
-                style: GoogleFonts.outfit(
-                  fontSize: 13,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '₹1,42,850.00',
-                    style: GoogleFonts.outfit(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(26),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.import_contacts_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Last Update : Today, 10:30 AM',
-                style: GoogleFonts.outfit(
-                  fontSize: 11,
-                  color: Colors.white60,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // 2. Join Trader Community Banner
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderMuted),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: AppColors.lightGreenTint,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.people_alt_rounded,
-                  color: AppColors.primaryGreen,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Join the trader community',
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryGreen,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  HomeScreen.activeTabNotifier.value = 1; // Switch to Community tab
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryGreen,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  'Join Community',
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // 3. Material Sales Grid Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Material Sales',
-              style: GoogleFonts.outfit(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'See all',
-                style: GoogleFonts.outfit(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        // Grid View
-        GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 0.85,
-          children: [
-            _buildMaterialCard(
-              context,
-              'Cement',
-              '₹385/kg',
-              'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=300',
-            ),
-            _buildMaterialCard(
-              context,
-              'Concrete',
-              '₹4500/m³',
-              'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=300',
-            ),
-            _buildMaterialCard(
-              context,
-              'Bricks',
-              '₹ 7 / per brick',
-              'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300',
-            ),
-            _buildMaterialCard(
-              context,
-              'Steel',
-              '₹85/gm',
-              'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=300',
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-
-        // 4. Paid Installment Ratio Card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderMuted),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Paid Installment Ratio',
-                style: GoogleFonts.outfit(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: SizedBox(
-                  width: 140,
-                  height: 140,
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: SizedBox(
-                          width: 130,
-                          height: 130,
-                          child: const CircularProgressIndicator(
-                            value: 0.72,
-                            strokeWidth: 12,
-                            backgroundColor: AppColors.borderMuted,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.primaryGreen,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '72%',
-                              style: GoogleFonts.outfit(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryGreen,
-                              ),
-                            ),
-                            Text(
-                              'Paid',
-                              style: GoogleFonts.outfit(
-                                fontSize: 12,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primaryGreen,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Paid\n₹ 8.5L',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.accentBlue,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Pending\n₹ 3.2L',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // 5. Installment History Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'किश्त इतिहास (Installment History)',
-              style: GoogleFonts.outfit(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.tune_rounded, size: 20),
-              onPressed: () {},
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        // Installment History Items
-        _buildHistoryItem(
-          context,
-          title: 'Cement Bulk Order #827',
-          date: '24 Oct, 2023 • 14:20',
-          amount: '+ ₹ 24,500',
-          status: 'SUCCESS',
-          isSuccess: true,
-          icon: Icons.store_rounded,
-        ),
-        _buildHistoryItem(
-          context,
-          title: 'Concrete Mixture Installment',
-          date: '22 Oct, 2023 • 09:15',
-          amount: '+ ₹ 18,200',
-          status: 'SUCCESS',
-          isSuccess: true,
-          icon: Icons.local_shipping_rounded,
-        ),
-        _buildHistoryItem(
-          context,
-          title: 'Steel Rebar Purchase',
-          date: '20 Oct, 2023 • 18:45',
-          amount: '₹ 42,000',
-          status: 'PENDING',
-          isSuccess: false,
-          icon: Icons.architecture_rounded,
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
+  String _formatCurrency(double amount) {
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
+    return formatter.format(amount);
   }
 
-  Widget _buildMaterialCard(BuildContext context, String title, String price, String imageUrl) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderMuted),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.primaryGreen,
-                  child: const Icon(Icons.broken_image, color: Colors.white, size: 30),
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return 'N/A';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('dd MMM, yyyy • HH:mm').format(date);
+    } catch (_) {
+      return dateStr;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<DashboardProvider>(
+      builder: (context, dp, child) {
+        if (dp.isLoading && dp.dashboard == null) {
+          return const Center(child: Padding(
+            padding: EdgeInsets.all(40),
+            child: CircularProgressIndicator(),
+          ));
+        }
+
+        final error = dp.error;
+        final wallet = dp.wallet;
+        final totalBalance = wallet?.totalBalance ?? 0;
+        final credits = wallet?.credits ?? 0;
+        final debits = wallet?.debits ?? 0;
+        final recentActivity = dp.dashboard?.recentActivity ?? [];
+        final paidRatio = (credits + debits) > 0 ? credits / (credits + debits) : 0.0;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Subtle offline/error warning banner instead of a blocking page
+            if (error != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.errorLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.errorBorder),
                 ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: AppColors.errorAccent, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Offline / Sync failed: $error',
+                        style: GoogleFonts.outfit(color: AppColors.errorDark, fontSize: 12),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.errorDark),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => dp.fetchDashboard(),
+                    ),
+                  ],
+                ),
+              ),
+
+            // 1. Digital Passbook Balance Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    AppColors.primaryGreen,
+                    AppColors.primaryDark,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Digital Passbook balance',
+                    style: GoogleFonts.outfit(
+                      fontSize: 13,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatCurrency(totalBalance),
+                        style: GoogleFonts.outfit(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(26),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.import_contacts_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Last Update : ${DateFormat('EEEE, hh:mm a').format(DateTime.now())}',
+                    style: GoogleFonts.outfit(
+                      fontSize: 11,
+                      color: Colors.white60,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 16),
+
+            // 2. Join Trader Community Banner
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderMuted),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.lightGreenTint,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.people_alt_rounded,
+                      color: AppColors.primaryGreen,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Join the trader community',
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      HomeScreen.activeTabNotifier.value = 1; // Switch to Community tab
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGreen,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'Join Community',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 3. Paid Installment Ratio Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderMuted),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Paid Installment Ratio',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Center(
+                    child: SizedBox(
+                      width: 140,
+                      height: 140,
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: SizedBox(
+                              width: 130,
+                              height: 130,
+                              child: CircularProgressIndicator(
+                                value: paidRatio.clamp(0.0, 1.0),
+                                strokeWidth: 12,
+                                backgroundColor: AppColors.borderMuted,
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  AppColors.primaryGreen,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '${(paidRatio * 100).toStringAsFixed(0)}%',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryGreen,
+                                  ),
+                                ),
+                                Text(
+                                  'Paid',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primaryGreen,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Credits\n${_formatCurrency(credits)}',
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.accentBlue,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Debits\n${_formatCurrency(debits)}',
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 4. Recent Activity (Transactions) Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  title,
+                  'Recent Activity',
                   style: GoogleFonts.outfit(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: AppColors.textDark,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  price,
-                  style: GoogleFonts.outfit(
-                    fontSize: 12,
-                    color: AppColors.primaryGreen,
-                    fontWeight: FontWeight.bold,
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.tune_rounded, size: 20),
+                  onPressed: () {},
                 ),
               ],
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: 8),
+
+            // Recent Activity Items from API
+            if (recentActivity.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.borderMuted),
+                ),
+                child: Center(
+                  child: Text(
+                    'No recent activity',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ),
+              )
+            else
+              ...recentActivity.map((txn) => _buildHistoryItem(
+                context,
+                title: txn.description ?? 'Transaction',
+                date: _formatDate(txn.createdAt),
+                amount: '${txn.isCredit ? '+ ' : '- '}${_formatCurrency(txn.amount ?? 0)}',
+                status: txn.isCredit ? 'SUCCESS' : 'DEBIT',
+                isSuccess: txn.isCredit,
+                icon: txn.isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+              )),
+            const SizedBox(height: 16),
+          ],
+        );
+      },
     );
   }
 
