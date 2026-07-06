@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
 import '../../widgets/secure_chip_widget.dart';
+import '../../provider/auth_provider.dart';
 import '../register/register_screen.dart';
 import '../home/home_screen.dart';
-import '../../agent_screen/screens/agent_main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,17 +27,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final email = _emailController.text.trim().toLowerCase();
-      if (email == 'agent@gmail.com') {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const AgentMainScreen()),
-        );
-      } else {
-        // Simulate success and navigate to HomeScreen
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final loginId = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      final success = await authProvider.login(loginId, password);
+
+      if (!mounted) return;
+
+      if (success) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              authProvider.error ?? 'Login failed. Please try again.',
+              style: GoogleFonts.outfit(),
+            ),
+            backgroundColor: AppColors.errorAccent,
+          ),
         );
       }
     }
@@ -45,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundSoft, // Clean off-white background
@@ -102,9 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // EMAIL ADDRESS
+                      // EMAIL / PHONE
                       Text(
-                        'EMAIL ADDRESS',
+                        'EMAIL / PHONE',
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -117,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
-                          hintText: 'name@example.com',
+                          hintText: 'Email or Phone Number',
                           hintStyle: GoogleFonts.outfit(
                             color: AppColors.textMuted,
                           ),
@@ -132,11 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                          if (!emailRegExp.hasMatch(value)) {
-                            return 'Please enter a valid email';
+                            return 'Please enter your email or phone';
                           }
                           return null;
                         },
@@ -224,9 +234,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 32),
 
-                      // Continue Button (Mint green style)
+                      // Continue Button (with loading state)
                       ElevatedButton(
-                        onPressed: _submitForm,
+                        onPressed: authProvider.isLoading ? null : _submitForm,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.colorScheme.secondary, // Mint green
                           elevation: 0,
@@ -235,25 +245,36 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Continue',
-                              style: GoogleFonts.outfit(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary, // Dark green text
+                        child: authProvider.isLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    theme.colorScheme.primary,
+                                  ),
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Continue',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.primary, // Dark green text
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.arrow_forward_rounded,
+                                    color: theme.colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              color: theme.colorScheme.primary,
-                              size: 20,
-                            ),
-                          ],
-                        ),
                       ),
 
                       const SizedBox(height: 20),

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../constants/app_colors.dart';
+import 'package:provider/provider.dart';
+import '../../provider/committee_provider.dart';
 import '../membership_status/membership_status_screen.dart';
 
 class TermsConditionsScreen extends StatefulWidget {
+  final int committeeId;
   final String name;
   final String plan;
   final String returnRate;
 
   const TermsConditionsScreen({
     super.key,
+    required this.committeeId,
     required this.name,
     required this.plan,
     required this.returnRate,
@@ -21,21 +25,47 @@ class TermsConditionsScreen extends StatefulWidget {
 
 class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
   bool _isAgreed = false;
+  bool _isLoading = false;
 
   void _acceptAndContinue() async {
-    final selectedIndex = await Navigator.push<int>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MembershipStatusScreen(
-          name: widget.name,
-          plan: widget.plan,
-          returnRate: widget.returnRate,
-        ),
-      ),
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (selectedIndex != null && mounted) {
-      Navigator.pop(context, selectedIndex);
+    final committeeProvider = Provider.of<CommitteeProvider>(context, listen: false);
+    final success = await committeeProvider.joinCommittee(widget.committeeId);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (success) {
+      final selectedIndex = await Navigator.push<int>(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MembershipStatusScreen(
+            name: widget.name,
+            plan: widget.plan,
+            returnRate: widget.returnRate,
+          ),
+        ),
+      );
+
+      if (selectedIndex != null && mounted) {
+        Navigator.pop(context, selectedIndex);
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            committeeProvider.error ?? 'Failed to join committee. Please try again.',
+            style: GoogleFonts.outfit(),
+          ),
+          backgroundColor: AppColors.errorAccent,
+        ),
+      );
     }
   }
 
@@ -273,7 +303,7 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                   SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isAgreed ? _acceptAndContinue : null,
+                      onPressed: (_isAgreed && !_isLoading) ? _acceptAndContinue : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
                         disabledBackgroundColor: Colors.grey.shade300,
@@ -282,14 +312,23 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
-                        'Accept & Continue',
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: _isAgreed ? Colors.white : Colors.grey.shade500,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Accept & Continue',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: _isAgreed ? Colors.white : Colors.grey.shade500,
+                              ),
+                            ),
                     ),
                   ),
                 ],

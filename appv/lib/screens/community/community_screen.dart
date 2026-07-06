@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
+import '../../provider/committee_provider.dart';
+import '../../models/committee_model.dart';
 import '../community_details/community_details_screen.dart';
 
 class CommunityScreen extends StatefulWidget {
@@ -20,30 +24,31 @@ class CommunityScreen extends StatefulWidget {
 class _CommunityScreenState extends State<CommunityScreen> {
   int _activeFilterIndex = 0; // 0: All, 1: Trending
 
-  void _joinCommunity({
-    required String name,
-    required String plan,
-    required String goal,
-    required String returnRate,
-  }) async {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CommitteeProvider>(context, listen: false).fetchCommittees();
+    });
+  }
+
+  String _formatCurrency(double amount) {
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    return formatter.format(amount);
+  }
+
+  void _joinCommunity(CommitteeModel committee) async {
     final selectedIndex = await Navigator.push<int>(
       context,
       MaterialPageRoute(
         builder: (context) => CommunityDetailsScreen(
-          name: name,
-          plan: plan,
-          goal: goal,
-          returnRate: returnRate,
-          groupId: name == 'Elite Investors Group'
-              ? '#EIG-2024'
-              : name == 'Infrastructure Collective'
-                  ? '#INC-2024'
-                  : '#URB-2024',
-          category: name == 'Elite Investors Group'
-              ? 'Premium Finance'
-              : name == 'Infrastructure Collective'
-                  ? 'Industrial Dev'
-                  : 'Real Estate',
+          committeeId: committee.id,
+          name: committee.name ?? 'Committee',
+          plan: '${committee.frequencyLabel} ${_formatCurrency(committee.monthlyAmount)}',
+          goal: _formatCurrency(committee.amount ?? 0),
+          returnRate: '${committee.duration ?? 0} months',
+          groupId: '#${committee.id}',
+          category: committee.paymentFrequency ?? 'N/A',
         ),
       ),
     );
@@ -60,72 +65,106 @@ class _CommunityScreenState extends State<CommunityScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final body = SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Row: Title & All/Trending filter pills
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+    final body = Consumer<CommitteeProvider>(
+      builder: (context, cp, child) {
+        if (cp.isLoading && cp.committees.isEmpty) {
+          return const Center(child: Padding(
+            padding: EdgeInsets.all(40),
+            child: CircularProgressIndicator(),
+          ));
+        }
+
+        final error = cp.error;
+        final committees = cp.committees;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Available\nCommunities',
-                style: GoogleFonts.outfit(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  color: theme.colorScheme.primary,
-                  height: 1.15,
+              if (error != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.errorLight,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.errorBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: AppColors.errorAccent, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Sync failed: $error',
+                          style: GoogleFonts.outfit(color: AppColors.errorDark, fontSize: 12),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.errorDark),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () => cp.fetchCommittees(),
+                      ),
+                    ],
+                  ),
                 ),
+              // Header Row: Title & All/Trending filter pills
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Available\nCommunities',
+                    style: GoogleFonts.outfit(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.primary,
+                      height: 1.15,
+                    ),
+                  ),
+                  // Filter Switcher
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.borderMuted,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.all(2),
+                    child: Row(
+                      children: [
+                        _buildFilterPill(context, 0, 'All'),
+                        _buildFilterPill(context, 1, 'Trending'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              // Filter Switcher
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.borderMuted,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.all(2),
-                child: Row(
-                  children: [
-                    _buildFilterPill(context, 0, 'All'),
-                    _buildFilterPill(context, 1, 'Trending'),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 24),
+
+              // Community List Cards from API
+              if (committees.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Text(
+                      'No communities available',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                ...committees.map((committee) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildCommunityCard(context, committee: committee),
+                )),
             ],
           ),
-          const SizedBox(height: 24),
-
-          // Community List Cards
-          _buildCommunityCard(
-            context,
-            name: 'Elite Investors Group',
-            imageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=150',
-            plan: 'Monthly ₹10,000',
-            goal: '₹50 Lakhs',
-            returnRate: '14% p.a.',
-          ),
-          const SizedBox(height: 16),
-          _buildCommunityCard(
-            context,
-            name: 'Infrastructure Collective',
-            imageUrl: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?w=150',
-            plan: 'Daily ₹500',
-            goal: '₹25 Lakhs',
-            returnRate: '12% p.a.',
-          ),
-          const SizedBox(height: 16),
-          _buildCommunityCard(
-            context,
-            name: 'Urban Developers',
-            imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150',
-            plan: 'Monthly ₹7,500',
-            goal: '₹40 Lakhs',
-            returnRate: '13.5% p.a.',
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
+        );
+      },
     );
 
     if (widget.showAppBar) {
@@ -177,15 +216,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
-  // Community list card item builder
-  Widget _buildCommunityCard(
-    BuildContext context, {
-    required String name,
-    required String imageUrl,
-    required String plan,
-    required String goal,
-    required String returnRate,
-  }) {
+  // Community list card item builder — uses CommitteeModel
+  Widget _buildCommunityCard(BuildContext context, {required CommitteeModel committee}) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -207,47 +239,24 @@ class _CommunityScreenState extends State<CommunityScreen> {
           // Title Section
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: SizedBox(
-                  width: 50,
-                  height: 50,
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: theme.colorScheme.primary,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.people_alt_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: AppColors.backgroundSoft,
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.people_alt_rounded,
+                  color: Colors.white,
+                  size: 24,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  name,
+                  committee.name ?? 'Committee',
                   style: GoogleFonts.outfit(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -259,11 +268,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Details Block (Lavender/blue-grey background container)
+          // Details Block
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.containerBgSoft, // Muted details background
+              color: AppColors.containerBgSoft,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -271,17 +280,18 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDetailItem('PLAN', plan, false),
-                    _buildDetailItem('GOAL', goal, false),
+                    _buildDetailItem('PLAN', '${committee.frequencyLabel} ${_formatCurrency(committee.monthlyAmount)}', false),
+                    _buildDetailItem('TOTAL AMOUNT', _formatCurrency(committee.amount ?? 0), false),
                   ],
                 ),
                 const SizedBox(height: 12),
                 const Divider(color: AppColors.borderMuted, height: 1),
                 const SizedBox(height: 12),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDetailItem('PROJECTED RETURN', returnRate, true),
+                    _buildDetailItem('DURATION', '${committee.duration ?? 0} months', true),
+                    _buildDetailItem('STATUS', (committee.status ?? 'active').toUpperCase(), false),
                   ],
                 ),
               ],
@@ -293,12 +303,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           SizedBox(
             height: 48,
             child: ElevatedButton(
-              onPressed: () => _joinCommunity(
-                name: name,
-                plan: plan,
-                goal: goal,
-                returnRate: returnRate,
-              ),
+              onPressed: () => _joinCommunity(committee),
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
                 elevation: 0,
