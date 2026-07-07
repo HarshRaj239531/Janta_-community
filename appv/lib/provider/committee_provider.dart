@@ -7,6 +7,8 @@ class CommitteeProvider with ChangeNotifier {
   List<CommitteeModel> _committees = [];
   List<CommitteeModel> _myCommittees = [];
   CommitteeModel? _selectedCommittee;
+  String? _termsTitle;
+  String? _termsContent;
   bool _isLoading = false;
   bool _isJoining = false;
   String? _error;
@@ -14,6 +16,8 @@ class CommitteeProvider with ChangeNotifier {
   List<CommitteeModel> get committees => _committees;
   List<CommitteeModel> get myCommittees => _myCommittees;
   CommitteeModel? get selectedCommittee => _selectedCommittee;
+  String? get termsTitle => _termsTitle;
+  String? get termsContent => _termsContent;
   bool get isLoading => _isLoading;
   bool get isJoining => _isJoining;
   String? get error => _error;
@@ -111,8 +115,33 @@ class CommitteeProvider with ChangeNotifier {
     _committees = [];
     _myCommittees = [];
     _selectedCommittee = null;
+    _termsTitle = null;
+    _termsContent = null;
     _isLoading = false;
     _error = null;
     notifyListeners();
+  }
+
+  /// Fetch Terms & Conditions
+  Future<void> fetchTermsConditions() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final data = await CommitteeApi.getTermsConditions();
+      _termsTitle = data['title'];
+      _termsContent = data['content'];
+      _isLoading = false;
+      notifyListeners();
+    } on ApiException catch (e) {
+      _error = e.message;
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to load Terms & Conditions';
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

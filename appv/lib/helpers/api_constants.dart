@@ -26,6 +26,7 @@ class ApiConstants {
   static String committeeDetails(int id) => '/user/committees/$id';
   static String joinCommittee(int id) => '/user/committees/$id/join';
   static const String myCommittees = '/user/my-committees';
+  static const String termsConditions = '/user/terms-conditions';
 
   // Loans
   static const String loans = '/user/loans';

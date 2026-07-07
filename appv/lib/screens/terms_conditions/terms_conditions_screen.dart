@@ -27,6 +27,14 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
   bool _isAgreed = false;
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CommitteeProvider>(context, listen: false).fetchTermsConditions();
+    });
+  }
+
   void _acceptAndContinue() async {
     setState(() {
       _isLoading = true;
@@ -73,6 +81,31 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
   Widget build(BuildContext context) {
     final cleanPlanValue = widget.plan.replaceAll('Monthly ', '').replaceAll('Daily ', '');
     final theme = Theme.of(context);
+    final committeeProvider = Provider.of<CommitteeProvider>(context);
+    final hasBackendTerms = committeeProvider.termsContent != null && committeeProvider.termsContent!.isNotEmpty;
+
+    if (committeeProvider.isLoading && committeeProvider.termsContent == null) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            'Terms & Conditions',
+            style: GoogleFonts.outfit(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.primary,
+              fontSize: 20,
+            ),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -102,156 +135,191 @@ class _TermsConditionsScreenState extends State<TermsConditionsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'LAST UPDATED: JUNE 2024',
-                      style: GoogleFonts.outfit(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textMuted,
-                        letterSpacing: 0.5,
+                    if (hasBackendTerms) ...[
+                      Text(
+                        'LAST UPDATED',
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textMuted,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Welcome to ${widget.name}',
-                      style: GoogleFonts.outfit(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                      const SizedBox(height: 8),
+                      Text(
+                        committeeProvider.termsTitle ?? 'Terms & Conditions',
+                        style: GoogleFonts.outfit(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'By joining the ${widget.name} within the Janta Trader ecosystem, you agree to comply with and be bound by the following terms and conditions. These terms ensure a secure and profitable environment for all members of our exclusive circle.',
-                      style: GoogleFonts.outfit(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // 1. Membership Eligibility
-                    _buildSectionHeader(context, '1', 'Membership Eligibility', false),
-                    const SizedBox(height: 8),
-                    _buildSectionContent(
-                      'Membership is restricted to individuals who have reached the legal age of majority in their jurisdiction. All applicants must undergo a mandatory identity verification (KYC) process and provide proof of financial standing to maintain the group\'s accreditation status.',
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 2. Investment Contributions (Bordered Box)
-                    _buildSectionHeader(context, '2', 'Investment Contributions', false),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundAlt,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.borderLight),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'To maintain active status, members must adhere to the following contribution schedule:',
+                      const SizedBox(height: 16),
+                      ...committeeProvider.termsContent!.split('\n\n').map((para) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Text(
+                            para,
                             style: GoogleFonts.outfit(
                               fontSize: 13,
                               color: AppColors.textSecondary,
-                              height: 1.4,
+                              height: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          _buildContributionBullet(
-                            icon: Icons.check_circle_outline_rounded,
-                            iconColor: AppColors.successGreen,
-                            text: 'A mandatory Monthly commitment of $cleanPlanValue.',
-                          ),
-                          const SizedBox(height: 12),
-                          _buildContributionBullet(
-                            icon: Icons.access_time_rounded,
-                            iconColor: AppColors.successGreen,
-                            text: 'Contributions must be made by the 5th of every month.',
-                          ),
-                          const SizedBox(height: 12),
-                          _buildContributionBullet(
-                            icon: Icons.error_outline_rounded,
-                            iconColor: AppColors.errorAccent,
-                            text: 'Late fees of 2% apply to any contribution delayed beyond the 10th.',
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 3. Withdrawal Policy
-                    _buildSectionHeader(context, '3', 'Withdrawal Policy', false),
-                    const SizedBox(height: 8),
-                    _buildSectionContent(
-                      'Elite funds are subject to a 12-month initial lock-in period to ensure capital stability. Subsequent withdrawals require a written notice of at least 30 business days. Early withdrawals may be subject to a 5% liquidity adjustment fee.',
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 4. Risk Disclosure (Red Alert Box)
-                    _buildSectionHeader(context, '4', 'Risk Disclosure', true),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.errorLight,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.errorBorder),
-                      ),
-                      child: RichText(
-                        text: TextSpan(
-                          style: GoogleFonts.outfit(
-                            fontSize: 13,
-                            color: AppColors.errorDark,
-                            height: 1.4,
-                          ),
-                          children: [
-                            const TextSpan(text: 'Investments are subject to market risks. While our managed portfolio targets a benchmark return of '),
-                            TextSpan(
-                              text: widget.returnRate,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const TextSpan(text: ', these returns are '),
-                            const TextSpan(
-                              text: 'not guaranteed',
-                              style: TextStyle(decoration: TextDecoration.underline),
-                            ),
-                            const TextSpan(text: '. Past performance is not indicative of future results.'),
-                          ],
+                        );
+                      }),
+                    ] else ...[
+                      Text(
+                        'LAST UPDATED: JUNE 2024',
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textMuted,
+                          letterSpacing: 0.5,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 5. Data Privacy & Security
-                    _buildSectionHeader(context, '5', 'Data Privacy & Security', false),
-                    const SizedBox(height: 8),
-                    _buildSectionContent(
-                      'Your financial data is protected using AES-256 encryption. We do not share your personal information with third-party marketers. For a detailed breakdown, please refer to our Global Privacy Policy.',
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Disclaimer block
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundAlt,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '“Janta Trader acts solely as an intermediary platform. The ${widget.name} is a self-governed body, and Janta Trader assumes no liability for internal group disputes or investment decisions made by the group council.”',
+                      const SizedBox(height: 8),
+                      Text(
+                        'Welcome to ${widget.name}',
                         style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          fontStyle: FontStyle.italic,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'By joining the ${widget.name} within the Janta Trader ecosystem, you agree to comply with and be bound by the following terms and conditions. These terms ensure a secure and profitable environment for all members of our exclusive circle.',
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
                           color: AppColors.textSecondary,
                           height: 1.4,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 28),
+
+                      // 1. Membership Eligibility
+                      _buildSectionHeader(context, '1', 'Membership Eligibility', false),
+                      const SizedBox(height: 8),
+                      _buildSectionContent(
+                        'Membership is restricted to individuals who have reached the legal age of majority in their jurisdiction. All applicants must undergo a mandatory identity verification (KYC) process and provide proof of financial standing to maintain the group\'s accreditation status.',
+                      ),
+                      const SizedBox(height: 24),
+
+                      // 2. Investment Contributions (Bordered Box)
+                      _buildSectionHeader(context, '2', 'Investment Contributions', false),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundAlt,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.borderLight),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'To maintain active status, members must adhere to the following contribution schedule:',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildContributionBullet(
+                              icon: Icons.check_circle_outline_rounded,
+                              iconColor: AppColors.successGreen,
+                              text: 'A mandatory Monthly commitment of $cleanPlanValue.',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildContributionBullet(
+                              icon: Icons.access_time_rounded,
+                              iconColor: AppColors.successGreen,
+                              text: 'Contributions must be made by the 5th of every month.',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildContributionBullet(
+                              icon: Icons.error_outline_rounded,
+                              iconColor: AppColors.errorAccent,
+                              text: 'Late fees of 2% apply to any contribution delayed beyond the 10th.',
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // 3. Withdrawal Policy
+                      _buildSectionHeader(context, '3', 'Withdrawal Policy', false),
+                      const SizedBox(height: 8),
+                      _buildSectionContent(
+                        'Elite funds are subject to a 12-month initial lock-in period to ensure capital stability. Subsequent withdrawals require a written notice of at least 30 business days. Early withdrawals may be subject to a 5% liquidity adjustment fee.',
+                      ),
+                      const SizedBox(height: 24),
+
+                      // 4. Risk Disclosure (Red Alert Box)
+                      _buildSectionHeader(context, '4', 'Risk Disclosure', true),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.errorLight,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.errorBorder),
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.outfit(
+                              fontSize: 13,
+                              color: AppColors.errorDark,
+                              height: 1.4,
+                            ),
+                            children: [
+                              const TextSpan(text: 'Investments are subject to market risks. While our managed portfolio targets a benchmark return of '),
+                              TextSpan(
+                                text: widget.returnRate,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const TextSpan(text: ', these returns are '),
+                              const TextSpan(
+                                text: 'not guaranteed',
+                                style: TextStyle(decoration: TextDecoration.underline),
+                              ),
+                              const TextSpan(text: '. Past performance is not indicative of future results.'),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // 5. Data Privacy & Security
+                      _buildSectionHeader(context, '5', 'Data Privacy & Security', false),
+                      const SizedBox(height: 8),
+                      _buildSectionContent(
+                        'Your financial data is protected using AES-256 encryption. We do not share your personal information with third-party marketers. For a detailed breakdown, please refer to our Global Privacy Policy.',
+                      ),
+                      const SizedBox(height: 28),
+
+                      // Disclaimer block
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundAlt,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '“Janta Trader acts solely as an intermediary platform. The ${widget.name} is a self-governed body, and Janta Trader assumes no liability for internal group disputes or investment decisions made by the group council.”',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                            color: AppColors.textSecondary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                   ],
                 ),
               ),
