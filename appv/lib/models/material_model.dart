@@ -1,3 +1,5 @@
+import '../helpers/api_constants.dart';
+
 class MaterialModel {
   final int id;
   final String name;
@@ -21,7 +23,7 @@ class MaterialModel {
       name: json['name'] ?? '',
       price: double.tryParse(json['price']?.toString() ?? '') ?? 0.0,
       unit: json['unit'] ?? '',
-      imageUrl: json['image_url'],
+      imageUrl: ApiConstants.resolveImageUrl(json['image_url']),
       status: json['status'] ?? 'active',
     );
   }

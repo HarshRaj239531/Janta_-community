@@ -1,3 +1,5 @@
+import '../helpers/api_constants.dart';
+
 class LotteryModel {
   final int id;
   final int? committeeId;
@@ -37,6 +39,6 @@ class LotteryModel {
   }
 
   String get winnerName => winner?['name'] ?? 'Unknown';
-  String get winnerPhoto => winner?['photo'] ?? '';
+  String get winnerPhoto => ApiConstants.resolveImageUrl(winner?['photo']) ?? '';
   String get committeeName => committee?['name'] ?? 'N/A';
 }

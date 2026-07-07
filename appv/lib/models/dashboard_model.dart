@@ -1,4 +1,5 @@
 import 'transaction_model.dart';
+import '../helpers/api_constants.dart';
 
 class WalletModel {
   final double totalBalance;
@@ -55,7 +56,7 @@ class DashboardUserModel {
       name: json['name'] ?? '',
       email: json['email'],
       phone: json['phone'],
-      photo: json['photo'],
+      photo: ApiConstants.resolveImageUrl(json['photo']),
     );
   }
 }
