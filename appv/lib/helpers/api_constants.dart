@@ -41,4 +41,21 @@ class ApiConstants {
 
   // Payments
   static const String pay = '/user/payments/pay';
+
+  /// Resolves database image URLs that point to localhost (common in local Laravel dev servers)
+  /// so that they point to the correct emulator/device accessible host dynamically.
+  static String? resolveImageUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    try {
+      final baseUri = Uri.parse(baseUrl);
+      final host = '${baseUri.scheme}://${baseUri.host}${baseUri.hasPort ? ':${baseUri.port}' : ''}';
+      if (url.startsWith('http://localhost')) {
+        return url.replaceFirst('http://localhost', host);
+      }
+      if (url.startsWith('http://127.0.0.1')) {
+        return url.replaceFirst('http://127.0.0.1', host);
+      }
+    } catch (_) {}
+    return url;
+  }
 }

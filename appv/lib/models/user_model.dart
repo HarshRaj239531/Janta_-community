@@ -1,3 +1,5 @@
+import '../helpers/api_constants.dart';
+
 class UserModel {
   final int id;
   final String name;
@@ -40,7 +42,7 @@ class UserModel {
       email: json['email'],
       phone: json['phone'],
       address: json['address'],
-      photo: json['photo'],
+      photo: ApiConstants.resolveImageUrl(json['photo']),
       aadharCard: json['aadhar_card'],
       panCard: json['pan_card'],
       idProof: json['id_proof'],
