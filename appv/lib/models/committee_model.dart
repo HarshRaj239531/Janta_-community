@@ -2,6 +2,7 @@ class CommitteeModel {
   final int id;
   final String? name;
   final double? amount;
+  final double? returnPercentage;
   final int? duration;
   final String? paymentFrequency;
   final String? status;
@@ -16,6 +17,7 @@ class CommitteeModel {
     required this.id,
     this.name,
     this.amount,
+    this.returnPercentage,
     this.duration,
     this.paymentFrequency,
     this.status,
@@ -31,6 +33,7 @@ class CommitteeModel {
       id: json['id'] ?? 0,
       name: json['name'],
       amount: double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
+      returnPercentage: double.tryParse(json['return_percentage']?.toString() ?? '') ?? 0.0,
       duration: json['duration'],
       paymentFrequency: json['payment_frequency'],
       status: json['status'],

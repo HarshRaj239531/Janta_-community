@@ -46,7 +46,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           name: committee.name ?? 'Committee',
           plan: '${committee.frequencyLabel} ${_formatCurrency(committee.monthlyAmount)}',
           goal: _formatCurrency(committee.amount ?? 0),
-          returnRate: '${committee.duration ?? 0} months',
+          returnRate: '${committee.returnPercentage ?? 0}%',
           groupId: '#${committee.id}',
           category: committee.paymentFrequency ?? 'N/A',
         ),
@@ -290,7 +290,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDetailItem('DURATION', '${committee.duration ?? 0} months', true),
+                    _buildDetailItem('DURATION', '${committee.duration ?? 0} months', false),
+                    _buildDetailItem('RETURN', '${committee.returnPercentage ?? 0}%', true),
                     _buildDetailItem('STATUS', (committee.status ?? 'active').toUpperCase(), false),
                   ],
                 ),
