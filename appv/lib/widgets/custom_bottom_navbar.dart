@@ -51,7 +51,7 @@ class CustomBottomNavBar extends StatelessWidget {
     if (isActive) {
       return Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: theme.colorScheme.primary, // Dark Green pill background
             borderRadius: BorderRadius.circular(20),
@@ -67,6 +67,9 @@ class CustomBottomNavBar extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 label,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.visible,
                 style: GoogleFonts.outfit(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
