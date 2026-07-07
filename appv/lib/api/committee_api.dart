@@ -31,4 +31,10 @@ class CommitteeApi {
         .map((e) => CommitteeModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  /// Fetch Terms & Conditions
+  static Future<Map<String, dynamic>> getTermsConditions() async {
+    final data = await ApiHelper.get(ApiConstants.termsConditions);
+    return data as Map<String, dynamic>? ?? {};
+  }
 }

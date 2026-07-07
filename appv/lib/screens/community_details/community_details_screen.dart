@@ -69,26 +69,6 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
             fontSize: 20,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: Image.network(
-                'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 36,
-                  height: 36,
-                  color: theme.colorScheme.primary,
-                  child: const Icon(Icons.person, color: Colors.white, size: 18),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
