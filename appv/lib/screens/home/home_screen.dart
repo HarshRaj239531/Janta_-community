@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../widgets/custom_bottom_navbar.dart';
+import '../../widgets/animated_background.dart';
 import '../../provider/dashboard_provider.dart';
 import '../../provider/material_provider.dart';
 import '../../models/material_model.dart';
@@ -63,35 +64,39 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F8), // Soft off-white layout background
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Content area
-            Expanded(
-              child: _buildNavContent(),
-            ),
-            // Custom Bottom Navigation Footer
-            CustomBottomNavBar(
-              selectedIndex: _selectedNavIndex,
-              showAllTabs: _showAllTabs,
-              onTabSelected: (index) {
-                HomeScreen.activeTabNotifier.value = index;
-              },
-            ),
-          ],
+      backgroundColor: Colors.transparent,
+      body: AnimatedBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Content area
+              Expanded(
+                child: _buildNavContent(),
+              ),
+              // Custom Bottom Navigation Footer
+              CustomBottomNavBar(
+                selectedIndex: _selectedNavIndex,
+                showAllTabs: _showAllTabs,
+                onTabSelected: (index) {
+                  HomeScreen.activeTabNotifier.value = index;
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Returns content based on selected bottom nav index
+  // Returns content based on selected bottom nav index with smooth transitions
   Widget _buildNavContent() {
+    Widget child;
     switch (_selectedNavIndex) {
       case 0:
-        return _buildHomeDashboard();
+        child = _buildHomeDashboard();
+        break;
       case 1:
-        return CommunityScreen(
+        child = CommunityScreen(
           showAppBar: false,
           onTabSelected: (index) {
             setState(() {
@@ -99,15 +104,41 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           },
         );
+        break;
       case 2:
-        return const LotteryScreen();
+        child = const LotteryScreen();
+        break;
       case 3:
-        return const LoanDetailsScreen();
+        child = const LoanDetailsScreen();
+        break;
       case 4:
-        return const SettingsScreen();
+        child = const SettingsScreen();
+        break;
       default:
-        return _buildHomeDashboard();
+        child = _buildHomeDashboard();
     }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.03, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        );
+      },
+      child: KeyedSubtree(
+        key: ValueKey<int>(_selectedNavIndex),
+        child: child,
+      ),
+    );
   }
 
   // Main Home Dashboard switcher

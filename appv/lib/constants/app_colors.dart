@@ -28,7 +28,7 @@ class AppColors {
   static const Color shadowColor = Color(0x1F000000);
 
   // Centralized App Theme Colors
-  static const Color primaryGreen = Color(0xFF0F4C3A);
+  static const Color primaryGreen = Color(0xFF156D56);
   static const Color accentMint = Color(0xFF92D7B1);
   static const Color backgroundSoft = Color(0xFFF3F5F8);
   static const Color backgroundAlt = Color(0xFFF8FAFC);
@@ -43,7 +43,7 @@ class AppColors {
   static const Color errorLight = Color(0xFFFEF2F2);
   static const Color errorAccent = Color(0xFFEF4444);
   static const Color successGreen = Color(0xFF10B981);
-  static const Color primaryDark = Color(0xFF0A3427);
+  static const Color primaryDark = Color(0xFF0E4A3B);
   static const Color accentBlue = Color(0xFFBFDBFE);
   static const Color warningAmber = Color(0xFFFBBF24);
   static const Color infoBlue = Color(0xFF3B82F6);

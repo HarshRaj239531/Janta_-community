@@ -76,7 +76,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
         }
 
         final error = cp.error;
-        final committees = cp.committees;
+        final rawCommittees = cp.committees;
+        final committees = _activeFilterIndex == 1
+            ? rawCommittees.where((c) => c.trending).toList()
+            : rawCommittees;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -157,10 +160,28 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   ),
                 )
               else
-                ...committees.map((committee) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildCommunityCard(context, committee: committee),
-                )),
+                ...committees.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final committee = entry.value;
+                  return TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.0, end: 1.0),
+                    duration: Duration(milliseconds: 300 + (index * 80)),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) {
+                      return Transform.translate(
+                        offset: Offset(0, 20 * (1 - value)),
+                        child: Opacity(
+                          opacity: value,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _buildCommunityCard(context, committee: committee),
+                    ),
+                  );
+                }),
             ],
           ),
         );
@@ -182,7 +203,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       );
     } else {
       return Container(
-        color: AppColors.backgroundSoft,
+        color: Colors.transparent,
         child: body,
       );
     }
@@ -198,19 +219,23 @@ class _CommunityScreenState extends State<CommunityScreen> {
           _activeFilterIndex = index;
         });
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isActive ? theme.colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(18),
         ),
-        child: Text(
-          label,
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
           style: GoogleFonts.outfit(
             fontSize: 12,
             fontWeight: FontWeight.bold,
             color: isActive ? Colors.white : AppColors.textSecondary,
           ),
+          child: Text(label),
         ),
       ),
     );

@@ -335,7 +335,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.backgroundSoft,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -520,14 +520,24 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           _activeSwitcherIndex = index;
         });
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? theme.colorScheme.primary : Colors.transparent,
+          color: isActive ? theme.colorScheme.primary : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             color: isActive ? Colors.transparent : AppColors.borderLight,
           ),
+          boxShadow: [
+            if (!isActive)
+              BoxShadow(
+                color: Colors.black.withAlpha(5),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+          ],
         ),
         child: Row(
           children: [
@@ -537,13 +547,15 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
               size: 16,
             ),
             const SizedBox(width: 8),
-            Text(
-              label,
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
               style: GoogleFonts.outfit(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
                 color: isActive ? Colors.white : AppColors.textSecondary,
               ),
+              child: Text(label),
             ),
           ],
         ),
