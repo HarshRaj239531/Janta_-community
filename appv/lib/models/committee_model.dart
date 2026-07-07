@@ -12,6 +12,7 @@ class CommitteeModel {
   // Pivot data (from committee_user)
   final String? pivotStatus;
   final String? joinedAt;
+  final bool trending;
 
   CommitteeModel({
     required this.id,
@@ -25,6 +26,7 @@ class CommitteeModel {
     this.updatedAt,
     this.pivotStatus,
     this.joinedAt,
+    this.trending = false,
   });
 
   factory CommitteeModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class CommitteeModel {
       updatedAt: json['updated_at'],
       pivotStatus: pivot?['status'],
       joinedAt: pivot?['joined_at'],
+      trending: json['trending'] == 1 || json['trending'] == true || (json['trending']?.toString() == 'true'),
     );
   }
 
