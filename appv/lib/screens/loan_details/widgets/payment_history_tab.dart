@@ -7,11 +7,13 @@ import '../../../models/loan_model.dart';
 class PaymentHistoryTab extends StatelessWidget {
   final LoanModel? loan;
   final VoidCallback onPayEmiPressed;
+  final bool showBlank;
 
   const PaymentHistoryTab({
     super.key,
     required this.loan,
     required this.onPayEmiPressed,
+    this.showBlank = false,
   });
 
   String _formatCurrency(double amount) {
@@ -32,6 +34,10 @@ class PaymentHistoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (showBlank) {
+      return const SizedBox.shrink();
+    }
 
     if (loan == null) {
       return const Center(

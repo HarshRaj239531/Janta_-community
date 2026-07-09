@@ -33,7 +33,8 @@ class InstallmentModel {
       userId: json['user_id'],
       committeeId: json['committee_id'],
       loanId: json['loan_id'],
-      amount: double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
+      amount: double.tryParse(json['amount']?.toString() ?? '') ??
+              double.tryParse(json['total_amount']?.toString() ?? '') ?? 0.0,
       dueDate: json['due_date'],
       status: json['status'],
       paidDate: json['paid_date'],
