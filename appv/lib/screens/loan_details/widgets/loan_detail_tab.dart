@@ -53,9 +53,21 @@ class LoanDetailTab extends StatelessWidget {
     final duration = loan!.installments != null && loan!.installments!.isNotEmpty
         ? loan!.installments!.length
         : (loan!.duration ?? 0);
-    final emi = loan!.installments != null && loan!.installments!.isNotEmpty
-        ? (loan!.installments!.first.amount ?? 0.0)
-        : loan!.monthlyEmi;
+    final installmentsList = loan!.installments;
+    double emi = loan!.monthlyEmi;
+    if (installmentsList != null && installmentsList.isNotEmpty) {
+      final pendingListForEmi = installmentsList.where((i) => i.status == 'pending').toList();
+      if (pendingListForEmi.isNotEmpty) {
+        pendingListForEmi.sort((a, b) {
+          final aDate = a.dueDate ?? '';
+          final bDate = b.dueDate ?? '';
+          return aDate.compareTo(bDate);
+        });
+        emi = pendingListForEmi.first.amount ?? 0.0;
+      } else {
+        emi = 0.0;
+      }
+    }
     final paidCount = loan!.installments != null
         ? loan!.installments!.where((i) => i.status == 'paid').length
         : 0;
