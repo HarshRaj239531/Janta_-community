@@ -7,11 +7,13 @@ import '../../../models/loan_model.dart';
 class LoanDetailTab extends StatelessWidget {
   final LoanModel? loan;
   final VoidCallback onPayEmiPressed;
+  final bool showBlank;
 
   const LoanDetailTab({
     super.key,
     required this.loan,
     required this.onPayEmiPressed,
+    this.showBlank = false,
   });
 
   String _formatCurrency(double amount) {
@@ -33,6 +35,10 @@ class LoanDetailTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    if (showBlank) {
+      return const SizedBox.shrink();
+    }
+
     if (loan == null) {
       return const Center(
         child: Padding(
@@ -44,11 +50,21 @@ class LoanDetailTab extends StatelessWidget {
 
     final totalAmount = loan!.amount ?? 0;
     final interestRate = loan!.interestRate ?? 0;
-    final duration = loan!.duration ?? 0;
-    final emi = loan!.monthlyEmi;
-    final paidCount = loan!.paidCount;
-    final totalRepaid = emi * paidCount;
-    final outstanding = (totalAmount * (1 + interestRate / 100)) - totalRepaid;
+    final duration = loan!.installments != null && loan!.installments!.isNotEmpty
+        ? loan!.installments!.length
+        : (loan!.duration ?? 0);
+    final emi = loan!.installments != null && loan!.installments!.isNotEmpty
+        ? (loan!.installments!.first.amount ?? 0.0)
+        : loan!.monthlyEmi;
+    final paidCount = loan!.installments != null
+        ? loan!.installments!.where((i) => i.status == 'paid').length
+        : 0;
+    final totalRepaid = loan!.installments != null
+        ? loan!.installments!.where((i) => i.status == 'paid').map((i) => i.amount ?? 0.0).fold(0.0, (a, b) => a + b)
+        : 0.0;
+    final outstanding = loan!.installments != null && loan!.installments!.isNotEmpty
+        ? loan!.installments!.where((i) => i.status == 'pending').map((i) => i.amount ?? 0.0).fold(0.0, (a, b) => a + b)
+        : (totalAmount * (1 + interestRate / 100)) - totalRepaid;
     final progress = duration > 0 ? paidCount / duration : 0.0;
 
     // Find next due date

@@ -28,12 +28,18 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final lp = Provider.of<LoanProvider>(context, listen: false);
       await lp.fetchLoans();
-      if (lp.loans.isNotEmpty && mounted) {
-        final activeLoan = lp.loans.firstWhere(
-          (l) => l.status == 'active',
-          orElse: () => lp.loans.first,
-        );
-        await lp.fetchLoanDetails(activeLoan.id);
+      if (mounted) {
+        if (lp.loans.isNotEmpty) {
+          final activeLoan = lp.loans.firstWhere(
+            (l) => l.status == 'active',
+            orElse: () => lp.loans.first,
+          );
+          await lp.fetchLoanDetails(activeLoan.id);
+        } else {
+          setState(() {
+            _activeSwitcherIndex = 2; // Default to Documents Tab if no loans
+          });
+        }
       }
       if (mounted) {
         Provider.of<ProfileProvider>(context, listen: false).fetchVault();
@@ -370,89 +376,56 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           final loans = lp.loans;
           final loan = lp.selectedLoan;
 
-          Widget content;
-          if (loans.isEmpty) {
-            content = Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.monetization_on_outlined, size: 64, color: theme.colorScheme.primary.withAlpha(80)),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No loans found',
-                      style: GoogleFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'You do not have any active loans at this moment.',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          } else {
-            content = Stack(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 1. Horizontal Switcher Tabs bar
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            _buildSwitcherTab(context, 0, Icons.account_balance_wallet_rounded, 'Loan Detail'),
-                            const SizedBox(width: 8),
-                            _buildSwitcherTab(context, 1, Icons.history_rounded, 'Payment History'),
-                            const SizedBox(width: 8),
-                            _buildSwitcherTab(context, 2, Icons.description_outlined, 'Documents'),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // 2. Dynamic Content Body
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                        child: _buildDynamicBody(loan),
-                      ),
-                    ),
-                  ],
-                ),
-                // Floating Action Button
-                if (loan != null && loan.status == 'active')
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: FloatingActionButton(
-                      onPressed: _showPayEmiBottomSheet,
-                      backgroundColor: theme.colorScheme.primary,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      child: const Icon(
-                        Icons.payments_outlined,
-                        color: Colors.white,
-                        size: 24,
+          final content = Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Horizontal Switcher Tabs bar
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildSwitcherTab(context, 0, Icons.account_balance_wallet_rounded, 'Loan Detail'),
+                          const SizedBox(width: 8),
+                          _buildSwitcherTab(context, 1, Icons.history_rounded, 'Payment History'),
+                          const SizedBox(width: 8),
+                          _buildSwitcherTab(context, 2, Icons.description_outlined, 'Documents'),
+                        ],
                       ),
                     ),
                   ),
-              ],
-            );
-          }
+
+                  // 2. Dynamic Content Body
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: _buildDynamicBody(loan, loans.isEmpty),
+                    ),
+                  ),
+                ],
+              ),
+              // Floating Action Button
+              if (loan != null && loan.status == 'active')
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: _showPayEmiBottomSheet,
+                    backgroundColor: theme.colorScheme.primary,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    child: const Icon(
+                      Icons.payments_outlined,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+            ],
+          );
 
           if (error != null) {
             return Column(
@@ -497,16 +470,28 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   // Returns body content depending on switcher index
-  Widget _buildDynamicBody(LoanModel? loan) {
+  Widget _buildDynamicBody(LoanModel? loan, bool showBlank) {
     switch (_activeSwitcherIndex) {
       case 0:
-        return LoanDetailTab(loan: loan, onPayEmiPressed: _showPayEmiBottomSheet);
+        return LoanDetailTab(
+          loan: loan,
+          onPayEmiPressed: _showPayEmiBottomSheet,
+          showBlank: showBlank,
+        );
       case 1:
-        return PaymentHistoryTab(loan: loan, onPayEmiPressed: _showPayEmiBottomSheet);
+        return PaymentHistoryTab(
+          loan: loan,
+          onPayEmiPressed: _showPayEmiBottomSheet,
+          showBlank: showBlank,
+        );
       case 2:
         return const DocumentsTab();
       default:
-        return LoanDetailTab(loan: loan, onPayEmiPressed: _showPayEmiBottomSheet);
+        return LoanDetailTab(
+          loan: loan,
+          onPayEmiPressed: _showPayEmiBottomSheet,
+          showBlank: showBlank,
+        );
     }
   }
 

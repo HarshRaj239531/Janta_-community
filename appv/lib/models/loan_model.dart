@@ -36,8 +36,9 @@ class LoanModel {
       id: json['id'] ?? 0,
       userId: json['user_id'],
       amount: double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
-      interestRate: double.tryParse(json['interest_rate']?.toString() ?? ''),
-      duration: json['duration'],
+      interestRate: double.tryParse(json['interest_rate']?.toString() ?? '') ??
+                    double.tryParse(json['interest_rate_percent']?.toString() ?? ''),
+      duration: json['duration'] as int? ?? json['duration_months'] as int?,
       status: json['status'],
       installmentsCount: json['installments_count'],
       installments: installmentList,
