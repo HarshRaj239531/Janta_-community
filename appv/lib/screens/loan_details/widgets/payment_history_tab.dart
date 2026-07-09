@@ -50,11 +50,38 @@ class PaymentHistoryTab extends StatelessWidget {
 
     final totalAmount = loan!.amount ?? 0;
     final interestRate = loan!.interestRate ?? 0;
-    final totalWithInterest = totalAmount * (1 + interestRate / 100);
-    final duration = loan!.duration ?? 0;
-    final emi = loan!.monthlyEmi;
-    final paidCount = loan!.paidCount;
-    final totalRepaid = emi * paidCount;
+    final duration = loan!.installments != null && loan!.installments!.isNotEmpty
+        ? loan!.installments!.length
+        : (loan!.duration ?? 0);
+        
+    final installmentsList = loan!.installments;
+    double emi = loan!.monthlyEmi;
+    if (installmentsList != null && installmentsList.isNotEmpty) {
+      final pendingListForEmi = installmentsList.where((i) => i.status == 'pending').toList();
+      if (pendingListForEmi.isNotEmpty) {
+        pendingListForEmi.sort((a, b) {
+          final aDate = a.dueDate ?? '';
+          final bDate = b.dueDate ?? '';
+          return aDate.compareTo(bDate);
+        });
+        emi = pendingListForEmi.first.amount ?? 0.0;
+      } else {
+        emi = 0.0;
+      }
+    }
+    
+    final paidCount = loan!.installments != null
+        ? loan!.installments!.where((i) => i.status == 'paid').length
+        : 0;
+        
+    final totalRepaid = loan!.installments != null
+        ? loan!.installments!.where((i) => i.status == 'paid').map((i) => i.amount ?? 0.0).fold(0.0, (a, b) => a + b)
+        : 0.0;
+        
+    final totalWithInterest = installmentsList != null && installmentsList.isNotEmpty
+        ? installmentsList.map((i) => i.amount ?? 0.0).fold(0.0, (a, b) => a + b)
+        : totalAmount * (1 + interestRate / 100);
+        
     final progress = duration > 0 ? paidCount / duration : 0.0;
 
     final installments = loan!.installments ?? [];
