@@ -17,19 +17,13 @@ class ProfileApi {
   }
 
   /// Get vault (KYC documents)
-  static Future<Map<String, String?>> getVault() async {
+  static Future<Map<String, dynamic>> getVault() async {
     final data = await ApiHelper.get(ApiConstants.vault);
-    final map = data as Map<String, dynamic>;
-    return {
-      'aadhar_card': map['aadhar_card'] as String?,
-      'pan_card': map['pan_card'] as String?,
-      'id_proof': map['id_proof'] as String?,
-      'photo': map['photo'] as String?,
-    };
+    return data as Map<String, dynamic>;
   }
 
   /// Upload vault documents
-  static Future<dynamic> uploadVault(Map<String, File> files) async {
-    return await ApiHelper.uploadFiles(ApiConstants.vaultUpload, files: files);
+  static Future<dynamic> uploadVault(Map<String, File> files, {Map<String, String>? fields}) async {
+    return await ApiHelper.uploadFiles(ApiConstants.vaultUpload, files: files, fields: fields);
   }
 }

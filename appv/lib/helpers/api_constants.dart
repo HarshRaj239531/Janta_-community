@@ -42,6 +42,7 @@ class ApiConstants {
 
   // Payments
   static const String pay = '/user/payments/pay';
+  static const String paymentSetting = '/user/payment-setting';
 
   /// Resolves database image URLs that point to localhost (common in local Laravel dev servers)
   /// so that they point to the correct emulator/device accessible host dynamically.

@@ -13,6 +13,8 @@ import '../loan_details/loan_details_screen.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/trader_tab.dart';
 import 'widgets/other_tab.dart';
+import 'widgets/payment_gateway_screen.dart';
+import '../../constants/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   static final ValueNotifier<int> activeTabNotifier = ValueNotifier<int>(0);
@@ -85,6 +87,27 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      floatingActionButton: (_selectedNavIndex == 0 && _showAllTabs && _selectedTabIndex == 1)
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 75.0),
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PaymentGatewayScreen()),
+                  );
+                },
+                backgroundColor: AppColors.primaryGreen,
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                child: const Icon(
+                  Icons.payments_outlined,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            )
+          : null,
     );
   }
 

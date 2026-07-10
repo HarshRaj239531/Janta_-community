@@ -6,13 +6,13 @@ import '../helpers/api_helper.dart';
 
 class ProfileProvider with ChangeNotifier {
   UserModel? _profile;
-  Map<String, String?>? _vault;
+  Map<String, dynamic>? _vault;
   bool _isLoading = false;
   bool _isUploading = false;
   String? _error;
 
   UserModel? get profile => _profile;
-  Map<String, String?>? get vault => _vault;
+  Map<String, dynamic>? get vault => _vault;
   bool get isLoading => _isLoading;
   bool get isUploading => _isUploading;
   String? get error => _error;
@@ -84,13 +84,13 @@ class ProfileProvider with ChangeNotifier {
   }
 
   /// Upload documents to vault
-  Future<bool> uploadVault(Map<String, File> files) async {
+  Future<bool> uploadVault(Map<String, File> files, {Map<String, String>? fields}) async {
     _isUploading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await ProfileApi.uploadVault(files);
+      await ProfileApi.uploadVault(files, fields: fields);
       _isUploading = false;
       // Refresh vault
       await fetchVault();

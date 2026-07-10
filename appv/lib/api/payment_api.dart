@@ -18,4 +18,10 @@ class PaymentApi {
       },
     );
   }
+
+  /// Fetch payment setting (QR Code URL and Admin Phone)
+  static Future<Map<String, dynamic>> fetchPaymentSetting() async {
+    final response = await ApiHelper.get(ApiConstants.paymentSetting);
+    return Map<String, dynamic>.from(response);
+  }
 }
