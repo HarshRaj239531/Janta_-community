@@ -36,9 +36,10 @@ class ApiConstants {
   static const String pendingInstallments = '/user/installments/pending';
   static const String paidInstallments = '/user/installments/paid';
 
-  // Lottery
+  // Lotteries
   static const String lotteryWinners = '/user/lotteries/winners';
   static const String lotteryHistory = '/user/lotteries/history';
+  static const String lotterySetting = '/user/lotteries/setting';
 
   // Payments
   static const String pay = '/user/payments/pay';

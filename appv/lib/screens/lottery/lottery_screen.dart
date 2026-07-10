@@ -15,10 +15,6 @@ class LotteryScreen extends StatefulWidget {
 
 class _LotteryScreenState extends State<LotteryScreen> {
   late Timer _timer;
-  int _days = 2;
-  int _hours = 14;
-  int _minutes = 52;
-  int _seconds = 30;
 
   @override
   void initState() {
@@ -27,36 +23,13 @@ class _LotteryScreenState extends State<LotteryScreen> {
       final lp = Provider.of<LotteryProvider>(context, listen: false);
       lp.fetchWinners();
       lp.fetchHistory(refresh: true);
+      lp.fetchLotterySetting();
     });
-    // Simulate real countdown timer
+    // Tick the countdown dynamic calculation every second
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
-      setState(() {
-        if (_seconds > 0) {
-          _seconds--;
-        } else {
-          _seconds = 59;
-          if (_minutes > 0) {
-            _minutes--;
-          } else {
-            _minutes = 59;
-            if (_hours > 0) {
-              _hours--;
-            } else {
-              _hours = 23;
-              if (_days > 0) {
-                _days--;
-              } else {
-                // Reset to simulate continuous countdown
-                _days = 2;
-                _hours = 14;
-                _minutes = 52;
-                _seconds = 30;
-              }
-            }
-          }
-        }
-      });
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -65,8 +38,6 @@ class _LotteryScreenState extends State<LotteryScreen> {
     _timer.cancel();
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -102,16 +73,39 @@ class _LotteryScreenState extends State<LotteryScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: Consumer<LotteryProvider>(
+        builder: (context, lp, child) {
+          // Calculate dynamic countdown values from grandDrawDate
+          final targetDate = lp.grandDrawDate;
+          int days = 0;
+          int hours = 0;
+          int minutes = 0;
+          if (targetDate != null) {
+            final diff = targetDate.difference(DateTime.now());
+            if (!diff.isNegative) {
+              days = diff.inDays;
+              hours = diff.inHours % 24;
+              minutes = diff.inMinutes % 60;
+            }
+          }
+
+          final grandTitle = lp.grandDrawTitle ?? 'The Wealth Multiplier';
+          final grandDescription = lp.grandDrawDescription ?? 
+              'Join the elite circle of participants. Secure your ticket today for a chance to win the prize pool.';
+
+          final winners = lp.winners;
+          final history = lp.history;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 // 1. Promotional Card (Wealth Multiplier)
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.successBgSoft, // Muted green tint
+                    color: AppColors.successBgSoft,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: AppColors.borderLight),
                   ),
@@ -135,7 +129,9 @@ class _LotteryScreenState extends State<LotteryScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'GRAND DRAW SCHEDULED',
+                              targetDate != null
+                                  ? 'SCHEDULED FOR ${DateFormat('MMM dd, yyyy').format(targetDate)}'.toUpperCase()
+                                  : 'GRAND DRAW SCHEDULED',
                               style: GoogleFonts.outfit(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -148,7 +144,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'The Wealth Multiplier',
+                        grandTitle,
                         style: GoogleFonts.outfit(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -158,7 +154,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Join the elite circle of participants. Secure your ticket today for a chance to win the ₹ 1,500,000 prize pool.',
+                        grandDescription,
                         style: GoogleFonts.outfit(
                           fontSize: 13,
                           color: AppColors.textSecondary,
@@ -190,11 +186,11 @@ class _LotteryScreenState extends State<LotteryScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildCountdownItem(context, _days, 'Days'),
+                                _buildCountdownItem(context, days, 'Days'),
                                 _buildCountdownDivider(context),
-                                _buildCountdownItem(context, _hours, 'Hours'),
+                                _buildCountdownItem(context, hours, 'Hours'),
                                 _buildCountdownDivider(context),
-                                _buildCountdownItem(context, _minutes, 'Mins'),
+                                _buildCountdownItem(context, minutes, 'Mins'),
                               ],
                             ),
                           ],
@@ -203,269 +199,245 @@ class _LotteryScreenState extends State<LotteryScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),                // 2. Winner's Circle Section
-                Consumer<LotteryProvider>(
-                  builder: (context, lp, child) {
-                    if (lp.winners.isEmpty && lp.isLoading) {
-                      return const Center(child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: CircularProgressIndicator(),
-                      ));
-                    }
-
-                    final winners = lp.winners;
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.stars_rounded, color: theme.colorScheme.primary, size: 20),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Winner\'s Circle',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              'View All Stories',
-                              style: GoogleFonts.outfit(
-                                fontSize: 12,
-                                color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          height: 85,
-                          child: winners.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    'No winners announced yet',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 13,
-                                      color: AppColors.textMuted,
-                                    ),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: winners.length,
-                                  itemBuilder: (context, index) {
-                                    final winner = winners[index];
-                                    final amountFormatter = NumberFormat.currency(
-                                      locale: 'en_IN',
-                                      symbol: '₹',
-                                      decimalDigits: 0,
-                                    );
-                                    final amountText = amountFormatter.format(winner.prizeAmount ?? 0);
-                                    String dateText = 'N/A';
-                                    if (winner.drawDate != null) {
-                                      try {
-                                        dateText = DateFormat('MMMM dd, yyyy').format(DateTime.parse(winner.drawDate!));
-                                      } catch (_) {
-                                        dateText = winner.drawDate!;
-                                      }
-                                    }
-
-                                    return Padding(
-                                      padding: const EdgeInsets.only(right: 12.0),
-                                      child: _buildWinnerCard(
-                                        context,
-                                        name: winner.winnerName,
-                                        amount: 'Won $amountText',
-                                        date: dateText,
-                                        imageUrl: winner.winnerPhoto,
-                                      ),
-                                    );
-                                  },
-                                ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
                 const SizedBox(height: 24),
 
-                // 3. Past Results History Section
-                Consumer<LotteryProvider>(
-                  builder: (context, lp, child) {
-                    final history = lp.history;
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.history_rounded, color: theme.colorScheme.primary, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Past Results History',
+                // 2. Winner's Circle Section
+                if (lp.isLoading && winners.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.stars_rounded, color: theme.colorScheme.primary, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Winner\'s Circle',
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 85,
+                    child: winners.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No winners announced yet',
                               style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                fontSize: 13,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: winners.length,
+                            itemBuilder: (context, index) {
+                              final winner = winners[index];
+                              final amountFormatter = NumberFormat.currency(
+                                locale: 'en_IN',
+                                symbol: '₹',
+                                decimalDigits: 0,
+                              );
+                              final amountText = amountFormatter.format(winner.prizeAmount ?? 0);
+                              String dateText = 'N/A';
+                              if (winner.drawDate != null) {
+                                try {
+                                  dateText = DateFormat('MMMM dd, yyyy').format(DateTime.parse(winner.drawDate!));
+                                } catch (_) {
+                                  dateText = winner.drawDate!;
+                                }
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: _buildWinnerCard(
+                                  context,
+                                  name: winner.winnerName,
+                                  amount: 'Won $amountText',
+                                  date: dateText,
+                                  imageUrl: winner.winnerPhoto,
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // 3. Past Results History Section
+                Row(
+                  children: [
+                    Icon(Icons.history_rounded, color: theme.colorScheme.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Past Results History',
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.borderMuted),
+                  ),
+                  child: Column(
+                    children: [
+                      // Header Row
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: const BoxDecoration(
+                          color: AppColors.backgroundSoft,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                'DRAW DATE',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: Center(
+                                child: Text(
+                                  'COMMUNITY',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  'PRIZE POOL',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.borderMuted),
-                          ),
-                          child: Column(
-                            children: [
-                              // Header Row
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.backgroundSoft,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      flex: 3,
-                                      child: Text(
-                                        'DRAW DATE',
-                                        style: GoogleFonts.outfit(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 4,
-                                      child: Center(
-                                        child: Text(
-                                          'COMMUNITY',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Align(
-                                        alignment: Alignment.centerRight,
-                                        child: Text(
-                                          'PRIZE POOL',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // History rows from API
-                              if (history.isEmpty && !lp.isLoading)
-                                Padding(
-                                  padding: const EdgeInsets.all(24.0),
-                                  child: Text(
-                                    'No lottery history available',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 13,
-                                      color: AppColors.textMuted,
-                                    ),
-                                  ),
-                                )
-                              else
-                                ...List.generate(history.length, (index) {
-                                  final item = history[index];
-                                  final amountFormatter = NumberFormat.currency(
-                                    locale: 'en_IN',
-                                    symbol: '₹',
-                                    decimalDigits: 0,
-                                  );
-                                  final poolText = amountFormatter.format(item.prizeAmount ?? 0);
-                                  String dateText = 'N/A';
-                                  if (item.drawDate != null) {
-                                    try {
-                                      dateText = DateFormat('MMM dd, yyyy').format(DateTime.parse(item.drawDate!));
-                                    } catch (_) {
-                                      dateText = item.drawDate!;
-                                    }
-                                  }
-
-                                  return Column(
-                                    children: [
-                                      _buildHistoryRow(
-                                        context,
-                                        date: dateText,
-                                        drawId: 'Draw #${item.id}',
-                                        numbers: item.committeeName,
-                                        pool: poolText,
-                                        isSpecial: index == 0,
-                                      ),
-                                      if (index < history.length - 1)
-                                        const Divider(color: AppColors.backgroundSoft, height: 1),
-                                    ],
-                                  );
-                                }),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Load Historical Data Button
-                        if (lp.hasMore)
-                          OutlinedButton(
-                            onPressed: lp.isLoading ? null : () => lp.fetchHistory(),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: AppColors.borderLight),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                      ),
+                      // History rows from API
+                      if (history.isEmpty && !lp.isLoading)
+                        Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Text(
+                            'No lottery history available',
+                            style: GoogleFonts.outfit(
+                              fontSize: 13,
+                              color: AppColors.textMuted,
                             ),
-                            child: lp.isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  )
-                                : Text(
-                                    'Load Historical Data',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
                           ),
-                      ],
-                    );
-                  },
+                        )
+                      else
+                        ...List.generate(history.length, (index) {
+                          final item = history[index];
+                          final amountFormatter = NumberFormat.currency(
+                            locale: 'en_IN',
+                            symbol: '₹',
+                            decimalDigits: 0,
+                          );
+                          final poolText = amountFormatter.format(item.prizeAmount ?? 0);
+                          String dateText = 'N/A';
+                          if (item.drawDate != null) {
+                            try {
+                              dateText = DateFormat('MMM dd, yyyy').format(DateTime.parse(item.drawDate!));
+                            } catch (_) {
+                              dateText = item.drawDate!;
+                            }
+                          }
+
+                          return Column(
+                            children: [
+                              _buildHistoryRow(
+                                context,
+                                date: dateText,
+                                drawId: 'Draw #${item.id}',
+                                numbers: item.committeeName,
+                                pool: poolText,
+                                isSpecial: index == 0,
+                              ),
+                              if (index < history.length - 1)
+                                const Divider(color: AppColors.backgroundSoft, height: 1),
+                            ],
+                          );
+                        }),
+                    ],
+                  ),
                 ),
+                const SizedBox(height: 16),
+
+                // Load Historical Data Button
+                if (lp.hasMore)
+                  OutlinedButton(
+                    onPressed: lp.isLoading ? null : () => lp.fetchHistory(),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.borderLight),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: lp.isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            'Load Historical Data',
+                            style: GoogleFonts.outfit(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                  ),
                 const SizedBox(height: 20),
               ],
             ),
-          ),
+          );
+        },
+      ),
     );
   }
 
@@ -652,25 +624,13 @@ class _LotteryScreenState extends State<LotteryScreen> {
             flex: 3,
             child: Align(
               alignment: Alignment.centerRight,
-              child: RichText(
+              child: Text(
+                pool,
                 textAlign: TextAlign.end,
-                text: TextSpan(
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                  ),
-                  children: [
-                    TextSpan(text: pool),
-                    TextSpan(
-                      text: ' USDT',
-                      style: GoogleFonts.outfit(
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
+                style: GoogleFonts.outfit(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
                 ),
               ),
             ),

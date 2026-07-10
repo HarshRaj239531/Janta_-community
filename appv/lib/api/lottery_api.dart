@@ -30,4 +30,10 @@ class LotteryApi {
     }
     return [];
   }
+
+  /// Fetch lottery countdown / promotional setting
+  static Future<Map<String, dynamic>> fetchLotterySetting() async {
+    final response = await ApiHelper.get(ApiConstants.lotterySetting);
+    return Map<String, dynamic>.from(response);
+  }
 }
