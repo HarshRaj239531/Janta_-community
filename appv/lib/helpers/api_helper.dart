@@ -76,6 +76,7 @@ class ApiHelper {
   static Future<dynamic> uploadFiles(
     String endpoint, {
     required Map<String, File> files,
+    Map<String, String>? fields,
     bool withAuth = true,
   }) async {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
@@ -89,6 +90,11 @@ class ApiHelper {
       }
     }
     request.headers['Accept'] = 'application/json';
+
+    // Add fields
+    if (fields != null) {
+      request.fields.addAll(fields);
+    }
 
     // Add files
     for (final entry in files.entries) {

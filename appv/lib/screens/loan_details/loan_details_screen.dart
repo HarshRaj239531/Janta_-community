@@ -11,6 +11,8 @@ import '../home/home_screen.dart';
 import 'widgets/loan_detail_tab.dart';
 import 'widgets/payment_history_tab.dart';
 import 'widgets/documents_tab.dart';
+import 'widgets/basic_details_tab.dart';
+
 
 class LoanDetailsScreen extends StatefulWidget {
   const LoanDetailsScreen({super.key});
@@ -20,7 +22,7 @@ class LoanDetailsScreen extends StatefulWidget {
 }
 
 class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
-  int _activeSwitcherIndex = 0; // 0: Loan Detail, 1: Payment History, 2: Documents
+  int _activeSwitcherIndex = 0; // 0: Basic Details, 1: Loan Detail, 2: Payment History, 3: Documents
 
   @override
   void initState() {
@@ -37,7 +39,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
           await lp.fetchLoanDetails(activeLoan.id);
         } else {
           setState(() {
-            _activeSwitcherIndex = 2; // Default to Documents Tab if no loans
+            _activeSwitcherIndex = 3; // Default to Documents Tab if no loans
           });
         }
       }
@@ -359,12 +361,6 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
             fontSize: 20,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: AppColors.textPrimary),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Consumer<LoanProvider>(
         builder: (context, lp, child) {
@@ -388,11 +384,13 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildSwitcherTab(context, 0, Icons.account_balance_wallet_rounded, 'Loan Detail'),
+                          _buildSwitcherTab(context, 0, Icons.info_outline_rounded, 'Basic Details'),
                           const SizedBox(width: 8),
-                          _buildSwitcherTab(context, 1, Icons.history_rounded, 'Payment History'),
+                          _buildSwitcherTab(context, 1, Icons.account_balance_wallet_rounded, 'Loan Detail'),
                           const SizedBox(width: 8),
-                          _buildSwitcherTab(context, 2, Icons.description_outlined, 'Documents'),
+                          _buildSwitcherTab(context, 2, Icons.history_rounded, 'Payment History'),
+                          const SizedBox(width: 8),
+                          _buildSwitcherTab(context, 3, Icons.description_outlined, 'Documents'),
                         ],
                       ),
                     ),
@@ -473,25 +471,23 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   Widget _buildDynamicBody(LoanModel? loan, bool showBlank) {
     switch (_activeSwitcherIndex) {
       case 0:
-        return LoanDetailTab(
-          loan: loan,
-          onPayEmiPressed: _showPayEmiBottomSheet,
-          showBlank: showBlank,
-        );
+        return const BasicDetailsTab();
       case 1:
-        return PaymentHistoryTab(
+        return LoanDetailTab(
           loan: loan,
           onPayEmiPressed: _showPayEmiBottomSheet,
           showBlank: showBlank,
         );
       case 2:
-        return const DocumentsTab();
-      default:
-        return LoanDetailTab(
+        return PaymentHistoryTab(
           loan: loan,
           onPayEmiPressed: _showPayEmiBottomSheet,
           showBlank: showBlank,
         );
+      case 3:
+        return const DocumentsTab();
+      default:
+        return const BasicDetailsTab();
     }
   }
 
