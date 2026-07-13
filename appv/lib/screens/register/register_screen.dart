@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../widgets/otp_input_field.dart';
 import '../../constants/app_colors.dart';
-import '../home/home_screen.dart';
+import 'widgets/step1_details.dart';
+import 'widgets/step2_otp.dart';
+import 'widgets/step3_password.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -11,94 +12,142 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
+class _RegisterScreenState extends State<RegisterScreen>
+    with TickerProviderStateMixin {
+  // Step controller
+  int _currentStep = 0; // 0: Details, 1: OTP, 2: Password
+
+  // Step 1 controllers
   final _nameController = TextEditingController();
-  final _otpController = TextEditingController();
+  final _mobileController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _step1FormKey = GlobalKey<FormState>();
+
+  // Step 2 — OTP (6 separate boxes)
+  final List<TextEditingController> _otpControllers =
+      List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> _otpFocusNodes =
+      List.generate(6, (_) => FocusNode());
+  int _resendSeconds = 30;
+  bool _canResend = false;
+
+  // Step 3 controllers
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
+  final _step3FormKey = GlobalKey<FormState>();
   bool _isPasswordObscured = true;
   bool _isConfirmPasswordObscured = true;
-  String _userEmail = 'ayush0000pp@gmail.com';
+  bool _isLoading = false;
+
+  late AnimationController _slideController;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _slideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.easeOutCubic,
+    ));
+    _slideController.forward();
+    _startResendTimer();
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _otpController.dispose();
+    _mobileController.dispose();
+    _emailController.dispose();
+    for (final c in _otpControllers) {
+      c.dispose();
+    }
+    for (final f in _otpFocusNodes) {
+      f.dispose();
+    }
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
-  void _showChangeEmailDialog() {
-    final emailInputController = TextEditingController(text: _userEmail);
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Change Email Address', style: GoogleFonts.outfit()),
-          content: TextField(
-            controller: emailInputController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              hintText: 'Enter new email',
-              hintStyle: GoogleFonts.outfit(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: GoogleFonts.outfit(color: Colors.grey)),
-            ),
-            TextButton(
-              onPressed: () {
-                if (emailInputController.text.trim().isNotEmpty) {
-                  setState(() {
-                    _userEmail = emailInputController.text.trim();
-                  });
-                }
-                Navigator.pop(context);
-              },
-              child: Text('Save', style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.primary)),
-            ),
-          ],
-        );
-      },
-    );
+  void _startResendTimer() {
+    _resendSeconds = 30;
+    _canResend = false;
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return false;
+      setState(() {
+        if (_resendSeconds > 0) {
+          _resendSeconds--;
+        } else {
+          _canResend = true;
+        }
+      });
+      return _resendSeconds > 0;
+    });
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      if (_otpController.text.length < 6) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Please enter a valid 6-digit OTP',
-              style: GoogleFonts.outfit(),
-            ),
-          ),
-        );
-        return;
-      }
-      if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Passwords do not match',
-              style: GoogleFonts.outfit(),
-            ),
-          ),
-        );
-        return;
-      }
-      
-      // Navigate to home screen
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-        (route) => false,
-      );
+  void _nextStep() {
+    _slideController.reset();
+    setState(() => _currentStep++);
+    _slideController.forward();
+    if (_currentStep == 1) _startResendTimer();
+  }
+
+  void _prevStep() {
+    _slideController.reset();
+    setState(() => _currentStep--);
+    _slideController.forward();
+  }
+
+  String _getOtp() => _otpControllers.map((c) => c.text).join();
+
+  void _verifyStep1() {
+    if (_step1FormKey.currentState!.validate()) {
+      _nextStep();
     }
+  }
+
+  void _verifyOtp() {
+    final otp = _getOtp();
+    if (otp.length < 6) {
+      _showSnackBar('Please enter the complete 6-digit OTP', isError: true);
+      return;
+    }
+    _nextStep();
+  }
+
+  Future<void> _createAccount() async {
+    if (!_step3FormKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    // Simulate API call
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    _showSnackBar('Account created successfully! Please login.',
+        isError: false);
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  void _showSnackBar(String message, {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.outfit()),
+        backgroundColor:
+            isError ? AppColors.errorAccent : AppColors.successGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -106,436 +155,193 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundSoft,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 10),
-
-                // 1. Janta Trader Header Logo
-                Text(
-                  'Janta Trader',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: theme.colorScheme.primary, // Navy Blue
-                    letterSpacing: -1.0,
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // 2. Title & Subtitle
-                Text(
-                  'Create Account',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Join Janta Trader to start trading materials.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 15,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // 3. Main Lavender/Blue-grey Form Card
-                Container(
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundSoft, // Tinted card color
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppColors.borderMuted,
-                      width: 1,
+        child: Column(
+          children: [
+            // ── Top Bar ──────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 12, 16, 0),
+              child: Row(
+                children: [
+                  if (_currentStep > 0)
+                    IconButton(
+                      onPressed: _prevStep,
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                          size: 20),
+                      color: AppColors.textDark,
+                    )
+                  else
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                          size: 20),
+                      color: AppColors.textDark,
+                    ),
+                  const Spacer(),
+                  Text(
+                    'Janta Trader',
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.primary,
+                      letterSpacing: -0.5,
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // OTP Status Banner
-                      Container(
-                        padding: const EdgeInsets.all(14.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.borderMuted,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'OTP sent to',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 12,
-                                      color: theme.colorScheme.primary,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _userEmail,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: _showChangeEmailDialog,
-                              child: Text(
-                                'CHANGE',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Full Name
-                      Text(
-                        'Full Name',
-                        style: GoogleFonts.outfit(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          hintText: 'John Doe',
-                          hintStyle: GoogleFonts.outfit(
-                            color: AppColors.textMuted,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.borderMuted),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
-                          ),
-                          errorStyle: GoogleFonts.outfit(fontSize: 12),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // ENTER 6-DIGIT OTP
-                      Text(
-                        'ENTER 6-DIGIT OTP',
-                        style: GoogleFonts.outfit(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      OtpInputField(
-                        controller: _otpController,
-                      ),
-                      const SizedBox(height: 8),
-                      // Resend OTP Link
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'A new OTP has been sent.',
-                                  style: GoogleFonts.outfit(),
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Resend OTP',
-                            style: GoogleFonts.outfit(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // CREATE PASSWORD
-                      Text(
-                        'CREATE PASSWORD',
-                        style: GoogleFonts.outfit(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: _isPasswordObscured,
-                        decoration: InputDecoration(
-                          hintText: 'At least 6 characters',
-                          hintStyle: GoogleFonts.outfit(
-                            color: AppColors.textMuted,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          prefixIcon: const Icon(
-                            Icons.lock_outline_rounded,
-                            color: AppColors.textMuted,
-                            size: 20,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordObscured
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: AppColors.textMuted,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordObscured = !_isPasswordObscured;
-                              });
-                            },
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.borderMuted),
-                          ),
-                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
-                          ),
-                          errorStyle: GoogleFonts.outfit(fontSize: 12),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please create a password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // CONFIRM PASSWORD
-                      Text(
-                        'CONFIRM PASSWORD',
-                        style: GoogleFonts.outfit(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: _isConfirmPasswordObscured,
-                        decoration: InputDecoration(
-                          hintText: 'At least 6 characters',
-                          hintStyle: GoogleFonts.outfit(
-                            color: AppColors.textMuted,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          prefixIcon: const Icon(
-                            Icons.lock_outline_rounded,
-                            color: AppColors.textMuted,
-                            size: 20,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isConfirmPasswordObscured
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: AppColors.textMuted,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isConfirmPasswordObscured = !_isConfirmPasswordObscured;
-                              });
-                            },
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.borderMuted),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
-                          ),
-                          errorStyle: GoogleFonts.outfit(fontSize: 12),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Create Account Button (Forest green style)
-                      ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary, // Deep forest green
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'CREATE ACCOUNT',
-                              style: GoogleFonts.outfit(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Footer Links: Privacy Policy • Terms of Service • Help Center
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildFooterLink('Privacy Policy'),
-                    Text('•', style: TextStyle(color: Colors.grey.shade400)),
-                    _buildFooterLink('Terms of Service'),
-                    Text('•', style: TextStyle(color: Colors.grey.shade400)),
-                    _buildFooterLink('Help Center'),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Link back to Login Screen
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Already have an account? ",
-                        style: GoogleFonts.outfit(
-                          color: theme.colorScheme.onSurfaceVariant,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        "Login",
-                        style: GoogleFonts.outfit(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  const Spacer(),
+                  const SizedBox(width: 48),
+                ],
+              ),
             ),
-          ),
+
+            // ── Step Indicator ────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              child: _buildStepIndicator(theme),
+            ),
+
+            // ── Content ───────────────────────────────────────────
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: _buildCurrentStep(theme),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFooterLink(String label) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Opening $label...',
-              style: GoogleFonts.outfit(),
+  // ── Step Indicator ─────────────────────────────────────────────────────────
+  Widget _buildStepIndicator(ThemeData theme) {
+    final steps = ['Details', 'Verify', 'Password'];
+    return Row(
+      children: List.generate(steps.length * 2 - 1, (i) {
+        if (i.isOdd) {
+          // Connector line
+          final stepIndex = i ~/ 2;
+          return Expanded(
+            child: Container(
+              height: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                color: stepIndex < _currentStep
+                    ? theme.colorScheme.primary
+                    : AppColors.borderMuted,
+              ),
             ),
-          ),
+          );
+        }
+        final stepIndex = i ~/ 2;
+        final isCompleted = stepIndex < _currentStep;
+        final isActive = stepIndex == _currentStep;
+        return Column(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isCompleted
+                    ? theme.colorScheme.primary
+                    : isActive
+                        ? theme.colorScheme.primary
+                        : Colors.white,
+                border: Border.all(
+                  color: isCompleted || isActive
+                      ? theme.colorScheme.primary
+                      : AppColors.borderMuted,
+                  width: 1.5,
+                ),
+              ),
+              child: Center(
+                child: isCompleted
+                    ? const Icon(Icons.check_rounded,
+                        color: Colors.white, size: 16)
+                    : Text(
+                        '${stepIndex + 1}',
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: isActive ? Colors.white : AppColors.textMuted,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              steps[stepIndex],
+              style: GoogleFonts.outfit(
+                fontSize: 11,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                color: isActive
+                    ? theme.colorScheme.primary
+                    : AppColors.textMuted,
+              ),
+            ),
+          ],
         );
-      },
-      child: Text(
-        label,
-        style: GoogleFonts.outfit(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
+      }),
     );
+  }
+
+  // ── Step Router ────────────────────────────────────────────────────────────
+  Widget _buildCurrentStep(ThemeData theme) {
+    switch (_currentStep) {
+      case 0:
+        return RegisterStep1(
+          formKey: _step1FormKey,
+          nameController: _nameController,
+          mobileController: _mobileController,
+          emailController: _emailController,
+          onVerify: _verifyStep1,
+        );
+      case 1:
+        return RegisterStep2(
+          mobileController: _mobileController,
+          otpControllers: _otpControllers,
+          otpFocusNodes: _otpFocusNodes,
+          canResend: _canResend,
+          resendSeconds: _resendSeconds,
+          onVerifyOtp: _verifyOtp,
+          onResendOtp: () {
+            _showSnackBar('OTP resent to ${_mobileController.text.trim()}',
+                isError: false);
+            _startResendTimer();
+          },
+          onOtpChanged: (v, index) {
+            if (v.isNotEmpty && index < 5) {
+              _otpFocusNodes[index + 1].requestFocus();
+            } else if (v.isEmpty && index > 0) {
+              _otpFocusNodes[index - 1].requestFocus();
+            }
+            setState(() {});
+          },
+        );
+      case 2:
+        return RegisterStep3(
+          formKey: _step3FormKey,
+          nameController: _nameController,
+          mobileController: _mobileController,
+          passwordController: _passwordController,
+          confirmPasswordController: _confirmPasswordController,
+          isPasswordObscured: _isPasswordObscured,
+          isConfirmPasswordObscured: _isConfirmPasswordObscured,
+          isLoading: _isLoading,
+          onTogglePassword: () =>
+              setState(() => _isPasswordObscured = !_isPasswordObscured),
+          onToggleConfirmPassword: () => setState(() =>
+              _isConfirmPasswordObscured = !_isConfirmPasswordObscured),
+          onCreateAccount: _createAccount,
+        );
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }
