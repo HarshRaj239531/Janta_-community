@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
@@ -14,6 +16,51 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  bool _isPickingImage = false;
+
+  Future<void> _pickAndUploadProfileImage() async {
+    if (_isPickingImage) return;
+    setState(() {
+      _isPickingImage = true;
+    });
+
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+
+      if (pickedFile != null && mounted) {
+        final pp = Provider.of<ProfileProvider>(context, listen: false);
+        final file = File(pickedFile.path);
+        final success = await pp.uploadVault({'photo': file});
+        if (mounted) {
+          await pp.fetchProfile();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  success ? 'Profile photo updated successfully!' : (pp.error ?? 'Upload failed'),
+                  style: GoogleFonts.outfit(),
+                ),
+                backgroundColor: success ? AppColors.successGreen : AppColors.errorAccent,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPickingImage = false;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -251,21 +298,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Row(
                     children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF0F4C3A),
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          user != null && user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      GestureDetector(
+                        onTap: _pickAndUploadProfileImage,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F4C3A),
+                                shape: BoxShape.circle,
+                                image: user?.photo != null && user!.photo!.isNotEmpty
+                                    ? DecorationImage(
+                                        image: NetworkImage(user.photo!),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              alignment: Alignment.center,
+                              child: user?.photo != null && user!.photo!.isNotEmpty
+                                  ? null
+                                  : Text(
+                                      user != null && user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primaryGreen,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.edit_rounded,
+                                  color: Colors.white,
+                                  size: 10,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 16),
