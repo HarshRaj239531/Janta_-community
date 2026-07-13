@@ -1,8 +1,8 @@
 class ApiConstants {
   ApiConstants._();
 
-  // Base URL — Android emulator → localhost (Mapped to Docker port 80)
-  static const String baseUrl = 'http://10.0.2.2/api';
+  // Base URL — Live backend server
+  static const String baseUrl = 'https://lottery.ojasvidya.com/api';
 
   // Auth
   static const String login = '/user/login';
