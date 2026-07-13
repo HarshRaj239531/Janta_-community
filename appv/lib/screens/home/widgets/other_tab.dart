@@ -7,6 +7,7 @@ import '../../../provider/dashboard_provider.dart';
 import '../../../provider/committee_provider.dart';
 import '../../../provider/installment_provider.dart';
 import '../home_screen.dart';
+import '../installment_history_screen.dart';
 
 class OtherTab extends StatefulWidget {
   const OtherTab({super.key});
@@ -47,7 +48,7 @@ class _OtherTabState extends State<OtherTab> {
       builder: (context, dp, cp, ip, child) {
         final wallet = dp.wallet;
         final stats = dp.stats;
-        final userName = dp.userInfo?.name ?? 'User';
+        final userName = dp.userName;
         final totalBalance = wallet?.totalBalance ?? 0;
         final credits = wallet?.credits ?? 0;
         final debits = wallet?.debits ?? 0;
@@ -461,7 +462,14 @@ class _OtherTabState extends State<OtherTab> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InstallmentHistoryScreen(),
+                      ),
+                    );
+                  },
                   child: Text(
                     'View All History',
                     style: GoogleFonts.outfit(

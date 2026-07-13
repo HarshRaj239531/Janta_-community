@@ -13,6 +13,7 @@ import 'provider/installment_provider.dart';
 import 'provider/lottery_provider.dart';
 import 'provider/profile_provider.dart';
 import 'provider/material_provider.dart';
+import 'provider/notification_provider.dart';
 
 void main() {
   // Ensure system navigation/status bar styling matches app theme
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LotteryProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => MaterialProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         title: 'Janta Trader',

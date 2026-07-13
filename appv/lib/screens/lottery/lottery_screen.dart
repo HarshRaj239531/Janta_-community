@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../../provider/lottery_provider.dart';
+import '../home/notification_screen.dart';
 
 class LotteryScreen extends StatefulWidget {
   const LotteryScreen({super.key});
@@ -69,7 +70,14 @@ class _LotteryScreenState extends State<LotteryScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications_none_rounded, color: theme.colorScheme.primary),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
