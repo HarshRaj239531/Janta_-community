@@ -52,6 +52,9 @@ class ApiConstants {
     try {
       final baseUri = Uri.parse(baseUrl);
       final host = '${baseUri.scheme}://${baseUri.host}${baseUri.hasPort ? ':${baseUri.port}' : ''}';
+      if (url.startsWith('kyc/')) {
+        return '$baseUrl/profile-photo/${url.substring(4)}';
+      }
       if (url.startsWith('http://localhost')) {
         return url.replaceFirst('http://localhost', host);
       }
