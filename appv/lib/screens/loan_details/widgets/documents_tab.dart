@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../constants/app_colors.dart';
 import '../../../provider/profile_provider.dart';
+import '../../../helpers/shared_prefs_helper.dart';
+import '../../../helpers/api_constants.dart';
 
 class DocumentsTab extends StatelessWidget {
   const DocumentsTab({super.key});
@@ -190,10 +192,10 @@ class DocumentsTab extends StatelessWidget {
         }
 
         final vault = pp.vault ?? {};
-        final aadhar = vault['aadhar_card'] as String?;
-        final pan = vault['pan_card'] as String?;
-        final photo = vault['photo'] as String?;
-        final idProof = vault['id_proof'] as String?;
+        final aadhar = ApiConstants.resolveImageUrl(vault['aadhar_card'] as String?);
+        final pan = ApiConstants.resolveImageUrl(vault['pan_card'] as String?);
+        final photo = ApiConstants.resolveImageUrl(vault['photo'] as String?);
+        final idProof = ApiConstants.resolveImageUrl(vault['id_proof'] as String?);
         final additionalData = vault['additional'];
         final Map<String, dynamic> additional = (additionalData is Map)
             ? Map<String, dynamic>.from(additionalData)
@@ -280,7 +282,7 @@ class DocumentsTab extends StatelessWidget {
               ...additional.entries.map((entry) {
                 final doc = entry.value as Map<String, dynamic>;
                 final title = doc['title'] as String? ?? entry.key;
-                final url = doc['url'] as String?;
+                final url = ApiConstants.resolveImageUrl(doc['url'] as String?);
                 return Padding(
                   padding: const EdgeInsets.only(top: 12.0),
                   child: _buildDocumentDetailCard(
@@ -487,23 +489,40 @@ class DocumentsTab extends StatelessWidget {
                               return Dialog(
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Image.network(
-                                        fileUrl,
-                                        fit: BoxFit.contain,
-                                        errorBuilder: (c, e, s) => const Icon(
-                                          Icons.broken_image,
-                                          size: 100,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('Close'),
-                                      ),
-                                    ],
+                                  child: FutureBuilder<String?>(
+                                    future: SharedPrefsHelper.getToken(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const SizedBox(
+                                          height: 100,
+                                          child: Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        );
+                                      }
+                                      final token = snapshot.data;
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Image.network(
+                                            fileUrl,
+                                            fit: BoxFit.contain,
+                                            headers: token != null ? {
+                                              'Authorization': 'Bearer $token',
+                                            } : null,
+                                            errorBuilder: (c, e, s) => const Icon(
+                                              Icons.broken_image,
+                                              size: 100,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context),
+                                            child: const Text('Close'),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ),
                               );

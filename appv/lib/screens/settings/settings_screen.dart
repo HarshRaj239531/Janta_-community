@@ -7,6 +7,7 @@ import '../../constants/app_colors.dart';
 import '../../provider/profile_provider.dart';
 import '../../provider/auth_provider.dart';
 import '../login/login_screen.dart';
+import '../loan_details/widgets/documents_tab.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -416,13 +417,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: 'KYC Documents Vault',
                   subtitle: 'View Aadhar, PAN, and ID Proof attachments',
                   onTap: () {
-                    // Navigate to LoanDetails documents tab (switcher index 2)
-                    // Or let user view KYC attachments
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'KYC Vault can be managed directly in the "Documents" tab of Loan Details.',
-                          style: GoogleFonts.outfit(),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Scaffold(
+                          appBar: AppBar(
+                            title: Text(
+                              'KYC Documents Vault',
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            backgroundColor: const Color(0xFF0F4C3A),
+                            elevation: 0,
+                            iconTheme: const IconThemeData(color: Colors.white),
+                          ),
+                          body: const SingleChildScrollView(
+                            padding: EdgeInsets.all(16),
+                            child: DocumentsTab(),
+                          ),
                         ),
                       ),
                     );

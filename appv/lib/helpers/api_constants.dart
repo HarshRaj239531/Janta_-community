@@ -10,6 +10,7 @@ class ApiConstants {
 
   // Dashboard
   static const String dashboard = '/user/dashboard';
+  static const String notifications = '/user/notifications';
 
   // Materials & Stocks
   static const String materials = '/user/materials';

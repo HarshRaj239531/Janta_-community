@@ -83,6 +83,12 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
     }
 
     final nextInstallment = pendingInstallments.first;
+    final totalPendingAmount = pendingInstallments.fold<double>(
+      0.0,
+      (sum, item) => sum + (item.amount ?? 0.0),
+    );
+    final remainingAfterPayment = totalPendingAmount - (nextInstallment.amount ?? 0.0);
+
     String dueDateText = 'N/A';
     if (nextInstallment.dueDate != null) {
       try {
@@ -166,37 +172,122 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.backgroundAlt,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.borderLight),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F4C3A), Color(0xFF1E3A2F)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0F4C3A).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          )
+                        ],
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
                         children: [
-                          Text(
-                            'Amount Due',
-                            style: GoogleFonts.outfit(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'EMI Installment',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 13,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              Text(
+                                '#${loan.paidCount + 1} of ${loan.installments?.length ?? loan.duration ?? 0}',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            amountFormatter.format(nextInstallment.amount ?? 0),
-                            style: GoogleFonts.outfit(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
+                          const SizedBox(height: 12),
+                          const Divider(color: Colors.white24, height: 1),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Amount Due',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                amountFormatter.format(nextInstallment.amount ?? 0),
+                                style: GoogleFonts.outfit(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF68D391), // light green
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Remaining Balance Later',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 11,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                                Text(
+                                  amountFormatter.format(remainingAfterPayment),
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.security_rounded,
+                          color: Color(0xFF68D391),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Secure Bank-Grade Verification Active',
+                          style: GoogleFonts.outfit(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                     Row(
                       children: [
                         Expanded(

@@ -14,6 +14,7 @@ import '../settings/settings_screen.dart';
 import 'widgets/trader_tab.dart';
 import 'widgets/other_tab.dart';
 import 'widgets/payment_gateway_screen.dart';
+import 'notification_screen.dart';
 import '../../constants/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -200,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Trader Tab Header layout — uses real data from dashboard
   Widget _buildTraderHeader(DashboardProvider dp) {
-    final userName = dp.userInfo?.name ?? 'User';
+    final userName = dp.userName;
     final userPhoto = dp.userInfo?.photo;
 
     return Row(
@@ -239,7 +240,14 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Color(0xFF111827),
             size: 24,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotificationScreen(),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -247,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Other Tab Header layout
   Widget _buildOtherHeader(DashboardProvider dp) {
-    final userName = dp.userInfo?.name;
+    final userName = dp.userName;
     final userPhoto = dp.userInfo?.photo;
 
     return Row(
@@ -270,7 +278,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Color(0xFF111827),
                 size: 24,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationScreen(),
+                  ),
+                );
+              },
             ),
             ClipRRect(
               borderRadius: BorderRadius.circular(18),
@@ -281,10 +296,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 36,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return _buildAvatarFallback(36, userName ?? 'U');
+                        return _buildAvatarFallback(36, userName);
                       },
                     )
-                  : _buildAvatarFallback(36, userName ?? 'U'),
+                  : _buildAvatarFallback(36, userName),
             ),
           ],
         ),

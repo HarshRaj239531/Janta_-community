@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/agent_colors.dart';
 import '../../screens/login/login_screen.dart';
+import '../../screens/home/notification_screen.dart';
 
 class AgentHeader extends StatelessWidget {
   const AgentHeader({super.key});
@@ -63,12 +64,10 @@ class AgentHeader extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'No new notifications',
-                        style: GoogleFonts.outfit(),
-                      ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationScreen(),
                     ),
                   );
                 },
