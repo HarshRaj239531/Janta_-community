@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../../constants/agent_colors.dart';
 import '../../widgets/settings/agent_profile_header.dart';
 import '../../widgets/settings/settings_tile.dart';
 import '../../widgets/settings/settings_logout_button.dart';
+import '../../../provider/profile_provider.dart';
 import 'support_admin_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -14,7 +18,60 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isDarkMode = false;
+  bool _isUploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
+    });
+  }
+
+  Future<void> _pickAndUploadProfileImage() async {
+    if (_isUploading) return;
+    
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+
+      if (pickedFile != null && mounted) {
+        setState(() {
+          _isUploading = true;
+        });
+
+        final pp = Provider.of<ProfileProvider>(context, listen: false);
+        final file = File(pickedFile.path);
+        final success = await pp.uploadVault({'photo': file});
+        
+        if (mounted) {
+          await pp.fetchProfile();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  success ? 'Profile photo updated successfully!' : (pp.error ?? 'Upload failed'),
+                  style: GoogleFonts.outfit(),
+                ),
+                backgroundColor: success ? Colors.green : Colors.redAccent,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,31 +90,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const AgentProfileHeader(),
               const SizedBox(height: 36),
               
-              // 2. APP PREFERENCES Section
-              _buildSectionHeader('APP PREFERENCES'),
+              // 2. PROFILE SETTINGS Section
+              _buildSectionHeader('PROFILE SETTINGS'),
               const SizedBox(height: 8),
               SettingsTile(
-                leadingIcon: Icons.nights_stay_outlined,
-                title: 'Dark Mode',
-                trailing: Switch(
-                  value: _isDarkMode,
-                  activeThumbColor: AgentColors.primaryGreen,
-                  activeTrackColor: AgentColors.primaryGreen.withAlpha(100),
-                  onChanged: (bool value) {
-                    setState(() {
-                      _isDarkMode = value;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          _isDarkMode ? 'Dark Mode Enabled' : 'Light Mode Enabled',
-                          style: GoogleFonts.outfit(),
+                leadingIcon: Icons.camera_alt_outlined,
+                title: 'Update Profile Photo',
+                trailing: _isUploading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AgentColors.primaryGreen,
                         ),
-                        duration: const Duration(seconds: 1),
+                      )
+                    : const Icon(
+                        Icons.chevron_right_rounded,
+                        color: AgentColors.textSecondary,
+                        size: 20,
                       ),
-                    );
-                  },
-                ),
+                onTap: _pickAndUploadProfileImage,
               ),
               const SizedBox(height: 24),
               
@@ -117,4 +170,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
-  }}
+  }
+}
