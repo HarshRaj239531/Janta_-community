@@ -24,4 +24,6 @@ class AgentColors {
   static const Color infoBlueDark = AppColors.infoBlueDark;
   static const Color pillGreenBackground = AppColors.pillGreenBackground;
   static const Color warningAmber = AppColors.warningAmber;
+  static const Color alertOrange = Color(0xFFF57C00);
+  static const Color alertOrangeBackground = Color(0xFFFFF3E0);
 }

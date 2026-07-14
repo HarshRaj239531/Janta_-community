@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../constants/agent_colors.dart';
+import '../provider/agent_provider.dart';
 
 class RecentActivity extends StatelessWidget {
   final VoidCallback onViewAll;
@@ -10,29 +12,37 @@ class RecentActivity extends StatelessWidget {
     required this.onViewAll,
   });
 
+  String _formatDate(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    try {
+      DateTime dt = DateTime.parse(dateStr);
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      int h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      String hour = h.toString().padLeft(2, '0');
+      String min = dt.minute.toString().padLeft(2, '0');
+      String ampm = dt.hour >= 12 ? 'PM' : 'AM';
+      
+      // Check if it's today
+      final now = DateTime.now();
+      if (dt.day == now.day && dt.month == now.month && dt.year == now.year) {
+        return "Today • $hour:$min $ampm";
+      }
+      return "${dt.day} ${months[dt.month - 1]} • $hour:$min $ampm";
+    } catch (_) {
+      return dateStr;
+    }
+  }
+
+  String _formatCurrency(double amount) {
+    final RegExp reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+    String str = amount.toStringAsFixed(0);
+    return "₹${str.replaceAllMapped(reg, (Match match) => '${match[1]},')}";
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Transaction model data
-    final transactions = [
-      _ActivityItem(
-        name: 'Arjun Mehta',
-        time: 'Today • 11:30 AM',
-        amount: '₹12,000',
-        isSuccess: true,
-      ),
-      _ActivityItem(
-        name: 'Priya Sharma',
-        time: 'Today • 09:15 AM',
-        amount: '₹8,500',
-        isSuccess: true,
-      ),
-      _ActivityItem(
-        name: 'Rohan Das',
-        time: 'Yesterday • 04:45 PM',
-        amount: '₹25,000',
-        isSuccess: true,
-      ),
-    ];
+    final agentProvider = Provider.of<AgentProvider>(context);
+    final activities = agentProvider.dashboard?.recentActivity ?? [];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -83,116 +93,116 @@ class RecentActivity extends StatelessWidget {
                 )
               ],
             ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: transactions.length,
-              separatorBuilder: (context, index) => const Divider(
-                color: AgentColors.borderMuted,
-                height: 1,
-                indent: 16,
-                endIndent: 16,
-              ),
-              itemBuilder: (context, index) {
-                final item = transactions[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-                  child: Row(
-                    children: [
-                      // Avatar placeholder with person icon
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          color: AgentColors.backgroundSoft,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person_outline_rounded,
-                          color: AgentColors.primaryGreen,
-                          size: 24,
+            child: activities.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Center(
+                      child: Text(
+                        'No recent collection activity found.',
+                        style: GoogleFonts.outfit(
+                          color: AgentColors.textSecondary,
+                          fontSize: 14,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                    ),
+                  )
+                : ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: activities.length,
+                    separatorBuilder: (context, index) => const Divider(
+                      color: AgentColors.borderMuted,
+                      height: 1,
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    itemBuilder: (context, index) {
+                      final item = activities[index];
+                      final isSuccess = item.status.toLowerCase() == 'approved';
                       
-                      // Name and Date
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                        child: Row(
                           children: [
-                            Text(
-                              item.name,
-                              style: GoogleFonts.outfit(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AgentColors.textPrimary,
+                            // Avatar placeholder with person icon
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: AgentColors.backgroundSoft,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.person_outline_rounded,
+                                color: AgentColors.primaryGreen,
+                                size: 24,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              item.time,
-                              style: GoogleFonts.outfit(
-                                fontSize: 12,
-                                color: AgentColors.textSecondary,
+                            const SizedBox(width: 12),
+                            
+                            // Name and Date
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.memberName,
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AgentColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    _formatDate(item.date),
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 12,
+                                      color: AgentColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
+                            
+                            // Amount & Success Badge
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  _formatCurrency(item.amount),
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AgentColors.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: isSuccess ? AgentColors.successLight : AgentColors.alertOrangeBackground,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    item.status.toUpperCase(),
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: isSuccess ? AgentColors.successDark : AgentColors.alertOrange,
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
-                      
-                      // Amount & Success Badge
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            item.amount,
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AgentColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AgentColors.successLight,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              item.isSuccess ? 'SUCCESS' : 'PENDING',
-                              style: GoogleFonts.outfit(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: AgentColors.successDark,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
     );
   }
-}
-
-// Internal helper class for holding transaction item mock data
-class _ActivityItem {
-  final String name;
-  final String time;
-  final String amount;
-  final bool isSuccess;
-
-  _ActivityItem({
-    required this.name,
-    required this.time,
-    required this.amount,
-    required this.isSuccess,
-  });
 }

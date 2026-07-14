@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../constants/agent_colors.dart';
+import '../provider/agent_provider.dart';
 import 'agent_dashboard_screen.dart';
 import 'transactions/transactions_screen.dart';
 import 'clients/clients_screen.dart';
@@ -21,6 +23,10 @@ class _AgentMainScreenState extends State<AgentMainScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AgentProvider>(context, listen: false).fetchDashboard();
+      Provider.of<AgentProvider>(context, listen: false).fetchClients();
+    });
     _screens = [
       AgentDashboardScreen(
         onViewTransactions: () {

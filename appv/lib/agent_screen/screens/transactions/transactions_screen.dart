@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../constants/agent_colors.dart';
 import '../../widgets/transactions/customer_selector.dart';
 import '../../widgets/transactions/amount_input.dart';
 import '../../widgets/transactions/outstanding_card.dart';
 import '../../widgets/transactions/payment_notes.dart';
 import '../../widgets/transactions/verification_box.dart';
+import '../../provider/agent_provider.dart';
+import '../../models/agent_search_member_model.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -15,10 +18,13 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
-  // State variables matching the screenshot defaults
-  String? _selectedCustomerName = 'Arjun Mehta';
-  String _selectedCustomerId = 'FT-8829';
-  double _outstandingAmount = 14250.00;
+  AgentSearchMemberModel? _selectedMember;
+  
+  // Selected single installment to pay
+  String? _collectionType; // 'committee' or 'loan'
+  int? _selectedInstallmentId;
+  double _outstandingAmount = 0.0;
+  String _selectedInstallmentLabel = 'Select Pending Installment';
 
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
@@ -30,11 +36,27 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     super.dispose();
   }
 
-  void _handleCustomerSelected(String name, String id, double outstanding) {
+  void _handleMemberSelected(AgentSearchMemberModel member) {
     setState(() {
-      _selectedCustomerName = name;
-      _selectedCustomerId = id;
-      _outstandingAmount = outstanding;
+      _selectedMember = member;
+      
+      // Calculate overall outstanding
+      double totalOutstanding = 0.0;
+      for (var inst in member.installments) {
+        totalOutstanding += inst.amount;
+      }
+      for (var loan in member.loans) {
+        for (var emi in loan.installments) {
+          totalOutstanding += emi.amountToPay;
+        }
+      }
+      _outstandingAmount = totalOutstanding;
+
+      // Reset selection details
+      _collectionType = null;
+      _selectedInstallmentId = null;
+      _selectedInstallmentLabel = 'Select Pending Installment';
+      _amountController.clear();
     });
   }
 
@@ -45,9 +67,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     });
   }
 
-  void _submitTransaction() {
-    if (_selectedCustomerName == null) {
+  Future<void> _submitTransaction() async {
+    if (_selectedMember == null) {
       _showSnackbar('Please select a customer first.', AgentColors.errorAccent);
+      return;
+    }
+
+    if (_collectionType == null || _selectedInstallmentId == null) {
+      _showSnackbar('Please select a specific pending installment to collect.', AgentColors.errorAccent);
       return;
     }
 
@@ -57,53 +84,75 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       return;
     }
 
-    // Success dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              const Icon(Icons.check_circle_outline_rounded, color: AgentColors.successGreen, size: 28),
-              const SizedBox(width: 8),
-              Text(
-                'Success',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
+    final agentProvider = Provider.of<AgentProvider>(context, listen: false);
+
+    // Call submit collection API
+    final success = await agentProvider.submitCollection(
+      type: _collectionType!,
+      installmentId: _selectedInstallmentId!,
+      amount: enteredAmount,
+      notes: _notesController.text,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      // Refresh dashboard statistics
+      agentProvider.fetchDashboard();
+      
+      // Success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Row(
+              children: [
+                const Icon(Icons.check_circle_outline_rounded, color: AgentColors.successGreen, size: 28),
+                const SizedBox(width: 8),
+                Text(
+                  'Success',
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
+                ),
+              ],
+            ),
+            content: Text(
+              'Transaction submitted successfully for Admin approval.\n\n'
+              'Customer: ${_selectedMember!.name}\n'
+              'Installment: $_selectedInstallmentLabel\n'
+              'Amount: ₹${enteredAmount.toStringAsFixed(2)}\n'
+              'Notes: ${_notesController.text.isEmpty ? "None" : _notesController.text}',
+              style: GoogleFonts.outfit(fontSize: 15),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _resetForm();
+                },
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
+                ),
               ),
             ],
-          ),
-          content: Text(
-            'Transaction submitted successfully for Admin approval.\n\n'
-            'Customer: $_selectedCustomerName\n'
-            'Amount: ₹${enteredAmount.toStringAsFixed(2)}\n'
-            'Notes: ${_notesController.text.isEmpty ? "None" : _notesController.text}',
-            style: GoogleFonts.outfit(fontSize: 15),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _resetForm();
-              },
-              child: Text(
-                'OK',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+          );
+        },
+      );
+    } else {
+      _showSnackbar(agentProvider.submitError ?? 'Submission failed. Please try again.', AgentColors.errorAccent);
+    }
   }
 
   void _resetForm() {
     setState(() {
       _amountController.clear();
       _notesController.clear();
-      _selectedCustomerName = 'Arjun Mehta';
-      _selectedCustomerId = 'FT-8829';
-      _outstandingAmount = 14250.00;
+      _selectedMember = null;
+      _collectionType = null;
+      _selectedInstallmentId = null;
+      _outstandingAmount = 0.0;
+      _selectedInstallmentLabel = 'Select Pending Installment';
     });
   }
 
@@ -119,8 +168,91 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
+  void _showInstallmentPicker() {
+    if (_selectedMember == null) {
+      _showSnackbar('Please select a customer first.', AgentColors.errorAccent);
+      return;
+    }
+
+    final List<Map<String, dynamic>> items = [];
+
+    // Add committee installments
+    for (var inst in _selectedMember!.installments) {
+      items.add({
+        'type': 'committee',
+        'id': inst.id,
+        'amount': inst.amount,
+        'label': '${inst.committeeName} - Installment #${inst.installmentNumber} (₹${inst.amount.toStringAsFixed(0)})',
+      });
+    }
+
+    // Add loan installments
+    for (var loan in _selectedMember!.loans) {
+      for (var emi in loan.installments) {
+        items.add({
+          'type': 'loan',
+          'id': emi.id,
+          'amount': emi.amountToPay,
+          'label': 'Loan #${loan.id} - EMI #${emi.installmentNumber} (₹${emi.amountToPay.toStringAsFixed(0)})',
+        });
+      }
+    }
+
+    if (items.isEmpty) {
+      _showSnackbar('No pending installments found for this customer.', AgentColors.textSecondary);
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Select Installment to Collect',
+                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: items.length,
+                  separatorBuilder: (context, index) => const Divider(color: AgentColors.borderMuted),
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    return ListTile(
+                      title: Text(item['label'] as String, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
+                      trailing: const Icon(Icons.chevron_right, color: AgentColors.primaryGreen),
+                      onTap: () {
+                        setState(() {
+                          _collectionType = item['type'] as String;
+                          _selectedInstallmentId = item['id'] as int;
+                          _selectedInstallmentLabel = item['label'] as String;
+                          _amountController.text = (item['amount'] as double).toStringAsFixed(2);
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final agentProvider = Provider.of<AgentProvider>(context);
+
     return Scaffold(
       backgroundColor: AgentColors.backgroundSoft,
       body: SafeArea(
@@ -132,10 +264,50 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             children: [
               // 1. Customer Selector Widget
               CustomerSelector(
-                selectedCustomerName: _selectedCustomerName,
-                onCustomerSelected: _handleCustomerSelected,
+                selectedMember: _selectedMember,
+                onMemberSelected: _handleMemberSelected,
               ),
               const SizedBox(height: 16),
+
+              // Specific Installment Selector Trigger
+              if (_selectedMember != null) ...[
+                GestureDetector(
+                  onTap: _showInstallmentPicker,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AgentColors.borderMuted, width: 1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(5),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _selectedInstallmentLabel,
+                            style: GoogleFonts.outfit(
+                              fontSize: 15,
+                              fontWeight: _selectedInstallmentId != null ? FontWeight.w600 : FontWeight.normal,
+                              color: _selectedInstallmentId != null ? AgentColors.textPrimary : AgentColors.textMuted,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_drop_down, color: AgentColors.primaryGreen),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
               // 2. Amount Received Widget
               AmountInput(
@@ -147,7 +319,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               // 3. Outstanding Card Widget
               OutstandingCard(
                 outstandingAmount: _outstandingAmount,
-                customerId: _selectedCustomerId,
+                customerId: _selectedMember != null ? '#MEM-${_selectedMember!.id}' : 'None selected',
               ),
               const SizedBox(height: 16),
 
@@ -165,7 +337,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _submitTransaction,
+                  onPressed: agentProvider.isSubmitting ? null : _submitTransaction,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AgentColors.primaryGreen,
                     foregroundColor: Colors.white,
@@ -176,24 +348,30 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.send_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Submit to Admin for Approval',
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  child: agentProvider.isSubmitting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.send_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Submit to Admin for Approval',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
               const SizedBox(height: 12),
