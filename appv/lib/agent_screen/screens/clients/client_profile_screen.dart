@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../constants/agent_colors.dart';
+import '../../provider/agent_provider.dart';
+import '../../models/agent_client_model.dart';
+import 'client_kyc_screen.dart';
 
 class ClientProfileScreen extends StatefulWidget {
   final String clientName;
@@ -19,85 +23,19 @@ class ClientProfileScreen extends StatefulWidget {
 }
 
 class _ClientProfileScreenState extends State<ClientProfileScreen> {
-  late Map<String, dynamic> _details;
-  late String _fatherName;
-  late String _mobile;
-  late String _email;
-  late String _address;
+  late String _fatherName = 'N/A';
+  late String _mobile = 'N/A';
+  late String _email = 'N/A';
+  late String _address = 'N/A';
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    _details = _getClientDetails(widget.clientName);
-    _fatherName = _details['fatherName'] as String;
-    _mobile = _details['mobile'] as String;
-    _email = _details['email'] as String;
-    _address = _details['address'] as String;
-  }
-
-  Map<String, dynamic> _getClientDetails(String name) {
-    if (name.contains('Sara')) {
-      return {
-        'fatherName': 'Karamat Khan',
-        'mobile': '+91 98123 45678',
-        'email': 'sara.khan@jantatrader.com',
-        'address': 'Gulmarg Heights, Block B-3, Sector 12, Noida, UP - 201301',
-        'avatar': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200',
-        'loanGroup': 'Micro Enterprises Fund',
-        'loanRef': 'LN-4112-KY',
-        'totalLoan': '₹15,000',
-        'outstanding': '₹4,500',
-        'nextEmi': '₹1,500',
-        'progressLabel': '7 / 10 Paid',
-        'progressValue': 0.7,
-      };
-    } else if (name.contains('Rohan')) {
-      return {
-        'fatherName': 'Devendra Verma',
-        'mobile': '+91 98901 23456',
-        'email': 'rohan.verma@outlook.com',
-        'address': 'Royal Residency, Flat 104, Salt Lake, Kolkata, WB - 700091',
-        'avatar': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
-        'loanGroup': 'SME Expansion Credit',
-        'loanRef': 'LN-9082-OV',
-        'totalLoan': '₹50,000',
-        'outstanding': '₹25,000',
-        'nextEmi': '₹5,000',
-        'progressLabel': '5 / 10 Paid',
-        'progressValue': 0.5,
-      };
-    } else if (name.contains('Priya')) {
-      return {
-        'fatherName': 'Madhavan Nair',
-        'mobile': '+91 97789 01234',
-        'email': 'priya.nair@finance.com',
-        'address': 'Palm Meadows, Villa 45, Whitefield, Bangalore, KA - 560066',
-        'avatar': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
-        'loanGroup': 'Women Entrepreneur Trust',
-        'loanRef': 'LN-8832-PR',
-        'totalLoan': '₹60,000',
-        'outstanding': '₹30,000',
-        'nextEmi': '₹6,000',
-        'progressLabel': '5 / 10 Paid',
-        'progressValue': 0.5,
-      };
-    } else {
-      // Default: Arjun Mehta
-      return {
-        'fatherName': 'Vikram Mehta',
-        'mobile': '+91 98765 43210',
-        'email': 'arjun.mehta@finance.com',
-        'address': 'Skyline Towers, Flat 402, BKC, Mumbai, Maharashtra - 400051',
-        'avatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
-        'loanGroup': 'Elite Investors Group',
-        'loanRef': 'LN-7729-XM',
-        'totalLoan': '₹25,000',
-        'outstanding': '₹12,450',
-        'nextEmi': '₹2,000',
-        'progressLabel': '12 / 24 Paid',
-        'progressValue': 0.5,
-      };
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AgentProvider>(context, listen: false)
+          .fetchClientDetails(int.parse(widget.clientId));
+    });
   }
 
   void _showEditDetailsSheet() {
@@ -262,15 +200,6 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final avatarUrl = _details['avatar'] as String;
-    final loanGroup = _details['loanGroup'] as String;
-    final loanRef = _details['loanRef'] as String;
-    final totalLoan = _details['totalLoan'] as String;
-    final outstanding = _details['outstanding'] as String;
-    final nextEmi = _details['nextEmi'] as String;
-    final progressLabel = _details['progressLabel'] as String;
-    final progressValue = _details['progressValue'] as double;
-
     return Scaffold(
       backgroundColor: AgentColors.backgroundSoft,
       appBar: AppBar(
@@ -296,29 +225,104 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Profile Header Box
-              _buildProfileHeaderCard(avatarUrl),
-              const SizedBox(height: 20),
+        child: Consumer<AgentProvider>(
+          builder: (context, agentProvider, child) {
+            if (agentProvider.isProfileLoading && agentProvider.clientProfile == null) {
+              return const Center(child: CircularProgressIndicator(color: AgentColors.primaryGreen));
+            }
+            if (agentProvider.profileError != null && agentProvider.clientProfile == null) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(agentProvider.profileError!, style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
+                ),
+              );
+            }
+            final profile = agentProvider.clientProfile;
+            if (profile == null) {
+              return const Center(child: Text('Client details not found'));
+            }
 
-              // 2. Personal Details Card
-              _buildPersonalDetailsCard(),
-              const SizedBox(height: 24),
+            if (!_initialized) {
+              _mobile = profile.personalDetails.phone ?? 'N/A';
+              _email = profile.personalDetails.email ?? 'N/A';
+              _address = profile.personalDetails.address ?? 'N/A';
+              _initialized = true;
+            }
 
-              // 3. Active Loans Section
-              _buildActiveLoansSection(loanGroup, loanRef, totalLoan, outstanding, nextEmi, progressLabel, progressValue),
-              const SizedBox(height: 24),
-
-              // 4. Recent Transactions Section
-              _buildRecentTransactionsSection(),
-              const SizedBox(height: 20),
-            ],
-          ),
+            return RefreshIndicator(
+              onRefresh: () async {
+                await agentProvider.fetchClientDetails(int.parse(widget.clientId));
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 1. Profile Header Box
+                    _buildProfileHeaderCard('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'),
+                    const SizedBox(height: 20),
+  
+                    // 2. Personal Details Card
+                    _buildPersonalDetailsCard(),
+                    const SizedBox(height: 24),
+  
+                    // 3. Active Loans Section
+                    if (profile.activeLoans.isEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Active Loans',
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AgentColors.primaryGreen,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AgentColors.borderMuted, width: 1),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'No active loans for this client.',
+                                style: GoogleFonts.outfit(color: AgentColors.textSecondary),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      ...profile.activeLoans.map((loan) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: _buildActiveLoansSection(
+                            "Standard Loan",
+                            "LN-${loan.loanId}",
+                            "₹${loan.totalLoanAmount.toStringAsFixed(0)}",
+                            "₹${loan.outstanding.toStringAsFixed(0)}",
+                            "₹${(loan.totalLoanAmount / 10).toStringAsFixed(0)}", // estimate next emi
+                            loan.emiProgress,
+                            (loan.totalPaid / (loan.totalLoanAmount == 0 ? 1.0 : loan.totalLoanAmount)).clamp(0.0, 1.0),
+                          ),
+                        );
+                      }),
+                    const SizedBox(height: 8),
+  
+                    // 4. Recent Transactions Section
+                    _buildRecentTransactionsSection(profile.recentTransactions),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -486,6 +490,44 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
               ),
             ],
           ),
+          if (widget.status == 'Pending KYC') ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ClientKycScreen(
+                        clientId: int.tryParse(widget.clientId),
+                        clientName: widget.clientName,
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AgentColors.warningAmber,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.verified_user_outlined, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Complete Client KYC',
+                      style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -792,13 +834,7 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
     );
   }
 
-  Widget _buildRecentTransactionsSection() {
-    final transactions = [
-      {'date': '20 Oct 2023', 'id': 'TXN99281', 'amount': '₹12,000'},
-      {'date': '20 Sep 2023', 'id': 'TXN98172', 'amount': '₹12,000'},
-      {'date': '20 Aug 2023', 'id': 'TXN97005', 'amount': '₹12,000'},
-    ];
-
+  Widget _buildRecentTransactionsSection(List<ClientTransactionModel> transactions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -852,97 +888,108 @@ class _ClientProfileScreenState extends State<ClientProfileScreen> {
               )
             ],
           ),
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: transactions.length,
-            separatorBuilder: (context, index) => const Divider(
-              color: AgentColors.borderMuted,
-              height: 1,
-            ),
-            itemBuilder: (context, index) {
-              final tx = transactions[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-                child: Row(
-                  children: [
-                    // Green receipt icon
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AgentColors.pillGreenBackground,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.receipt_rounded,
-                        color: AgentColors.primaryGreen,
-                        size: 20,
-                      ),
+          child: transactions.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Center(
+                    child: Text(
+                      'No transactions recorded.',
+                      style: GoogleFonts.outfit(color: AgentColors.textSecondary),
                     ),
-                    const SizedBox(width: 12),
-                    
-                    // Transaction details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: transactions.length,
+                  separatorBuilder: (context, index) => const Divider(
+                    color: AgentColors.borderMuted,
+                    height: 1,
+                  ),
+                  itemBuilder: (context, index) {
+                    final tx = transactions[index];
+                    final isSuccess = tx.status.toLowerCase() == 'success' || tx.status.toLowerCase() == 'approved';
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                      child: Row(
                         children: [
-                          Text(
-                            'EMI Payment',
-                            style: GoogleFonts.outfit(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AgentColors.textPrimary,
+                          // Green receipt icon
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: AgentColors.pillGreenBackground,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.receipt_rounded,
+                              color: AgentColors.primaryGreen,
+                              size: 20,
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${tx['date']} • ID: ${tx['id']}',
-                            style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              color: AgentColors.textSecondary,
-                              fontWeight: FontWeight.w500,
+                          const SizedBox(width: 12),
+                          
+                          // Transaction details
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  tx.type,
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AgentColors.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${tx.date} • ID: TXN-${tx.id}',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: AgentColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                          const SizedBox(width: 8),
+                          
+                          // Amount and status
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '₹${tx.amount.toStringAsFixed(0)}',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AgentColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: isSuccess ? AgentColors.successLight : AgentColors.alertOrangeBackground,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  tx.status.toUpperCase(),
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSuccess ? AgentColors.successDark : AgentColors.alertOrange,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    
-                    // Amount and status
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          tx['amount']!,
-                          style: GoogleFonts.outfit(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AgentColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AgentColors.successLight,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            'Success',
-                            style: GoogleFonts.outfit(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: AgentColors.successDark,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );

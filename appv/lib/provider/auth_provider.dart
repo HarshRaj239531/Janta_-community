@@ -40,6 +40,7 @@ class AuthProvider with ChangeNotifier {
         name: _user!.name,
         email: _user!.email,
         phone: _user!.phone,
+        role: _user!.roleName,
       );
 
       _isLoggedIn = true;

@@ -6,6 +6,7 @@ import '../../widgets/secure_chip_widget.dart';
 import '../../provider/auth_provider.dart';
 import '../register/register_screen.dart';
 import '../home/home_screen.dart';
+import '../../agent_screen/screens/agent_main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,8 +39,13 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (success) {
+        final role = authProvider.user?.roleName ?? 'member';
+        Widget destination = const HomeScreen();
+        if (role == 'agent' || role == 'Agent') {
+          destination = const AgentMainScreen();
+        }
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => destination),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

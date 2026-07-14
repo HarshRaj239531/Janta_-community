@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../constants/agent_colors.dart';
 import '../../screens/login/login_screen.dart';
 import '../../screens/home/notification_screen.dart';
+import '../../provider/auth_provider.dart';
 
 class AgentHeader extends StatelessWidget {
   const AgentHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final agentName = authProvider.user?.name ?? 'Agent';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
       child: Row(
@@ -39,7 +44,7 @@ class AgentHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome back, Agent',
+                  'Welcome back, $agentName',
                   style: GoogleFonts.outfit(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -117,11 +122,14 @@ class AgentHeader extends StatelessWidget {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.of(context).pop(); // Close dialog
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          );
+                          await authProvider.logout();
+                          if (context.mounted) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            );
+                          }
                         },
                         child: Text(
                           'Logout',

@@ -1,156 +1,207 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../constants/agent_colors.dart';
+import '../../provider/agent_provider.dart';
+import '../../../helpers/shared_prefs_helper.dart';
 
 class ClientKycScreen extends StatefulWidget {
-  const ClientKycScreen({super.key});
+  final int? clientId;
+  final String? clientName;
+
+  const ClientKycScreen({
+    super.key,
+    this.clientId,
+    this.clientName,
+  });
 
   @override
   State<ClientKycScreen> createState() => _ClientKycScreenState();
 }
 
 class _ClientKycScreenState extends State<ClientKycScreen> {
-  String _selectedClient = 'Arjun Mehta (#88219)';
-  String _selectedSource = 'Aadhar';
+  int? _selectedClientId;
+  String? _selectedClientName;
   
-  bool _frontUploaded = false;
-  bool _backUploaded = false;
-  bool _isUploadingFront = false;
-  bool _isUploadingBack = false;
+  File? _aadharFrontImage;
+  File? _aadharBackImage;
+  File? _panFrontImage;
 
-  bool _biometricCaptured = false;
-  bool _isScanning = false;
-  double _scanProgress = 0.0;
-
-  final List<String> _clients = [
-    'Arjun Mehta (#88219)',
-    'Sara Khan (#41120)',
-    'Rohan Verma (#90821)',
-    'Priya Nair (#88320)',
-  ];
-
-  void _uploadFile(bool isFront) {
-    setState(() {
-      if (isFront) {
-        _isUploadingFront = true;
+  @override
+  void initState() {
+    super.initState();
+    if (widget.clientId != null) {
+      _selectedClientId = widget.clientId;
+      _selectedClientName = widget.clientName;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ap = Provider.of<AgentProvider>(context, listen: false);
+      if (ap.clientsSummary == null) {
+        ap.fetchClients();
+      }
+      
+      if (widget.clientId != null) {
+        ap.fetchClientDetails(widget.clientId!);
       } else {
-        _isUploadingBack = true;
-      }
-    });
-
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) {
-        setState(() {
-          if (isFront) {
-            _isUploadingFront = false;
-            _frontUploaded = true;
-          } else {
-            _isUploadingBack = false;
-            _backUploaded = true;
-          }
-        });
+        // If none passed, default selection to first client if available
+        if (ap.clientsSummary?.recentClients.isNotEmpty == true) {
+          final firstClient = ap.clientsSummary!.recentClients.first;
+          setState(() {
+            _selectedClientId = firstClient.id;
+            _selectedClientName = firstClient.name;
+          });
+          ap.fetchClientDetails(firstClient.id);
+        }
       }
     });
   }
 
-  void _startBiometricScan() {
-    if (_biometricCaptured) return;
-    
-    setState(() {
-      _isScanning = true;
-      _scanProgress = 0.0;
-    });
-
-    // Simulate scanning progress
-    const duration = Duration(milliseconds: 100);
-    int count = 0;
-    
-    Future.doWhile(() async {
-      await Future.delayed(duration);
-      if (!mounted) return false;
-      count++;
-      setState(() {
-        _scanProgress = count / 15.0; // 1.5 seconds total
-      });
-      if (count >= 15) {
-        setState(() {
-          _isScanning = false;
-          _biometricCaptured = true;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: AgentColors.successGreen,
-            content: Text('Biometric face match verification successful!'),
-          ),
-        );
-        return false;
-      }
-      return true;
-    });
-  }
-
-  void _authorizeKyc() {
-    if (!_frontUploaded || !_backUploaded) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: AgentColors.errorDark,
-          content: Text('Please upload both Front and Back sides of your ID.'),
-        ),
-      );
-      return;
-    }
-    if (!_biometricCaptured) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: AgentColors.errorDark,
-          content: Text('Please perform biometric capture to verify live identity.'),
-        ),
-      );
-      return;
-    }
-
-    showDialog(
+  Future<void> _pickImage(String type) async {
+    final picker = ImagePicker();
+    final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Column(
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      backgroundColor: Colors.white,
+      builder: (context) => SafeArea(
+        child: Wrap(
           children: [
-            const Icon(Icons.verified_user_rounded, color: AgentColors.successGreen, size: 48),
-            const SizedBox(height: 12),
-            Text(
-              'KYC Authorized',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined, color: AgentColors.primaryGreen),
+              title: Text('Take Photo', style: GoogleFonts.outfit(fontWeight: FontWeight.w500)),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined, color: AgentColors.primaryGreen),
+              title: Text('Choose from Gallery', style: GoogleFonts.outfit(fontWeight: FontWeight.w500)),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],
         ),
-        content: Text(
-          'Verification for $_selectedClient has been authorized. The compliance certificate is now being synced with the secure network registry.',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(fontSize: 14, color: AgentColors.textSecondary, height: 1.4),
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // close dialog
-                Navigator.pop(context); // return to dashboard
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AgentColors.primaryGreen,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: Text(
-                'Done',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-            ),
-          ),
-        ],
       ),
     );
+
+    if (source == null) return;
+
+    final pickedFile = await picker.pickImage(
+      source: source,
+      imageQuality: 70,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        if (type == 'aadhar_front') {
+          _aadharFrontImage = File(pickedFile.path);
+        } else if (type == 'aadhar_back') {
+          _aadharBackImage = File(pickedFile.path);
+        } else if (type == 'pan_front') {
+          _panFrontImage = File(pickedFile.path);
+        }
+      });
+    }
+  }
+
+
+  Future<void> _authorizeKyc() async {
+    if (_selectedClientId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AgentColors.errorDark,
+          content: Text('Please select a client for KYC verification.'),
+        ),
+      );
+      return;
+    }
+    if (_aadharFrontImage == null && _panFrontImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AgentColors.errorDark,
+          content: Text('Please upload at least Aadhaar Front or PAN Front document.'),
+        ),
+      );
+      return;
+    }
+
+    // Show loading spinner dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(AgentColors.primaryGreen),
+        ),
+      ),
+    );
+
+    try {
+      final ap = Provider.of<AgentProvider>(context, listen: false);
+      await ap.submitClientKyc(
+        userId: _selectedClientId!,
+        aadharFront: _aadharFrontImage,
+        aadharBack: _aadharBackImage,
+        panFront: _panFrontImage,
+      );
+
+      if (mounted) {
+        Navigator.pop(context); // pop loading dialog
+        
+        // Show success confirmation dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            title: Column(
+              children: [
+                const Icon(Icons.verified_user_rounded, color: AgentColors.successGreen, size: 48),
+                const SizedBox(height: 12),
+                Text(
+                  'KYC Submitted',
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
+                ),
+              ],
+            ),
+            content: Text(
+              'KYC documents for $_selectedClientName have been successfully submitted to the server.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(fontSize: 14, color: AgentColors.textSecondary, height: 1.4),
+            ),
+            actions: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // close dialog
+                    Navigator.pop(context); // return to previous screen
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AgentColors.primaryGreen,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: Text(
+                    'Done',
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // pop loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AgentColors.errorDark,
+            content: Text('Failed to upload KYC: $e'),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -214,51 +265,57 @@ class _ClientKycScreenState extends State<ClientKycScreen> {
               _buildClientSelector(),
               const SizedBox(height: 20),
 
-              // Verification Source Toggle
-              _buildLabel('VERIFICATION SOURCE'),
-              _buildSourceToggles(),
-              const SizedBox(height: 20),
-
-              // Upload Evidence dashed cards
-              _buildLabel('UPLOAD EVIDENCE'),
-              _buildUploadSection(),
-              const SizedBox(height: 24),
-
-              // Biometric Capture
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildLabel('BIOMETRIC CAPTURE'),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AgentColors.successLight,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.circle, size: 6, color: AgentColors.successGreen),
-                        const SizedBox(width: 4),
-                        Text(
-                          'LIVE ACTIVE',
-                          style: GoogleFonts.outfit(
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: AgentColors.successDark,
-                          ),
+              // Document list items (User App style!)
+              Consumer<AgentProvider>(
+                builder: (context, ap, child) {
+                  if (ap.isProfileLoading) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(30),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(AgentColors.primaryGreen),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              _buildBiometricViewfinder(),
-              const SizedBox(height: 24),
+                      ),
+                    );
+                  }
 
-              // Verification Summary Box
-              _buildSummaryCard(),
-              const SizedBox(height: 20),
+                  final personalDetails = ap.clientProfile?.personalDetails;
+                  
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildDocumentDetailCard(
+                        title: 'Aadhar Front Side',
+                        description: 'Primary Identity Proof Front',
+                        icon: Icons.badge_outlined,
+                        serverUrl: personalDetails?.aadharCard,
+                        localFile: _aadharFrontImage,
+                        onUpload: () => _pickImage('aadhar_front'),
+                        onClear: () => setState(() => _aadharFrontImage = null),
+                      ),
+                      _buildDocumentDetailCard(
+                        title: 'Aadhar Back Side',
+                        description: 'Primary Identity Proof Back',
+                        icon: Icons.badge_outlined,
+                        serverUrl: personalDetails?.idProof,
+                        localFile: _aadharBackImage,
+                        onUpload: () => _pickImage('aadhar_back'),
+                        onClear: () => setState(() => _aadharBackImage = null),
+                      ),
+                      _buildDocumentDetailCard(
+                        title: 'PAN Card Front Side',
+                        description: 'Tax Identifier Document',
+                        icon: Icons.credit_card_outlined,
+                        serverUrl: personalDetails?.panCard,
+                        localFile: _panFrontImage,
+                        onUpload: () => _pickImage('pan_front'),
+                        onClear: () => setState(() => _panFrontImage = null),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 32),
 
               // Authorize Button
               SizedBox(
@@ -386,8 +443,51 @@ class _ClientKycScreenState extends State<ClientKycScreen> {
   }
 
   Widget _buildClientSelector() {
-    return DropdownButtonFormField<String>(
-      initialValue: _selectedClient,
+    if (widget.clientId != null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AgentColors.borderMuted),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.person_outline_rounded, color: AgentColors.primaryGreen, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              widget.clientName ?? '',
+              style: GoogleFonts.outfit(
+                color: AgentColors.textPrimary,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final ap = Provider.of<AgentProvider>(context);
+    final clientsList = ap.clientsSummary?.recentClients ?? [];
+
+    if (clientsList.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AgentColors.borderMuted),
+        ),
+        child: Text(
+          'No clients found',
+          style: GoogleFonts.outfit(color: AgentColors.textMuted, fontSize: 15),
+        ),
+      );
+    }
+
+    return DropdownButtonFormField<int>(
+      value: _selectedClientId,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
@@ -404,421 +504,274 @@ class _ClientKycScreenState extends State<ClientKycScreen> {
       icon: const Icon(Icons.unfold_more_rounded, color: AgentColors.textSecondary),
       style: GoogleFonts.outfit(color: AgentColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500),
       dropdownColor: Colors.white,
-      items: _clients.map((String client) {
-        return DropdownMenuItem<String>(
-          value: client,
-          child: Text(client),
+      items: clientsList.map((client) {
+        return DropdownMenuItem<int>(
+          value: client.id,
+          child: Text('${client.name} (#${client.id})'),
         );
       }).toList(),
-      onChanged: (String? value) {
+      onChanged: (int? value) {
         if (value != null) {
+          final chosen = clientsList.firstWhere((c) => c.id == value);
           setState(() {
-            _selectedClient = value;
+            _selectedClientId = value;
+            _selectedClientName = chosen.name;
           });
+          Provider.of<AgentProvider>(context, listen: false).fetchClientDetails(value);
         }
       },
     );
   }
 
-  Widget _buildSourceToggles() {
-    final sources = ['Aadhar', 'PAN Card', 'Other ID'];
-    final sourceIcons = {
-      'Aadhar': Icons.badge_outlined,
-      'PAN Card': Icons.credit_card_outlined,
-      'Other ID': Icons.assignment_ind_outlined,
-    };
 
-    return Row(
-      children: sources.map((src) {
-        final isSelected = _selectedSource == src;
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(
-              right: src != sources.last ? 10.0 : 0.0,
-            ),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  _selectedSource = src;
-                });
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: isSelected ? AgentColors.primaryGreen : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? AgentColors.primaryGreen : AgentColors.borderMuted,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      sourceIcons[src],
-                      size: 18,
-                      color: isSelected ? Colors.white : AgentColors.textPrimary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      src,
-                      style: GoogleFonts.outfit(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.white : AgentColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
 
-  Widget _buildUploadSection() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildUploadCard(
-            title: 'Front Side',
-            isUploaded: _frontUploaded,
-            isUploading: _isUploadingFront,
-            onTap: () => _uploadFile(true),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: _buildUploadCard(
-            title: 'Back Side',
-            isUploaded: _backUploaded,
-            isUploading: _isUploadingBack,
-            onTap: () => _uploadFile(false),
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildUploadCard({
+
+  Widget _buildDocumentDetailCard({
     required String title,
-    required bool isUploaded,
-    required bool isUploading,
-    required VoidCallback onTap,
+    required String description,
+    required IconData icon,
+    required String? serverUrl,
+    required File? localFile,
+    required VoidCallback onUpload,
+    required VoidCallback onClear,
   }) {
-    return InkWell(
-      onTap: isUploading || isUploaded ? null : onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        height: 120,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: CustomPaint(
-          painter: DashedBorderPainter(
-            color: isUploaded ? AgentColors.successGreen : AgentColors.borderMuted,
-            borderRadius: 16,
-          ),
-          child: Center(
-            child: isUploading
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(AgentColors.primaryGreen),
-                    ),
-                  )
-                : isUploaded
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.check_circle_rounded, color: AgentColors.successGreen, size: 28),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Uploaded',
-                            style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AgentColors.successDark,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AgentColors.backgroundSoft,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              color: AgentColors.textSecondary,
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            title,
-                            style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AgentColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'High-res JPEG',
-                            style: GoogleFonts.outfit(
-                              fontSize: 10,
-                              color: AgentColors.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-          ),
-        ),
-      ),
-    );
-  }
+    final hasDoc = localFile != null || (serverUrl != null && serverUrl.isNotEmpty);
+    final isLocal = localFile != null;
 
-  Widget _buildBiometricViewfinder() {
     return Container(
-      height: 230,
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.black87,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: _biometricCaptured ? AgentColors.successGreen : Colors.transparent,
-          width: 2,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AgentColors.borderMuted),
       ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Background Camera mockup
-          ClipRRect(
-            borderRadius: BorderRadius.circular(22),
-            child: Opacity(
-              opacity: _biometricCaptured ? 0.35 : 0.65,
-              child: Image.network(
-                'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=400',
-                fit: BoxFit.cover,
-              ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(color: AgentColors.primaryGreen, width: 3),
             ),
           ),
-
-          // Custom oval scanner guide overlay
-          if (!_biometricCaptured)
-            Center(
-              child: Container(
-                width: 140,
-                height: 170,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: _isScanning ? AgentColors.primaryGreen : Colors.white54,
-                    style: BorderStyle.solid,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.all(
-                    Radius.elliptical(140, 170),
-                  ),
-                ),
-              ),
-            ),
-
-          // Scanning Line Animation overlay
-          if (_isScanning)
-            AnimatedAlign(
-              alignment: Alignment(0.0, -1.0 + (_scanProgress * 2.0)),
-              duration: const Duration(milliseconds: 100),
-              child: Container(
-                height: 3,
-                width: 140,
-                decoration: const BoxDecoration(
-                  color: AgentColors.primaryGreen,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AgentColors.primaryGreen,
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                    )
-                  ],
-                ),
-              ),
-            ),
-
-          // Central text
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 70),
-              child: Text(
-                _biometricCaptured
-                    ? 'BIOMETRIC RECORDED'
-                    : _isScanning
-                        ? 'SCANNING FACE... ${( _scanProgress * 100).toInt()}%'
-                        : 'CENTER FACE IN FRAME',
-                style: GoogleFonts.outfit(
-                  color: _biometricCaptured ? AgentColors.successLight : Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-          ),
-
-          // Verified Tick Overlay
-          if (_biometricCaptured)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: AgentColors.successGreen,
-                    size: 48,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AgentColors.primaryGreen.withAlpha(20),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: AgentColors.primaryGreen,
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Verified',
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: hasDoc
+                          ? AgentColors.successLight
+                          : AgentColors.errorLight,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          hasDoc
+                              ? Icons.check_circle_rounded
+                              : Icons.pending_actions_rounded,
+                          color: hasDoc
+                              ? AgentColors.successGreen
+                              : AgentColors.errorDark,
+                          size: 12,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          hasDoc 
+                              ? (isLocal ? 'SELECTED (LOCAL)' : 'VERIFIED') 
+                              : 'PENDING UPLOAD',
+                          style: GoogleFonts.outfit(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: hasDoc
+                                ? AgentColors.successDark
+                                : AgentColors.errorDark,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-
-          // Viewfinder corners
-          if (!_biometricCaptured) ...[
-            Positioned(top: 16, left: 16, child: _buildCorner(true, true)),
-            Positioned(top: 16, right: 16, child: _buildCorner(true, false)),
-            Positioned(bottom: 16, left: 16, child: _buildCorner(false, true)),
-            Positioned(bottom: 16, right: 16, child: _buildCorner(false, false)),
-          ],
-
-          // Shutter button at the bottom
-          if (!_biometricCaptured && !_isScanning)
-            Positioned(
-              bottom: 14,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: GestureDetector(
-                  onTap: _startBiometricScan,
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: GoogleFonts.outfit(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AgentColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                description,
+                style: GoogleFonts.outfit(
+                  fontSize: 12,
+                  color: AgentColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  if (hasDoc) ...[
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  child: isLocal
+                                      ? Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(12),
+                                              child: Image.file(
+                                                localFile,
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              child: Text('Close', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                                            ),
+                                          ],
+                                        )
+                                      : FutureBuilder<String?>(
+                                          future: SharedPrefsHelper.getToken(),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                              return const SizedBox(
+                                                height: 100,
+                                                child: Center(
+                                                  child: CircularProgressIndicator(
+                                                    valueColor: AlwaysStoppedAnimation<Color>(AgentColors.primaryGreen),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            final token = snapshot.data;
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  child: Image.network(
+                                                    serverUrl!,
+                                                    fit: BoxFit.contain,
+                                                    headers: token != null ? {
+                                                      'Authorization': 'Bearer $token',
+                                                    } : null,
+                                                    errorBuilder: (c, e, s) => const Icon(
+                                                      Icons.broken_image_rounded,
+                                                      color: AgentColors.textMuted,
+                                                      size: 100,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 12),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text('Close', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: AgentColors.borderMuted),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'View',
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.bold,
+                            color: AgentColors.textPrimary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: onUpload,
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: AgentColors.borderMuted),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Change',
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.bold,
+                            color: AgentColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: onUpload,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AgentColors.primaryGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Upload Document',
+                          style: GoogleFonts.outfit(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCorner(bool isTop, bool isLeft) {
-    const len = 12.0;
-    const thick = 2.0;
-    return SizedBox(
-      width: len,
-      height: len,
-      child: Stack(
-        children: [
-          Positioned(
-            top: isTop ? 0 : null,
-            bottom: !isTop ? 0 : null,
-            left: 0,
-            right: 0,
-            child: Container(height: thick, color: Colors.white),
-          ),
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: isLeft ? 0 : null,
-            right: !isLeft ? 0 : null,
-            child: Container(width: thick, color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard() {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AgentColors.borderMuted, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Verification Summary',
-            style: GoogleFonts.outfit(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: AgentColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 14),
-          _buildSummaryRow('Identity Processing', '₹99.00', false),
-          const SizedBox(height: 8),
-          _buildSummaryRow('Biometric Verification', '₹50.00', false),
-          const Divider(height: 24, color: AgentColors.borderMuted),
-          _buildSummaryRow('Total Amount', '₹149.00', true),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value, bool isTotal) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.outfit(
-            fontSize: isTotal ? 14 : 13,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-            color: isTotal ? AgentColors.textPrimary : AgentColors.textSecondary,
+            ],
           ),
         ),
-        Text(
-          value,
-          style: GoogleFonts.outfit(
-            fontSize: isTotal ? 18 : 13,
-            fontWeight: FontWeight.bold,
-            color: isTotal ? AgentColors.primaryGreen : AgentColors.textPrimary,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

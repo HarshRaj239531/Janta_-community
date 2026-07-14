@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../constants/agent_colors.dart';
+import '../../provider/agent_provider.dart';
+import '../../models/agent_search_member_model.dart';
 
-class CustomerSelector extends StatelessWidget {
-  final String? selectedCustomerName;
-  final Function(String name, String id, double outstanding) onCustomerSelected;
+class CustomerSelector extends StatefulWidget {
+  final AgentSearchMemberModel? selectedMember;
+  final Function(AgentSearchMemberModel member) onMemberSelected;
 
   const CustomerSelector({
     super.key,
-    required this.selectedCustomerName,
-    required this.onCustomerSelected,
+    required this.selectedMember,
+    required this.onMemberSelected,
   });
+
+  @override
+  State<CustomerSelector> createState() => _CustomerSelectorState();
+}
+
+class _CustomerSelectorState extends State<CustomerSelector> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +79,13 @@ class CustomerSelector extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      selectedCustomerName ?? 'Search by name or ID',
+                      widget.selectedMember?.name ?? 'Search by name or ID',
                       style: GoogleFonts.outfit(
                         fontSize: 15,
-                        color: selectedCustomerName != null
+                        color: widget.selectedMember != null
                             ? AgentColors.textPrimary
                             : AgentColors.textMuted,
-                        fontWeight: selectedCustomerName != null
+                        fontWeight: widget.selectedMember != null
                             ? FontWeight.w600
                             : FontWeight.normal,
                       ),
@@ -84,109 +100,92 @@ class CustomerSelector extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          
-          // Recent customer selection pills
-          Row(
-            children: [
-              _buildRecentPill(
-                context,
-                name: 'Arjun Mehta',
-                id: 'FT-8829',
-                outstanding: 14250.0,
-              ),
-              const SizedBox(width: 8),
-              _buildRecentPill(
-                context,
-                name: 'Priya Sharma',
-                id: 'FT-3490',
-                outstanding: 8500.0,
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildRecentPill(
-    BuildContext context, {
-    required String name,
-    required String id,
-    required double outstanding,
-  }) {
-    final isSelected = selectedCustomerName == name;
-
-    return GestureDetector(
-      onTap: () {
-        onCustomerSelected(name, id, outstanding);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AgentColors.primaryGreen : AgentColors.lavenderSoft,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          'Recent: $name',
-          style: GoogleFonts.outfit(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : AgentColors.primaryGreen,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Simulated list dialog to search and pick any customer
   void _showCustomerSearchDialog(BuildContext context) {
-    final customers = [
-      {'name': 'Arjun Mehta', 'id': 'FT-8829', 'outstanding': 14250.0},
-      {'name': 'Priya Sharma', 'id': 'FT-3490', 'outstanding': 8500.0},
-      {'name': 'Rohan Das', 'id': 'FT-9021', 'outstanding': 25000.0},
-      {'name': 'Karan Malhotra', 'id': 'FT-4412', 'outstanding': 11200.0},
-      {'name': 'Simran Kaur', 'id': 'FT-1082', 'outstanding': 650.0},
-    ];
+    final agentProvider = Provider.of<AgentProvider>(context, listen: false);
+    agentProvider.clearSearchResults();
+    _searchController.clear();
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(
-            'Search Customer',
-            style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: customers.length,
-              separatorBuilder: (context, index) => const Divider(color: AgentColors.borderMuted),
-              itemBuilder: (context, index) {
-                final customer = customers[index];
-                return ListTile(
-                  title: Text(
-                    customer['name'] as String,
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                    'ID: ${customer['id']} • Outstanding: ₹${(customer['outstanding'] as double).toStringAsFixed(2)}',
-                    style: GoogleFonts.outfit(color: AgentColors.textSecondary, fontSize: 13),
-                  ),
-                  onTap: () {
-                    onCustomerSelected(
-                      customer['name'] as String,
-                      customer['id'] as String,
-                      customer['outstanding'] as double,
-                    );
-                    Navigator.pop(context);
-                  },
-                );
-              },
-            ),
-          ),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text(
+                'Search Customer',
+                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AgentColors.primaryGreen),
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Type name, phone or ID...',
+                        prefixIcon: const Icon(Icons.search, color: AgentColors.primaryGreen),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onChanged: (val) {
+                        agentProvider.searchMembers(val);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: Consumer<AgentProvider>(
+                        builder: (context, provider, child) {
+                          if (provider.isSearchLoading) {
+                            return const Center(child: CircularProgressIndicator(color: AgentColors.primaryGreen));
+                          }
+                          if (provider.searchError != null) {
+                            return Center(
+                              child: Text(
+                                provider.searchError!,
+                                style: const TextStyle(color: Colors.red),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }
+                          final results = provider.searchResults;
+                          if (results.isEmpty && _searchController.text.isNotEmpty) {
+                            return Center(child: Text('No customers found', style: GoogleFonts.outfit(color: AgentColors.textSecondary)));
+                          }
+                          return ListView.separated(
+                            itemCount: results.length,
+                            separatorBuilder: (context, index) => const Divider(color: AgentColors.borderMuted),
+                            itemBuilder: (context, index) {
+                              final customer = results[index];
+                              return ListTile(
+                                title: Text(
+                                  customer.name,
+                                  style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  'ID: #MEM-${customer.id} • Phone: ${customer.phone ?? "N/A"}',
+                                  style: GoogleFonts.outfit(color: AgentColors.textSecondary, fontSize: 13),
+                                ),
+                                onTap: () {
+                                  widget.onMemberSelected(customer);
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

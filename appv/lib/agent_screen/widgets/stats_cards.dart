@@ -1,12 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../constants/agent_colors.dart';
+import '../provider/agent_provider.dart';
 
 class StatsCards extends StatelessWidget {
   const StatsCards({super.key});
 
+  String _formatCurrency(double amount) {
+    // Basic comma separation
+    final RegExp reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+    String str = amount.toStringAsFixed(0);
+    return "₹${str.replaceAllMapped(reg, (Match match) => '${match[1]},')}";
+  }
+
   @override
   Widget build(BuildContext context) {
+    final agentProvider = Provider.of<AgentProvider>(context);
+    final dashboard = agentProvider.dashboard;
+
+    final todayVal = dashboard?.todayCollection ?? 0.0;
+    final thisMonthVal = dashboard?.thisMonthCollection ?? 0.0;
+    final totalVal = dashboard?.totalCollection ?? 0.0;
+    final targetVal = dashboard?.monthlyTarget ?? 200000.0;
+    final progressPercent = dashboard?.targetProgress ?? 0.0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
@@ -32,7 +50,7 @@ class StatsCards extends StatelessWidget {
                         size: 24,
                       ),
                     ),
-                    // +12% Badge
+                    // Trend Badge
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
@@ -48,7 +66,7 @@ class StatsCards extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '+12%',
+                            'Active',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -72,7 +90,7 @@ class StatsCards extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "₹45,500",
+                  _formatCurrency(todayVal),
                   style: GoogleFonts.outfit(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -81,7 +99,7 @@ class StatsCards extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "Last updated: 5 mins ago",
+                  "Updated just now",
                   style: GoogleFonts.outfit(
                     fontSize: 12,
                     color: AgentColors.textMuted,
@@ -126,7 +144,7 @@ class StatsCards extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      "₹1,25,000",
+                      _formatCurrency(thisMonthVal),
                       style: GoogleFonts.outfit(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -134,7 +152,7 @@ class StatsCards extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      " / ₹2.0L",
+                      " / ${_formatCurrency(targetVal)}",
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -147,16 +165,16 @@ class StatsCards extends StatelessWidget {
                 // Progress Bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: const LinearProgressIndicator(
-                    value: 0.625,
+                  child: LinearProgressIndicator(
+                    value: (progressPercent / 100.0).clamp(0.0, 1.0),
                     minHeight: 6,
                     backgroundColor: AgentColors.backgroundSoft,
-                    valueColor: AlwaysStoppedAnimation<Color>(AgentColors.primaryGreen),
+                    valueColor: const AlwaysStoppedAnimation<Color>(AgentColors.primaryGreen),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "62.5% of monthly target achieved",
+                  "${progressPercent.toStringAsFixed(1)}% of monthly target achieved",
                   style: GoogleFonts.outfit(
                     fontSize: 12,
                     color: AgentColors.textMuted,
@@ -253,7 +271,7 @@ class StatsCards extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "₹12,45,000",
+                          _formatCurrency(totalVal),
                           style: GoogleFonts.outfit(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,

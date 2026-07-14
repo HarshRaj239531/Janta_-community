@@ -2,7 +2,17 @@ class ApiConstants {
   ApiConstants._();
 
   // Base URL — Live backend server
-  static const String baseUrl = 'https://lottery.ojasvidya.com/api';
+  // static const String baseUrl = 'https://lottery.ojasvidya.com/api';
+  
+  // Base URL — Local backend server
+  // For Android Emulator (using Laravel Sail / Docker port 80):
+  // static const String baseUrl = 'http://10.0.2.2/api';
+  
+  // For iOS Simulator / Web:
+  // static const String baseUrl = 'http://127.0.0.1/api';
+  
+  // For Physical Device (Configured for your Wi-Fi IP):
+  static const String baseUrl = 'http://192.168.1.10/api';
 
   // Auth
   static const String login = '/user/login';
