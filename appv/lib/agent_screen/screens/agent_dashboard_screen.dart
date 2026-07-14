@@ -6,7 +6,6 @@ import '../widgets/agent_header.dart';
 import '../widgets/stats_cards.dart';
 import '../widgets/quick_actions.dart';
 import '../widgets/recent_activity.dart';
-import '../widgets/performance_banner.dart';
 
 class AgentDashboardScreen extends StatelessWidget {
   final VoidCallback onViewTransactions;
@@ -64,9 +63,6 @@ class AgentDashboardScreen extends StatelessWidget {
                     
                     // Recent Activity section
                     RecentActivity(onViewAll: onViewTransactions),
-                    
-                    // Performance Banner section
-                    const PerformanceBanner(),
                     
                     const SizedBox(height: 24),
                   ],
