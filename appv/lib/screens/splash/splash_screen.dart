@@ -5,6 +5,8 @@ import '../../widgets/custom_logo.dart';
 import '../../provider/auth_provider.dart';
 import '../login/login_screen.dart';
 import '../home/home_screen.dart';
+import '../../agent_screen/screens/agent_main_screen.dart';
+import '../../helpers/shared_prefs_helper.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,9 +38,21 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final isLoggedIn = await authProvider.checkLoginStatus();
+      String? role;
+      if (isLoggedIn) {
+        role = await SharedPrefsHelper.getUserRole();
+      }
       if (!mounted) return;
 
-      final destination = isLoggedIn ? const HomeScreen() : const LoginScreen();
+      Widget destination = const LoginScreen();
+      if (isLoggedIn) {
+        if (role == 'agent' || role == 'Agent') {
+          destination = const AgentMainScreen();
+        } else {
+          destination = const HomeScreen();
+        }
+      }
+
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => destination,
