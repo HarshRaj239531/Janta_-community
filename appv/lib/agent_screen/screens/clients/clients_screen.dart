@@ -23,6 +23,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
+    bool isSubmitting = false;
 
     showModalBottomSheet(
       context: context,
@@ -31,138 +32,171 @@ class _ClientsScreenState extends State<ClientsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 24,
-            left: 24,
-            right: 24,
-          ),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (bottomSheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                top: 24,
+                left: 24,
+                right: 24,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Request New Client',
-                      style: GoogleFonts.outfit(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AgentColors.primaryGreen,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                
-                // Name Input
-                Text(
-                  'CLIENT FULL NAME',
-                  style: GoogleFonts.outfit(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AgentColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    hintText: 'e.g. Rajesh Kumar',
-                    hintStyle: GoogleFonts.outfit(color: AgentColors.textMuted),
-                    filled: true,
-                    fillColor: AgentColors.backgroundSoft,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter client name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                
-                // Phone Input
-                Text(
-                  'CLIENT PHONE NUMBER',
-                  style: GoogleFonts.outfit(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AgentColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    hintText: 'e.g. 9876543210',
-                    hintStyle: GoogleFonts.outfit(color: AgentColors.textMuted),
-                    filled: true,
-                    fillColor: AgentColors.backgroundSoft,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter phone number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                
-                // Submit Button
-                ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: AgentColors.successGreen,
-                          content: Text(
-                            'Client creation request submitted to Admin for approval.',
-                            style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Request New Client',
+                          style: GoogleFonts.outfit(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AgentColors.primaryGreen,
                           ),
                         ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AgentColors.primaryGreen,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
                     ),
-                  ),
-                  child: Text(
-                    'Submit Request to Admin',
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    const SizedBox(height: 16),
+                    
+                    // Name Input
+                    Text(
+                      'CLIENT FULL NAME',
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AgentColors.textSecondary,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: 'e.g. Rajesh Kumar',
+                        hintStyle: GoogleFonts.outfit(color: AgentColors.textMuted),
+                        filled: true,
+                        fillColor: AgentColors.backgroundSoft,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter client name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Phone Input
+                    Text(
+                      'CLIENT PHONE NUMBER',
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AgentColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        hintText: 'e.g. 9876543210',
+                        hintStyle: GoogleFonts.outfit(color: AgentColors.textMuted),
+                        filled: true,
+                        fillColor: AgentColors.backgroundSoft,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter phone number';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Submit Button
+                    ElevatedButton(
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              if (formKey.currentState!.validate()) {
+                                setModalState(() => isSubmitting = true);
+                                final agentProvider =
+                                    Provider.of<AgentProvider>(context, listen: false);
+                                final success = await agentProvider.createClient(
+                                  name: nameController.text.trim(),
+                                  phone: phoneController.text.trim(),
+                                );
+                                setModalState(() => isSubmitting = false);
+                                if (bottomSheetContext.mounted) {
+                                  Navigator.pop(bottomSheetContext);
+                                  ScaffoldMessenger.of(bottomSheetContext).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: success
+                                          ? AgentColors.successGreen
+                                          : AgentColors.alertOrange,
+                                      content: Text(
+                                        success
+                                            ? 'Client created successfully!'
+                                            : (agentProvider.submitError ??
+                                                'Failed to create client.'),
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AgentColors.primaryGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: isSubmitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Submit Request to Admin',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

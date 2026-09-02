@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
+import '../../provider/auth_provider.dart';
 import 'widgets/step1_details.dart';
 import 'widgets/step2_otp.dart';
 import 'widgets/step3_password.dart';
@@ -127,15 +129,30 @@ class _RegisterScreenState extends State<RegisterScreen>
   Future<void> _createAccount() async {
     if (!_step3FormKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final success = await authProvider.register(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _mobileController.text.trim(),
+      password: _passwordController.text,
+    );
+
     if (!mounted) return;
     setState(() => _isLoading = false);
-    _showSnackBar('Account created successfully! Please login.',
-        isError: false);
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (!mounted) return;
-    Navigator.of(context).pop();
+
+    if (success) {
+      _showSnackBar('Account created successfully! Please login.',
+          isError: false);
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } else {
+      _showSnackBar(
+        authProvider.error ?? 'Registration failed. Please try again.',
+        isError: true,
+      );
+    }
   }
 
   void _showSnackBar(String message, {required bool isError}) {

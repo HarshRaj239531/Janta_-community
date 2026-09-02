@@ -38,6 +38,21 @@ class AgentApi {
     return [];
   }
 
+  static Future<dynamic> createClient({
+    required String name,
+    required String phone,
+    String? email,
+  }) async {
+    return await ApiHelper.post(
+      '/agent/clients',
+      body: {
+        'name': name,
+        'phone': phone,
+        if (email != null && email.isNotEmpty) 'email': email,
+      },
+    );
+  }
+
   static Future<bool> submitCollection({
     required String type,
     required int installmentId,

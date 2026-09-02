@@ -134,6 +134,34 @@ class AgentProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> createClient({
+    required String name,
+    required String phone,
+    String? email,
+  }) async {
+    _isSubmitting = true;
+    _submitError = null;
+    notifyListeners();
+
+    try {
+      await AgentApi.createClient(name: name, phone: phone, email: email);
+      _isSubmitting = false;
+      notifyListeners();
+      await fetchClients();
+      return true;
+    } on ApiException catch (e) {
+      _submitError = e.message;
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _submitError = 'Failed to create client';
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> submitCollection({
     required String type,
     required int installmentId,

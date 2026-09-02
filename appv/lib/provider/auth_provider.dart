@@ -60,6 +60,54 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Register with name, email, phone, and password
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String phone,
+    required String password,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await AuthApi.register(
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,
+      );
+      _user = result['user'] as UserModel;
+      final token = result['token'] as String;
+
+      // Save token and user info
+      await SharedPrefsHelper.saveToken(token);
+      await SharedPrefsHelper.saveUserInfo(
+        id: _user!.id,
+        name: _user!.name,
+        email: _user!.email,
+        phone: _user!.phone,
+        role: _user!.roleName,
+      );
+
+      _isLoggedIn = true;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on ApiException catch (e) {
+      _error = e.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = 'Registration failed. Please try again.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Logout — clear token and user data
   Future<void> logout() async {
     _isLoading = true;
