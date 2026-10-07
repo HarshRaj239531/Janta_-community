@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../../provider/notification_provider.dart';
-import '../../models/notification_model.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});

@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../constants/app_colors.dart';
 import '../../../provider/profile_provider.dart';
-import '../../../models/user_model.dart';
 
 class BasicDetailsTab extends StatelessWidget {
   const BasicDetailsTab({super.key});
