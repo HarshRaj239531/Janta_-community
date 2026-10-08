@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
 import '../../provider/auth_provider.dart';
 import 'widgets/step1_details.dart';
-import 'widgets/step2_otp.dart';
-import 'widgets/step3_password.dart';
+import 'widgets/step2_password.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,27 +15,19 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen>
     with TickerProviderStateMixin {
-  // Step controller
-  int _currentStep = 0; // 0: Details, 1: OTP, 2: Password
+  // Step controller: 0: Details, 1: Password
+  int _currentStep = 0;
 
-  // Step 1 controllers
+  // Step 1 controllers (Details)
   final _nameController = TextEditingController();
   final _mobileController = TextEditingController();
   final _emailController = TextEditingController();
   final _step1FormKey = GlobalKey<FormState>();
 
-  // Step 2 — OTP (6 separate boxes)
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _otpFocusNodes =
-      List.generate(6, (_) => FocusNode());
-  int _resendSeconds = 30;
-  bool _canResend = false;
-
-  // Step 3 controllers
+  // Step 2 controllers (Password)
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _step3FormKey = GlobalKey<FormState>();
+  final _step2FormKey = GlobalKey<FormState>();
   bool _isPasswordObscured = true;
   bool _isConfirmPasswordObscured = true;
   bool _isLoading = false;
@@ -59,7 +50,6 @@ class _RegisterScreenState extends State<RegisterScreen>
       curve: Curves.easeOutCubic,
     ));
     _slideController.forward();
-    _startResendTimer();
   }
 
   @override
@@ -67,40 +57,16 @@ class _RegisterScreenState extends State<RegisterScreen>
     _nameController.dispose();
     _mobileController.dispose();
     _emailController.dispose();
-    for (final c in _otpControllers) {
-      c.dispose();
-    }
-    for (final f in _otpFocusNodes) {
-      f.dispose();
-    }
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _slideController.dispose();
     super.dispose();
   }
 
-  void _startResendTimer() {
-    _resendSeconds = 30;
-    _canResend = false;
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (!mounted) return false;
-      setState(() {
-        if (_resendSeconds > 0) {
-          _resendSeconds--;
-        } else {
-          _canResend = true;
-        }
-      });
-      return _resendSeconds > 0;
-    });
-  }
-
   void _nextStep() {
     _slideController.reset();
     setState(() => _currentStep++);
     _slideController.forward();
-    if (_currentStep == 1) _startResendTimer();
   }
 
   void _prevStep() {
@@ -109,25 +75,14 @@ class _RegisterScreenState extends State<RegisterScreen>
     _slideController.forward();
   }
 
-  String _getOtp() => _otpControllers.map((c) => c.text).join();
-
   void _verifyStep1() {
     if (_step1FormKey.currentState!.validate()) {
       _nextStep();
     }
   }
 
-  void _verifyOtp() {
-    final otp = _getOtp();
-    if (otp.length < 6) {
-      _showSnackBar('Please enter the complete 6-digit OTP', isError: true);
-      return;
-    }
-    _nextStep();
-  }
-
   Future<void> _createAccount() async {
-    if (!_step3FormKey.currentState!.validate()) return;
+    if (!_step2FormKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -181,20 +136,18 @@ class _RegisterScreenState extends State<RegisterScreen>
               padding: const EdgeInsets.fromLTRB(8, 12, 16, 0),
               child: Row(
                 children: [
-                  if (_currentStep > 0)
-                    IconButton(
-                      onPressed: _prevStep,
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          size: 20),
-                      color: AppColors.textDark,
-                    )
-                  else
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          size: 20),
-                      color: AppColors.textDark,
-                    ),
+                  IconButton(
+                    onPressed: () {
+                      if (_currentStep > 0) {
+                        _prevStep();
+                      } else {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                        size: 20),
+                    color: AppColors.textDark,
+                  ),
                   const Spacer(),
                   Text(
                     'Janta Trader',
@@ -235,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   // ── Step Indicator ─────────────────────────────────────────────────────────
   Widget _buildStepIndicator(ThemeData theme) {
-    final steps = ['Details', 'Verify', 'Password'];
+    final steps = ['Details', 'Password'];
     return Row(
       children: List.generate(steps.length * 2 - 1, (i) {
         if (i.isOdd) {
@@ -244,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           return Expanded(
             child: Container(
               height: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(2),
                 color: stepIndex < _currentStep
@@ -317,33 +270,11 @@ class _RegisterScreenState extends State<RegisterScreen>
           nameController: _nameController,
           mobileController: _mobileController,
           emailController: _emailController,
-          onVerify: _verifyStep1,
+          onContinue: _verifyStep1,
         );
       case 1:
         return RegisterStep2(
-          mobileController: _mobileController,
-          otpControllers: _otpControllers,
-          otpFocusNodes: _otpFocusNodes,
-          canResend: _canResend,
-          resendSeconds: _resendSeconds,
-          onVerifyOtp: _verifyOtp,
-          onResendOtp: () {
-            _showSnackBar('OTP resent to ${_mobileController.text.trim()}',
-                isError: false);
-            _startResendTimer();
-          },
-          onOtpChanged: (v, index) {
-            if (v.isNotEmpty && index < 5) {
-              _otpFocusNodes[index + 1].requestFocus();
-            } else if (v.isEmpty && index > 0) {
-              _otpFocusNodes[index - 1].requestFocus();
-            }
-            setState(() {});
-          },
-        );
-      case 2:
-        return RegisterStep3(
-          formKey: _step3FormKey,
+          formKey: _step2FormKey,
           nameController: _nameController,
           mobileController: _mobileController,
           passwordController: _passwordController,

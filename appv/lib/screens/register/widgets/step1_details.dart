@@ -9,7 +9,7 @@ class RegisterStep1 extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController mobileController;
   final TextEditingController emailController;
-  final VoidCallback onVerify;
+  final VoidCallback onContinue;
 
   const RegisterStep1({
     super.key,
@@ -17,7 +17,7 @@ class RegisterStep1 extends StatelessWidget {
     required this.nameController,
     required this.mobileController,
     required this.emailController,
-    required this.onVerify,
+    required this.onContinue,
   });
 
   @override
@@ -121,11 +121,11 @@ class RegisterStep1 extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                // Send OTP Button
+                // Continue Button
                 RegisterPrimaryButton(
-                  label: 'Send OTP',
-                  icon: Icons.send_rounded,
-                  onPressed: onVerify,
+                  label: 'Continue',
+                  icon: Icons.arrow_forward_rounded,
+                  onPressed: onContinue,
                 ),
               ],
             ),
