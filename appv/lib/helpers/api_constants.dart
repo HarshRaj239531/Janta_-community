@@ -57,6 +57,11 @@ class ApiConstants {
   static const String pay = '/user/payments/pay';
   static const String paymentSetting = '/user/payment-setting';
 
+  // Support & Helpline
+  static const String supportPhone = '9661001833';
+  static const String supportPhoneFormatted = '+91 9661001833';
+  static const String supportEmail = 'support@jantacommunity.com';
+
   /// Resolves database image URLs that point to localhost (common in local Laravel dev servers)
   /// so that they point to the correct emulator/device accessible host dynamically.
   static String? resolveImageUrl(String? url) {

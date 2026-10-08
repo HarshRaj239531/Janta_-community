@@ -8,6 +8,7 @@ import '../../provider/profile_provider.dart';
 import '../../provider/auth_provider.dart';
 import '../login/login_screen.dart';
 import '../loan_details/widgets/documents_tab.dart';
+import '../../helpers/support_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -444,14 +445,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // 4. About Janta
+                // 4. About & Support
                 _buildSectionHeader('App Info & Support'),
+                const SizedBox(height: 8),
+                _buildSettingsTile(
+                  icon: Icons.support_agent_rounded,
+                  title: 'Help & Support Helpline',
+                  subtitle: '+91 9661001833 (Call or WhatsApp)',
+                  onTap: () => SupportHelper.showSupportBottomSheet(context),
+                ),
                 const SizedBox(height: 8),
                 _buildSettingsTile(
                   icon: Icons.info_outline_rounded,
                   title: 'About Janta community',
-                  subtitle: 'Terms of service & privacy policies',
-                  onTap: () {},
+                  subtitle: 'App info, policies & helpline',
+                  onTap: () => _showAboutDialog(context),
                 ),
                 const SizedBox(height: 24),
 
@@ -475,6 +483,95 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.info_outline_rounded, color: Theme.of(context).colorScheme.primary, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'About Janta',
+              style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Janta community is a transparent and community-driven financial platform empowering members with savings, loans, and lottery programs.',
+              style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundSoft,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.borderLight),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.phone_in_talk_rounded, size: 16, color: AppColors.primaryGreen),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Helpline: +91 9661001833',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.email_outlined, size: 16, color: AppColors.primaryGreen),
+                      const SizedBox(width: 8),
+                      Text(
+                        'support@jantacommunity.com',
+                        style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close', style: GoogleFonts.outfit(color: AppColors.textSecondary)),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              SupportHelper.showSupportBottomSheet(context);
+            },
+            icon: const Icon(Icons.support_agent_rounded, size: 16, color: Colors.white),
+            label: Text('Get Support', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -503,25 +600,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.borderLight),
       ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: const BoxDecoration(
-            color: AppColors.lavenderSoft,
-            shape: BoxShape.circle,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          onTap: onTap,
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: AppColors.lavenderSoft,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppColors.textPrimary, size: 20),
           ),
-          child: Icon(icon, color: AppColors.textPrimary, size: 20),
+          title: Text(
+            title,
+            style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary),
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
         ),
-        title: Text(
-          title,
-          style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: GoogleFonts.outfit(fontSize: 12, color: AppColors.textSecondary),
-        ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
       ),
     );
   }

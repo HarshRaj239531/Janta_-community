@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../constants/app_colors.dart';
 import '../../../api/payment_api.dart';
 import '../../../helpers/api_constants.dart';
+import '../../../helpers/support_helper.dart';
 
 class PaymentGatewayScreen extends StatefulWidget {
   const PaymentGatewayScreen({super.key});
@@ -29,11 +30,13 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
       final data = await PaymentApi.fetchPaymentSetting();
       setState(() {
         _qrCodeUrl = ApiConstants.resolveImageUrl(data['qr_code']);
-        _adminPhone = data['admin_phone'];
+        final phone = data['admin_phone']?.toString().trim();
+        _adminPhone = (phone != null && phone.isNotEmpty) ? phone : ApiConstants.supportPhone;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
+        _adminPhone = ApiConstants.supportPhone;
         _errorMessage = e.toString();
         _isLoading = false;
       });
@@ -41,20 +44,12 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
   }
 
   Future<void> _openWhatsApp() async {
-    if (_adminPhone == null || _adminPhone!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Admin contact number not available.',
-            style: GoogleFonts.outfit(),
-          ),
-          backgroundColor: AppColors.errorAccent,
-        ),
-      );
-      return;
-    }
+    final phoneToUse = (_adminPhone != null && _adminPhone!.trim().isNotEmpty)
+        ? _adminPhone!
+        : ApiConstants.supportPhone;
 
-    final cleanPhone = _adminPhone!.replaceAll(RegExp(r'[^\d]'), '');
+    final raw = phoneToUse.replaceAll(RegExp(r'[^\d]'), '');
+    final cleanPhone = raw.length == 10 ? '91$raw' : raw;
     final message = "Hello Admin,\n\nI have completed the payment. Please verify the attached screenshot of my payment transaction.";
     final whatsappUrl = Uri.parse("https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}");
 
@@ -69,7 +64,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Could not open WhatsApp. Please contact admin at $_adminPhone directly.',
+              'Could not open WhatsApp. Please contact admin at $phoneToUse directly.',
               style: GoogleFonts.outfit(),
             ),
             backgroundColor: AppColors.errorAccent,
@@ -264,10 +259,25 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                       const SizedBox(height: 12),
                       Center(
                         child: Text(
-                          'Will redirect to WhatsApp to send to ${_adminPhone ?? "admin"}',
+                          'Will redirect to WhatsApp: ${_adminPhone ?? ApiConstants.supportPhoneFormatted}',
                           style: GoogleFonts.outfit(
                             fontSize: 11,
                             color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => SupportHelper.makePhoneCall(context, _adminPhone),
+                          icon: const Icon(Icons.phone_in_talk_rounded, size: 16, color: AppColors.primaryGreen),
+                          label: Text(
+                            'Need Help? Call Helpline (${_adminPhone ?? ApiConstants.supportPhoneFormatted})',
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryGreen,
+                            ),
                           ),
                         ),
                       ),

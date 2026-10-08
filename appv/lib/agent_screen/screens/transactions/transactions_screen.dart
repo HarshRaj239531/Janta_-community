@@ -226,18 +226,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   separatorBuilder: (context, index) => const Divider(color: AgentColors.borderMuted),
                   itemBuilder: (context, index) {
                     final item = items[index];
-                    return ListTile(
-                      title: Text(item['label'] as String, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
-                      trailing: const Icon(Icons.chevron_right, color: AgentColors.primaryGreen),
-                      onTap: () {
-                        setState(() {
-                          _collectionType = item['type'] as String;
-                          _selectedInstallmentId = item['id'] as int;
-                          _selectedInstallmentLabel = item['label'] as String;
-                          _amountController.text = (item['amount'] as double).toStringAsFixed(2);
-                        });
-                        Navigator.pop(context);
-                      },
+                    return Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        title: Text(item['label'] as String, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
+                        trailing: const Icon(Icons.chevron_right, color: AgentColors.primaryGreen),
+                        onTap: () {
+                          setState(() {
+                            _collectionType = item['type'] as String;
+                            _selectedInstallmentId = item['id'] as int;
+                            _selectedInstallmentLabel = item['label'] as String;
+                            _amountController.text = (item['amount'] as double).toStringAsFixed(2);
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
                     );
                   },
                 ),

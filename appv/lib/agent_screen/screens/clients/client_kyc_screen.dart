@@ -68,15 +68,21 @@ class _ClientKycScreenState extends State<ClientKycScreen> {
       builder: (context) => SafeArea(
         child: Wrap(
           children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined, color: AgentColors.primaryGreen),
-              title: Text('Take Photo', style: GoogleFonts.outfit(fontWeight: FontWeight.w500)),
-              onTap: () => Navigator.pop(context, ImageSource.camera),
+            Material(
+              color: Colors.transparent,
+              child: ListTile(
+                leading: const Icon(Icons.camera_alt_outlined, color: AgentColors.primaryGreen),
+                title: Text('Take Photo', style: GoogleFonts.outfit(fontWeight: FontWeight.w500)),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined, color: AgentColors.primaryGreen),
-              title: Text('Choose from Gallery', style: GoogleFonts.outfit(fontWeight: FontWeight.w500)),
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            Material(
+              color: Colors.transparent,
+              child: ListTile(
+                leading: const Icon(Icons.photo_library_outlined, color: AgentColors.primaryGreen),
+                title: Text('Choose from Gallery', style: GoogleFonts.outfit(fontWeight: FontWeight.w500)),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
             ),
           ],
         ),

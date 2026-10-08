@@ -162,19 +162,22 @@ class _CustomerSelectorState extends State<CustomerSelector> {
                             separatorBuilder: (context, index) => const Divider(color: AgentColors.borderMuted),
                             itemBuilder: (context, index) {
                               final customer = results[index];
-                              return ListTile(
-                                title: Text(
-                                  customer.name,
-                                  style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+                              return Material(
+                                color: Colors.transparent,
+                                child: ListTile(
+                                  title: Text(
+                                    customer.name,
+                                    style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+                                  ),
+                                  subtitle: Text(
+                                    'ID: #MEM-${customer.id} • Phone: ${customer.phone ?? "N/A"}',
+                                    style: GoogleFonts.outfit(color: AgentColors.textSecondary, fontSize: 13),
+                                  ),
+                                  onTap: () {
+                                    widget.onMemberSelected(customer);
+                                    Navigator.pop(context);
+                                  },
                                 ),
-                                subtitle: Text(
-                                  'ID: #MEM-${customer.id} • Phone: ${customer.phone ?? "N/A"}',
-                                  style: GoogleFonts.outfit(color: AgentColors.textSecondary, fontSize: 13),
-                                ),
-                                onTap: () {
-                                  widget.onMemberSelected(customer);
-                                  Navigator.pop(context);
-                                },
                               );
                             },
                           );

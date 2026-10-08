@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../constants/agent_colors.dart';
+import '../../../helpers/support_helper.dart';
 
 class SupportAdminScreen extends StatefulWidget {
   const SupportAdminScreen({super.key});
@@ -369,26 +370,29 @@ class _SupportAdminScreenState extends State<SupportAdminScreen> {
           _buildContactRowCard(
             icon: Icons.phone_android_rounded,
             title: 'Call Us',
-            subtitle: '+1 (800) 555-0199',
-            onTap: () {},
-          ),
-          const SizedBox(height: 10),
-          
-          // Email Card
-          _buildContactRowCard(
-            icon: Icons.mail_outline_rounded,
-            title: 'Email Support',
-            subtitle: 'admin@emeraldclarity.com',
-            onTap: () {},
+            subtitle: SupportHelper.formattedPhoneNumber,
+            onTap: () => SupportHelper.makePhoneCall(context),
           ),
           const SizedBox(height: 10),
           
           // WhatsApp Card
           _buildContactRowCard(
             icon: Icons.chat_bubble_outline_rounded,
-            title: 'WhatsApp',
-            subtitle: 'Instant Messaging',
-            onTap: () {},
+            title: 'WhatsApp Support',
+            subtitle: '${SupportHelper.formattedPhoneNumber} (Instant Chat)',
+            onTap: () => SupportHelper.openWhatsApp(
+              context,
+              message: 'Hello Admin Support, I am an Agent with Janta Community needing assistance.',
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Email Card
+          _buildContactRowCard(
+            icon: Icons.mail_outline_rounded,
+            title: 'Email Support',
+            subtitle: SupportHelper.email,
+            onTap: () => SupportHelper.sendEmail(context),
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import '../../provider/auth_provider.dart';
 import '../register/register_screen.dart';
 import '../home/home_screen.dart';
 import '../../agent_screen/screens/agent_main_screen.dart';
+import '../../helpers/support_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -308,6 +309,31 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: theme.colorScheme.primary, // Forest green
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Need help? Contact Support
+                      GestureDetector(
+                        onTap: () => SupportHelper.showSupportBottomSheet(context),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.support_agent_rounded,
+                              size: 17,
+                              color: AppColors.primaryGreen,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Need help? Contact Helpline (${SupportHelper.formattedPhoneNumber})",
+                              style: GoogleFonts.outfit(
+                                color: AppColors.primaryGreen,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],

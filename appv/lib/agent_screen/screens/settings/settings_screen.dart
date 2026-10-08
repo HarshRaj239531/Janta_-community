@@ -115,11 +115,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 24),
               
               // 3. SUPPORT Section
-              _buildSectionHeader('SUPPORT'),
+              _buildSectionHeader('SUPPORT & HELPLINE'),
               const SizedBox(height: 8),
               SettingsTile(
-                leadingIcon: Icons.help_outline_rounded,
-                title: 'Contact Admin',
+                leadingIcon: Icons.headset_mic_rounded,
+                title: 'Help & Admin Support (+91 9661001833)',
                 trailing: const Icon(
                   Icons.chevron_right_rounded,
                   color: AgentColors.textSecondary,
