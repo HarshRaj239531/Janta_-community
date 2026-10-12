@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../../provider/notification_provider.dart';
+import '../../services/local_notification_service.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -46,6 +47,28 @@ class _NotificationScreenState extends State<NotificationScreen> {
         backgroundColor: const Color(0xFF0F4C3A),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_active_outlined, color: Colors.white),
+            tooltip: 'Test Notification',
+            onPressed: () {
+              LocalNotificationService.showInstantNotification(
+                id: DateTime.now().millisecondsSinceEpoch % 100000,
+                title: 'Payment Reminder ⏰',
+                body: 'Your upcoming installment is due soon. Pay on time to avoid penalties.',
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Notification dispatched! Check your phone notification tray.',
+                    style: GoogleFonts.outfit(),
+                  ),
+                  backgroundColor: AppColors.primaryGreen,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Consumer<NotificationProvider>(
         builder: (context, np, child) {
@@ -77,7 +100,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     Icon(
                       Icons.notifications_none_rounded,
                       size: 64,
-                      color: AppColors.textMuted.withOpacity(0.5),
+                      color: AppColors.textMuted.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -137,7 +160,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: iconColor.withOpacity(0.1),
+                          color: iconColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(

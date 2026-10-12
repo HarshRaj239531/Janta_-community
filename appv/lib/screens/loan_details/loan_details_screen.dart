@@ -13,6 +13,7 @@ import 'widgets/payment_history_tab.dart';
 import 'widgets/documents_tab.dart';
 import 'widgets/basic_details_tab.dart';
 import 'widgets/apply_loan_bottom_sheet.dart';
+import '../../services/local_notification_service.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
   const LoanDetailsScreen({super.key});
@@ -38,6 +39,9 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
             orElse: () => lp.loans.first,
           );
           await lp.fetchLoanDetails(activeLoan.id);
+          if (mounted && lp.selectedLoan?.installments != null) {
+            LocalNotificationService.scheduleLoanReminders(lp.selectedLoan!.installments!);
+          }
         }
       }
       if (mounted) {

@@ -4,6 +4,8 @@ import '../api/payment_api.dart';
 import '../models/installment_model.dart';
 import '../helpers/api_helper.dart';
 
+import '../services/local_notification_service.dart';
+
 class InstallmentProvider with ChangeNotifier {
   InstallmentsResponse? _pending;
   InstallmentsResponse? _paid;
@@ -29,6 +31,9 @@ class InstallmentProvider with ChangeNotifier {
 
     try {
       _pending = await InstallmentApi.getPending();
+      if (_pending?.all != null && _pending!.all.isNotEmpty) {
+        LocalNotificationService.scheduleLoanReminders(_pending!.all);
+      }
       _isLoading = false;
       notifyListeners();
     } on ApiException catch (e) {

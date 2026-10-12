@@ -15,8 +15,9 @@ import 'provider/profile_provider.dart';
 import 'provider/material_provider.dart';
 import 'provider/notification_provider.dart';
 import 'agent_screen/provider/agent_provider.dart';
+import 'services/local_notification_service.dart';
 
-void main() {
+void main() async {
   // Ensure system navigation/status bar styling matches app theme
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
@@ -27,6 +28,10 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
+
+  // Initialize background & local payment reminders notification service
+  await LocalNotificationService.initialize();
+
   runApp(const MyApp());
 }
 
