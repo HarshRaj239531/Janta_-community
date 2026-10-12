@@ -54,6 +54,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
           returnRate: '${committee.returnPercentage ?? 0}%',
           groupId: '#${committee.id}',
           category: committee.paymentFrequency ?? 'N/A',
+          startDate: committee.startDateFormatted,
+          endDate: committee.endDateFormatted,
+          period: committee.periodLabel,
         ),
       ),
     );
@@ -358,6 +361,40 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       'STATUS',
                       (committee.status ?? 'active').toUpperCase(),
                       false,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Divider(color: AppColors.borderMuted, height: 1),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_month_rounded,
+                      size: 14,
+                      color: theme.colorScheme.primary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'PERIOD:',
+                      style: GoogleFonts.outfit(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textMuted,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        committee.periodLabel,
+                        style: GoogleFonts.outfit(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryGreen,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

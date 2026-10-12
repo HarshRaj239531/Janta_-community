@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class CommitteeModel {
   final int id;
   final String? name;
@@ -5,6 +7,8 @@ class CommitteeModel {
   final double? returnPercentage;
   final int? duration;
   final String? paymentFrequency;
+  final String? startDate;
+  final String? endDate;
   final String? status;
   final String? createdAt;
   final String? updatedAt;
@@ -21,6 +25,8 @@ class CommitteeModel {
     this.returnPercentage,
     this.duration,
     this.paymentFrequency,
+    this.startDate,
+    this.endDate,
     this.status,
     this.createdAt,
     this.updatedAt,
@@ -38,6 +44,8 @@ class CommitteeModel {
       returnPercentage: double.tryParse(json['return_percentage']?.toString() ?? '') ?? 0.0,
       duration: json['duration'],
       paymentFrequency: json['payment_frequency'],
+      startDate: json['start_date']?.toString(),
+      endDate: json['end_date']?.toString(),
       status: json['status'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
@@ -67,5 +75,28 @@ class CommitteeModel {
       default:
         return paymentFrequency ?? 'N/A';
     }
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return 'N/A';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('dd MMM, yyyy').format(date);
+    } catch (_) {
+      return dateStr;
+    }
+  }
+
+  String get startDateFormatted => _formatDate(startDate);
+  String get endDateFormatted => _formatDate(endDate);
+
+  /// Timeline period string: "15 Oct, 2026 to 15 Oct, 2027"
+  String get periodLabel {
+    if (startDate != null && endDate != null && startDate!.isNotEmpty && endDate!.isNotEmpty) {
+      return '${_formatDate(startDate)} to ${_formatDate(endDate)}';
+    } else if (startDate != null && startDate!.isNotEmpty) {
+      return 'Starts ${_formatDate(startDate)}';
+    }
+    return duration != null ? '$duration Months' : 'Active';
   }
 }

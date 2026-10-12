@@ -12,6 +12,9 @@ class CommunityDetailsScreen extends StatefulWidget {
   final String returnRate;
   final String category;
   final String groupId;
+  final String? startDate;
+  final String? endDate;
+  final String? period;
 
   const CommunityDetailsScreen({
     super.key,
@@ -22,6 +25,9 @@ class CommunityDetailsScreen extends StatefulWidget {
     this.returnRate = '14% p.a.',
     this.category = 'Premium Finance',
     this.groupId = '#EIG-2024',
+    this.startDate,
+    this.endDate,
+    this.period,
   });
 
   @override
@@ -150,6 +156,16 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                           _buildSummaryRow(context, 'Goal', widget.goal, false),
                           const SizedBox(height: 12),
                           _buildSummaryRow(context, 'Return', widget.returnRate, true),
+                          if (widget.period != null && widget.period!.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            _buildSummaryRow(context, 'Timeline', widget.period!, false),
+                          ],
+                          if (widget.startDate != null && widget.endDate != null) ...[
+                            const SizedBox(height: 12),
+                            _buildSummaryRow(context, 'Start Date', widget.startDate!, false),
+                            const SizedBox(height: 12),
+                            _buildSummaryRow(context, 'End Date', widget.endDate!, false),
+                          ],
                         ],
                       ),
                     ),
