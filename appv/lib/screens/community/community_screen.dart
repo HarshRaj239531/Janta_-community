@@ -33,7 +33,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   String _formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    final formatter = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 0,
+    );
     return formatter.format(amount);
   }
 
@@ -44,7 +48,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
         builder: (context) => CommunityDetailsScreen(
           committeeId: committee.id,
           name: committee.name ?? 'Committee',
-          plan: '${committee.frequencyLabel} ${_formatCurrency(committee.monthlyAmount)}',
+          plan:
+              '${committee.frequencyLabel} ${_formatCurrency(committee.monthlyAmount)}',
           goal: _formatCurrency(committee.amount ?? 0),
           returnRate: '${committee.returnPercentage ?? 0}%',
           groupId: '#${committee.id}',
@@ -69,10 +74,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
     final body = Consumer<CommitteeProvider>(
       builder: (context, cp, child) {
         if (cp.isLoading && cp.committees.isEmpty) {
-          return const Center(child: Padding(
-            padding: EdgeInsets.all(40),
-            child: CircularProgressIndicator(),
-          ));
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(40),
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
         final error = cp.error;
@@ -89,7 +96,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
               if (error != null)
                 Container(
                   margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.errorLight,
                     borderRadius: BorderRadius.circular(12),
@@ -97,16 +107,27 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: AppColors.errorAccent, size: 18),
+                      Icon(
+                        Icons.error_outline,
+                        color: AppColors.errorAccent,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Sync failed: $error',
-                          style: GoogleFonts.outfit(color: AppColors.errorDark, fontSize: 12),
+                          style: GoogleFonts.outfit(
+                            color: AppColors.errorDark,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.errorDark),
+                        icon: const Icon(
+                          Icons.refresh_rounded,
+                          size: 18,
+                          color: AppColors.errorDark,
+                        ),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: () => cp.fetchCommittees(),
@@ -119,7 +140,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Available\nCommunities',
+                    'Available\nCommittee',
                     style: GoogleFonts.outfit(
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
@@ -151,7 +172,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(40),
                     child: Text(
-                      'No communities available',
+                      'No committee available',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         color: AppColors.textMuted,
@@ -170,10 +191,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     builder: (context, value, child) {
                       return Transform.translate(
                         offset: Offset(0, 20 * (1 - value)),
-                        child: Opacity(
-                          opacity: value,
-                          child: child,
-                        ),
+                        child: Opacity(opacity: value, child: child),
                       );
                     },
                     child: Padding(
@@ -195,17 +213,17 @@ class _CommunityScreenState extends State<CommunityScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: AppColors.textDark,
+            ),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         body: body,
       );
     } else {
-      return Container(
-        color: Colors.transparent,
-        child: body,
-      );
+      return Container(color: Colors.transparent, child: body);
     }
   }
 
@@ -242,7 +260,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 
   // Community list card item builder — uses CommitteeModel
-  Widget _buildCommunityCard(BuildContext context, {required CommitteeModel committee}) {
+  Widget _buildCommunityCard(
+    BuildContext context, {
+    required CommitteeModel committee,
+  }) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -305,8 +326,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDetailItem('PLAN', '${committee.frequencyLabel} ${_formatCurrency(committee.monthlyAmount)}', false),
-                    _buildDetailItem('TOTAL AMOUNT', _formatCurrency(committee.amount ?? 0), false),
+                    _buildDetailItem(
+                      'PLAN',
+                      '${committee.frequencyLabel} ${_formatCurrency(committee.monthlyAmount)}',
+                      false,
+                    ),
+                    _buildDetailItem(
+                      'TOTAL AMOUNT',
+                      _formatCurrency(committee.amount ?? 0),
+                      false,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -315,9 +344,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDetailItem('DURATION', '${committee.duration ?? 0} months', false),
-                    _buildDetailItem('RETURN', '${committee.returnPercentage ?? 0}%', true),
-                    _buildDetailItem('STATUS', (committee.status ?? 'active').toUpperCase(), false),
+                    _buildDetailItem(
+                      'DURATION',
+                      '${committee.duration ?? 0} months',
+                      false,
+                    ),
+                    _buildDetailItem(
+                      'RETURN',
+                      '${committee.returnPercentage ?? 0}%',
+                      true,
+                    ),
+                    _buildDetailItem(
+                      'STATUS',
+                      (committee.status ?? 'active').toUpperCase(),
+                      false,
+                    ),
                   ],
                 ),
               ],
@@ -338,7 +379,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 ),
               ),
               child: Text(
-                'Join Community',
+                'Join Committee',
                 style: GoogleFonts.outfit(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

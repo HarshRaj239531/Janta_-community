@@ -21,14 +21,21 @@ class _OtherTabState extends State<OtherTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CommitteeProvider>(context, listen: false).fetchMyCommittees();
+      Provider.of<CommitteeProvider>(
+        context,
+        listen: false,
+      ).fetchMyCommittees();
       Provider.of<InstallmentProvider>(context, listen: false).fetchPending();
       Provider.of<InstallmentProvider>(context, listen: false).fetchPaid();
     });
   }
 
   String _formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
+    final formatter = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 2,
+    );
     return formatter.format(amount);
   }
 
@@ -66,7 +73,9 @@ class _OtherTabState extends State<OtherTab> {
         // Find next due date
         String nextDueDate = 'N/A';
         if (allPending.isNotEmpty) {
-          allPending.sort((a, b) => (a.dueDate ?? '').compareTo(b.dueDate ?? ''));
+          allPending.sort(
+            (a, b) => (a.dueDate ?? '').compareTo(b.dueDate ?? ''),
+          );
           nextDueDate = _formatDate(allPending.first.dueDate);
         }
 
@@ -102,11 +111,12 @@ class _OtherTabState extends State<OtherTab> {
                 // Join Community Button
                 ElevatedButton.icon(
                   onPressed: () {
-                    HomeScreen.activeTabNotifier.value = 1; // Switch to Community tab
+                    HomeScreen.activeTabNotifier.value =
+                        1; // Switch to Community tab
                   },
                   icon: const Icon(Icons.add, size: 14, color: Colors.white),
                   label: Text(
-                    'Join Community',
+                    'Join Committee',
                     style: GoogleFonts.outfit(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -116,7 +126,10 @@ class _OtherTabState extends State<OtherTab> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGreen,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -138,7 +151,7 @@ class _OtherTabState extends State<OtherTab> {
                     color: Colors.black.withAlpha(6),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
-                  )
+                  ),
                 ],
               ),
               child: Column(
@@ -195,7 +208,7 @@ class _OtherTabState extends State<OtherTab> {
                         label: '$activeCommittees Committees',
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -279,62 +292,71 @@ class _OtherTabState extends State<OtherTab> {
                 child: Center(
                   child: Text(
                     'No communities joined yet',
-                    style: GoogleFonts.outfit(fontSize: 14, color: AppColors.textMuted),
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      color: AppColors.textMuted,
+                    ),
                   ),
                 ),
               )
             else
-              ...myCommittees.take(2).map((committee) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderMuted),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
+              ...myCommittees
+                  .take(2)
+                  .map(
+                    (committee) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.backgroundSoft,
-                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.borderMuted),
                         ),
-                        child: const Icon(
-                          Icons.people_alt_rounded,
-                          color: AppColors.textSecondary,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              committee.name ?? 'Committee',
-                              style: GoogleFonts.outfit(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textDark,
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.backgroundSoft,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.people_alt_rounded,
+                                color: AppColors.textSecondary,
+                                size: 24,
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                _buildBadgeChip('ID: #${committee.id}'),
-                                const SizedBox(width: 8),
-                                _buildBadgeChip('${committee.frequencyLabel} • ${_formatCurrency(committee.monthlyAmount)}/inst'),
-                              ],
-                            )
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    committee.name ?? 'Committee',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      _buildBadgeChip('ID: #${committee.id}'),
+                                      const SizedBox(width: 8),
+                                      _buildBadgeChip(
+                                        '${committee.frequencyLabel} • ${_formatCurrency(committee.monthlyAmount)}/inst',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                ),
-              )),
             const SizedBox(height: 24),
 
             // 5. PAID INSTALLMENT RATIO Card
@@ -402,7 +424,7 @@ class _OtherTabState extends State<OtherTab> {
                                 ),
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -414,7 +436,10 @@ class _OtherTabState extends State<OtherTab> {
                     children: [
                       Text(
                         'Completed',
-                        style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textSecondary),
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       Text(
                         '${allPaid.length} Installments',
@@ -432,7 +457,10 @@ class _OtherTabState extends State<OtherTab> {
                     children: [
                       Text(
                         'Remaining',
-                        style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textSecondary),
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       Text(
                         '${allPending.length} Installments',
@@ -495,7 +523,10 @@ class _OtherTabState extends State<OtherTab> {
                 children: [
                   // Header Row
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: Row(
                       children: [
                         Expanded(
@@ -546,43 +577,48 @@ class _OtherTabState extends State<OtherTab> {
                         style: GoogleFonts.outfit(color: AppColors.textMuted),
                       ),
                     )
-                  else
-                    ...[
-                      // Show recent paid installments
-                      ...allPaid.take(3).map((inst) {
-                        return Column(
-                          children: [
-                            _buildHistoryTableItem(
-                              title: inst.committeeName != 'N/A'
-                                  ? inst.committeeName
-                                  : inst.loanLabel,
-                              date: _formatDate(inst.paidDate ?? inst.dueDate),
-                              amount: _formatCurrency(inst.amount ?? 0),
-                              status: 'Paid',
-                              icon: Icons.check_circle_outline,
-                            ),
-                            const Divider(color: AppColors.borderMuted, height: 1),
-                          ],
-                        );
-                      }),
-                      // Show recent pending
-                      ...allPending.take(2).map((inst) {
-                        return Column(
-                          children: [
-                            _buildHistoryTableItem(
-                              title: inst.committeeName != 'N/A'
-                                  ? inst.committeeName
-                                  : inst.loanLabel,
-                              date: _formatDate(inst.dueDate),
-                              amount: _formatCurrency(inst.amount ?? 0),
-                              status: 'Pending',
-                              icon: Icons.schedule_rounded,
-                            ),
-                            const Divider(color: AppColors.borderMuted, height: 1),
-                          ],
-                        );
-                      }),
-                    ],
+                  else ...[
+                    // Show recent paid installments
+                    ...allPaid.take(3).map((inst) {
+                      return Column(
+                        children: [
+                          _buildHistoryTableItem(
+                            title: inst.committeeName != 'N/A'
+                                ? inst.committeeName
+                                : inst.loanLabel,
+                            date: _formatDate(inst.paidDate ?? inst.dueDate),
+                            amount: _formatCurrency(inst.amount ?? 0),
+                            status: 'Paid',
+                            icon: Icons.check_circle_outline,
+                          ),
+                          const Divider(
+                            color: AppColors.borderMuted,
+                            height: 1,
+                          ),
+                        ],
+                      );
+                    }),
+                    // Show recent pending
+                    ...allPending.take(2).map((inst) {
+                      return Column(
+                        children: [
+                          _buildHistoryTableItem(
+                            title: inst.committeeName != 'N/A'
+                                ? inst.committeeName
+                                : inst.loanLabel,
+                            date: _formatDate(inst.dueDate),
+                            amount: _formatCurrency(inst.amount ?? 0),
+                            status: 'Pending',
+                            icon: Icons.schedule_rounded,
+                          ),
+                          const Divider(
+                            color: AppColors.borderMuted,
+                            height: 1,
+                          ),
+                        ],
+                      );
+                    }),
+                  ],
                 ],
               ),
             ),
@@ -608,11 +644,7 @@ class _OtherTabState extends State<OtherTab> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: iconColor,
-              size: icon == Icons.circle ? 6 : 12,
-            ),
+            Icon(icon, color: iconColor, size: icon == Icons.circle ? 6 : 12),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
@@ -659,7 +691,7 @@ class _OtherTabState extends State<OtherTab> {
                   shape: BoxShape.circle,
                   color: Colors.grey.shade300,
                 ),
-              )
+              ),
             ],
           ),
           Column(
@@ -684,7 +716,7 @@ class _OtherTabState extends State<OtherTab> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -805,7 +837,10 @@ class _OtherTabState extends State<OtherTab> {
             child: Align(
               alignment: Alignment.centerRight,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: statusBgColor,
                   borderRadius: BorderRadius.circular(20),

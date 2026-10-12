@@ -10,7 +10,11 @@ class TraderTab extends StatelessWidget {
   const TraderTab({super.key});
 
   String _formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
+    final formatter = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 2,
+    );
     return formatter.format(amount);
   }
 
@@ -29,10 +33,12 @@ class TraderTab extends StatelessWidget {
     return Consumer<DashboardProvider>(
       builder: (context, dp, child) {
         if (dp.isLoading && dp.dashboard == null) {
-          return const Center(child: Padding(
-            padding: EdgeInsets.all(40),
-            child: CircularProgressIndicator(),
-          ));
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(40),
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
         final error = dp.error;
@@ -41,7 +47,9 @@ class TraderTab extends StatelessWidget {
         final credits = wallet?.credits ?? 0;
         final debits = wallet?.debits ?? 0;
         final recentActivity = dp.dashboard?.recentActivity ?? [];
-        final paidRatio = (credits + debits) > 0 ? credits / (credits + debits) : 0.0;
+        final paidRatio = (credits + debits) > 0
+            ? credits / (credits + debits)
+            : 0.0;
 
         final items = <Widget>[
           // Subtle offline/error warning banner instead of a blocking page
@@ -56,16 +64,27 @@ class TraderTab extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: AppColors.errorAccent, size: 18),
+                  Icon(
+                    Icons.error_outline,
+                    color: AppColors.errorAccent,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Offline / Sync failed: $error',
-                      style: GoogleFonts.outfit(color: AppColors.errorDark, fontSize: 12),
+                      style: GoogleFonts.outfit(
+                        color: AppColors.errorDark,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.errorDark),
+                    icon: const Icon(
+                      Icons.refresh_rounded,
+                      size: 18,
+                      color: AppColors.errorDark,
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: () => dp.fetchDashboard(),
@@ -79,10 +98,7 @@ class TraderTab extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [
-                  AppColors.primaryGreen,
-                  AppColors.primaryDark,
-                ],
+                colors: [AppColors.primaryGreen, AppColors.primaryDark],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -171,18 +187,22 @@ class TraderTab extends StatelessWidget {
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () {
-                    HomeScreen.activeTabNotifier.value = 1; // Switch to Community tab
+                    HomeScreen.activeTabNotifier.value =
+                        1; // Switch to Community tab
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGreen,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
-                    'Join Community',
+                    'Join Committee',
                     style: GoogleFonts.outfit(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -256,7 +276,7 @@ class TraderTab extends StatelessWidget {
                               ),
                             ],
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -354,15 +374,20 @@ class TraderTab extends StatelessWidget {
               ),
             )
           else
-            ...recentActivity.map((txn) => _buildHistoryItem(
-              context,
-              title: txn.description ?? 'Transaction',
-              date: _formatDate(txn.createdAt),
-              amount: '${txn.isCredit ? '+ ' : '- '}${_formatCurrency(txn.amount ?? 0)}',
-              status: txn.isCredit ? 'SUCCESS' : 'DEBIT',
-              isSuccess: txn.isCredit,
-              icon: txn.isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-            )),
+            ...recentActivity.map(
+              (txn) => _buildHistoryItem(
+                context,
+                title: txn.description ?? 'Transaction',
+                date: _formatDate(txn.createdAt),
+                amount:
+                    '${txn.isCredit ? '+ ' : '- '}${_formatCurrency(txn.amount ?? 0)}',
+                status: txn.isCredit ? 'SUCCESS' : 'DEBIT',
+                isSuccess: txn.isCredit,
+                icon: txn.isCredit
+                    ? Icons.arrow_downward_rounded
+                    : Icons.arrow_upward_rounded,
+              ),
+            ),
           const SizedBox(height: 16),
         ];
 
@@ -379,10 +404,7 @@ class TraderTab extends StatelessWidget {
               builder: (context, value, child) {
                 return Transform.translate(
                   offset: Offset(0, 16 * (1 - value)),
-                  child: Opacity(
-                    opacity: value,
-                    child: child,
-                  ),
+                  child: Opacity(opacity: value, child: child),
                 );
               },
               child: item,
@@ -415,7 +437,9 @@ class TraderTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isSuccess ? AppColors.lightGreenTint : AppColors.errorLight,
+              color: isSuccess
+                  ? AppColors.lightGreenTint
+                  : AppColors.errorLight,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -459,7 +483,9 @@ class TraderTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: isSuccess ? AppColors.primaryGreen : AppColors.errorAccent,
+                  color: isSuccess
+                      ? AppColors.primaryGreen
+                      : AppColors.errorAccent,
                 ),
               ),
               const SizedBox(height: 2),
@@ -468,7 +494,9 @@ class TraderTab extends StatelessWidget {
                 style: GoogleFonts.outfit(
                   fontSize: 9,
                   fontWeight: FontWeight.bold,
-                  color: isSuccess ? AppColors.successGreen : AppColors.warningAmber,
+                  color: isSuccess
+                      ? AppColors.successGreen
+                      : AppColors.warningAmber,
                 ),
               ),
             ],
