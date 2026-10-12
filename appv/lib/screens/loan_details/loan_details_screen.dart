@@ -12,7 +12,7 @@ import 'widgets/loan_detail_tab.dart';
 import 'widgets/payment_history_tab.dart';
 import 'widgets/documents_tab.dart';
 import 'widgets/basic_details_tab.dart';
-
+import 'widgets/apply_loan_bottom_sheet.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
   const LoanDetailsScreen({super.key});
@@ -22,7 +22,7 @@ class LoanDetailsScreen extends StatefulWidget {
 }
 
 class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
-  int _activeSwitcherIndex = 0; // 0: Basic Details, 1: Loan Detail, 2: Payment History, 3: Documents
+  int _activeSwitcherIndex = 0; // 0: Loan Detail, 1: Payment History, 2: Documents, 3: Basic Details
 
   @override
   void initState() {
@@ -30,6 +30,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final lp = Provider.of<LoanProvider>(context, listen: false);
       await lp.fetchLoans();
+      await lp.fetchLoanRequests();
       if (mounted) {
         if (lp.loans.isNotEmpty) {
           final activeLoan = lp.loans.firstWhere(
@@ -37,10 +38,6 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
             orElse: () => lp.loans.first,
           );
           await lp.fetchLoanDetails(activeLoan.id);
-        } else {
-          setState(() {
-            _activeSwitcherIndex = 3; // Default to Documents Tab if no loans
-          });
         }
       }
       if (mounted) {
@@ -184,7 +181,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0F4C3A).withOpacity(0.3),
+                            color: const Color(0xFF0F4C3A).withValues(alpha: 0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           )
@@ -240,7 +237,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.08),
+                              color: Colors.white.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
@@ -452,6 +449,28 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
             fontSize: 20,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0),
+            child: TextButton.icon(
+              onPressed: () => ApplyLoanBottomSheet.show(context),
+              icon: const Icon(Icons.add_circle_outline_rounded, size: 16, color: AppColors.primaryGreen),
+              label: Text(
+                'Apply Loan',
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryGreen,
+                  fontSize: 12,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen.withAlpha(20),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Consumer<LoanProvider>(
         builder: (context, lp, child) {
@@ -475,13 +494,13 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildSwitcherTab(context, 0, Icons.info_outline_rounded, 'Basic Details'),
+                          _buildSwitcherTab(context, 0, Icons.account_balance_wallet_rounded, 'Loan Detail'),
                           const SizedBox(width: 8),
-                          _buildSwitcherTab(context, 1, Icons.account_balance_wallet_rounded, 'Loan Detail'),
+                          _buildSwitcherTab(context, 1, Icons.history_rounded, 'Payment History'),
                           const SizedBox(width: 8),
-                          _buildSwitcherTab(context, 2, Icons.history_rounded, 'Payment History'),
+                          _buildSwitcherTab(context, 2, Icons.description_outlined, 'Documents'),
                           const SizedBox(width: 8),
-                          _buildSwitcherTab(context, 3, Icons.description_outlined, 'Documents'),
+                          _buildSwitcherTab(context, 3, Icons.info_outline_rounded, 'Basic Details'),
                         ],
                       ),
                     ),
@@ -562,23 +581,27 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   Widget _buildDynamicBody(LoanModel? loan, bool showBlank) {
     switch (_activeSwitcherIndex) {
       case 0:
-        return const BasicDetailsTab();
-      case 1:
         return LoanDetailTab(
           loan: loan,
           onPayEmiPressed: _showPayEmiBottomSheet,
           showBlank: showBlank,
         );
-      case 2:
+      case 1:
         return PaymentHistoryTab(
           loan: loan,
           onPayEmiPressed: _showPayEmiBottomSheet,
           showBlank: showBlank,
         );
-      case 3:
+      case 2:
         return const DocumentsTab();
-      default:
+      case 3:
         return const BasicDetailsTab();
+      default:
+        return LoanDetailTab(
+          loan: loan,
+          onPayEmiPressed: _showPayEmiBottomSheet,
+          showBlank: showBlank,
+        );
     }
   }
 

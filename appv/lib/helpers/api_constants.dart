@@ -43,6 +43,7 @@ class ApiConstants {
   // Loans
   static const String loans = '/user/loans';
   static String loanDetails(int id) => '/user/loans/$id';
+  static const String loanRequests = '/user/loan-requests';
 
   // Installments
   static const String pendingInstallments = '/user/installments/pending';
