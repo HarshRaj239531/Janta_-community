@@ -5,10 +5,14 @@ import '../../constants/agent_colors.dart';
 import '../../widgets/transactions/customer_selector.dart';
 import '../../widgets/transactions/amount_input.dart';
 import '../../widgets/transactions/outstanding_card.dart';
+import '../../widgets/transactions/admin_scanner_card.dart';
+import '../../widgets/transactions/payment_mode_selector.dart';
 import '../../widgets/transactions/payment_notes.dart';
 import '../../widgets/transactions/verification_box.dart';
 import '../../provider/agent_provider.dart';
 import '../../models/agent_search_member_model.dart';
+import '../../../api/payment_api.dart';
+import '../../../helpers/api_constants.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -26,8 +30,39 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   double _outstandingAmount = 0.0;
   String _selectedInstallmentLabel = 'Select Pending Installment';
 
+  // Payment Mode: 'cash' or 'online'
+  String _paymentMode = 'cash';
+
+  // Admin QR Code settings
+  String? _qrCodeUrl;
+  bool _isQrLoading = true;
+
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPaymentSettings();
+  }
+
+  Future<void> _loadPaymentSettings() async {
+    try {
+      final data = await PaymentApi.fetchPaymentSetting();
+      if (mounted) {
+        setState(() {
+          _qrCodeUrl = ApiConstants.resolveImageUrl(data['qr_code']);
+          _isQrLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isQrLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -92,6 +127,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       installmentId: _selectedInstallmentId!,
       amount: enteredAmount,
       notes: _notesController.text,
+      paymentMode: _paymentMode,
     );
 
     if (!mounted) return;
@@ -121,6 +157,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               'Customer: ${_selectedMember!.name}\n'
               'Installment: $_selectedInstallmentLabel\n'
               'Amount: ₹${enteredAmount.toStringAsFixed(2)}\n'
+              'Payment Mode: ${_paymentMode == 'online' ? "Online (UPI / QR)" : "Cash"}\n'
               'Notes: ${_notesController.text.isEmpty ? "None" : _notesController.text}',
               style: GoogleFonts.outfit(fontSize: 15),
             ),
@@ -153,6 +190,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       _selectedInstallmentId = null;
       _outstandingAmount = 0.0;
       _selectedInstallmentLabel = 'Select Pending Installment';
+      _paymentMode = 'cash';
     });
   }
 
@@ -326,17 +364,39 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               ),
               const SizedBox(height: 16),
 
-              // 4. Payment Notes Widget
+              // 4. Admin Payment QR Scanner (Above Payment Notes)
+              AdminScannerCard(
+                qrCodeUrl: _qrCodeUrl,
+                isLoading: _isQrLoading,
+                onRefresh: () {
+                  setState(() => _isQrLoading = true);
+                  _loadPaymentSettings();
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // 5. Payment Mode Selection (Cash or Online)
+              PaymentModeSelector(
+                selectedMode: _paymentMode,
+                onModeChanged: (mode) {
+                  setState(() {
+                    _paymentMode = mode;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // 6. Payment Notes Widget
               PaymentNotes(
                 controller: _notesController,
               ),
               const SizedBox(height: 16),
 
-              // 5. Counting physical cash alert box
-              const VerificationBox(),
+              // 7. Counting physical cash / Online verification alert box
+              VerificationBox(paymentMode: _paymentMode),
               const SizedBox(height: 24),
 
-              // 6. Submit Button Container
+              // 8. Submit Button Container
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -379,7 +439,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               ),
               const SizedBox(height: 12),
 
-              // 7. Footer subtext
+              // 9. Footer subtext
               Text(
                 'Transactions recorded are subject to reconciliation.',
                 textAlign: TextAlign.center,
@@ -397,3 +457,4 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 }
+

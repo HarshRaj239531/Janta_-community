@@ -167,6 +167,7 @@ class AgentProvider with ChangeNotifier {
     required int installmentId,
     required double amount,
     String? notes,
+    String paymentMode = 'cash',
   }) async {
     _isSubmitting = true;
     _submitError = null;
@@ -178,7 +179,9 @@ class AgentProvider with ChangeNotifier {
         installmentId: installmentId,
         amount: amount,
         notes: notes,
+        paymentMode: paymentMode,
       );
+
       _isSubmitting = false;
       notifyListeners();
       return success;

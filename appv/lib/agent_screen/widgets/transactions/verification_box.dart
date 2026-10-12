@@ -3,10 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../constants/agent_colors.dart';
 
 class VerificationBox extends StatelessWidget {
-  const VerificationBox({super.key});
+  final String paymentMode;
+
+  const VerificationBox({
+    super.key,
+    this.paymentMode = 'cash',
+  });
 
   @override
   Widget build(BuildContext context) {
+    final bool isOnline = paymentMode.toLowerCase() == 'online';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -24,24 +31,26 @@ class VerificationBox extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Circular cash icon in light green
+          // Circular icon
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: AgentColors.pillGreenBackground,
+            decoration: BoxDecoration(
+              color: isOnline ? const Color(0xFFE0F2FE) : AgentColors.pillGreenBackground,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.payments_outlined,
-              color: AgentColors.emeraldGreen,
+            child: Icon(
+              isOnline ? Icons.qr_code_scanner_rounded : Icons.payments_outlined,
+              color: isOnline ? const Color(0xFF0284C7) : AgentColors.emeraldGreen,
               size: 26,
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Instruction Text
           Text(
-            'Ensure you count the physical cash twice before submitting.',
+            isOnline
+                ? 'Ensure the customer\'s online QR transaction is confirmed before submitting.'
+                : 'Ensure you count the physical cash twice before submitting.',
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               fontSize: 14,
@@ -55,3 +64,4 @@ class VerificationBox extends StatelessWidget {
     );
   }
 }
+

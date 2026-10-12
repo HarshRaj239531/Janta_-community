@@ -58,16 +58,20 @@ class AgentApi {
     required int installmentId,
     required double amount,
     String? notes,
+    String paymentMode = 'cash',
   }) async {
     final body = {
       'type': type,
       'installment_id': installmentId,
       'amount': amount,
+      'payment_mode': paymentMode,
+      'payment_method': paymentMode,
       if (notes != null && notes.isNotEmpty) 'payment_notes': notes,
     };
     await ApiHelper.post('/agent/collections/submit', body: body);
     return true;
   }
+
 
   static Future<dynamic> submitKyc({
     required int userId,
