@@ -136,11 +136,15 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                     ),
                   ),
                 )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+              : RefreshIndicator(
+                  color: AppColors.primaryGreen,
+                  onRefresh: _loadPaymentSettings,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -208,8 +212,24 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                                         width: 250,
                                         height: 250,
                                         fit: BoxFit.contain,
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return SizedBox(
+                                            width: 250,
+                                            height: 250,
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress.expectedTotalBytes != null
+                                                    ? loadingProgress.cumulativeBytesLoaded /
+                                                        loadingProgress.expectedTotalBytes!
+                                                    : null,
+                                                color: AppColors.primaryGreen,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                         errorBuilder: (context, error, stackTrace) {
-                                          return _buildQrErrorPlaceholder();
+                                          return _buildImageLoadError();
                                         },
                                       ),
                                     )
@@ -284,6 +304,50 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                     ],
                   ),
                 ),
+              ),
+    );
+  }
+
+  Widget _buildImageLoadError() {
+    return Container(
+      width: 250,
+      height: 250,
+      color: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.broken_image_rounded, size: 60, color: AppColors.errorAccent),
+          const SizedBox(height: 12),
+          Text(
+            'Failed to load QR image',
+            style: GoogleFonts.outfit(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Tap retry to reload image',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.outfit(
+              fontSize: 11,
+              color: AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _isLoading = true;
+              });
+              _loadPaymentSettings();
+            },
+            icon: const Icon(Icons.refresh_rounded, size: 16),
+            label: Text('Retry', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
     );
   }
 

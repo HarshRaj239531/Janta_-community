@@ -65,21 +65,40 @@ class ApiConstants {
   /// Resolves database image URLs that point to localhost (common in local Laravel dev servers)
   /// so that they point to the correct emulator/device accessible host dynamically.
   static String? resolveImageUrl(String? url) {
-    if (url == null || url.isEmpty) return null;
+    if (url == null || url.trim().isEmpty) return null;
+    final trimmed = url.trim();
     try {
       final baseUri = Uri.parse(baseUrl);
       final host =
           '${baseUri.scheme}://${baseUri.host}${baseUri.hasPort ? ':${baseUri.port}' : ''}';
-      if (url.startsWith('kyc/')) {
-        return '$baseUrl/profile-photo/${url.substring(4)}';
+      if (trimmed.startsWith('kyc/')) {
+        return '$baseUrl/profile-photo/${trimmed.substring(4)}';
       }
-      if (url.startsWith('http://localhost')) {
-        return url.replaceFirst('http://localhost', host);
+      if (trimmed.startsWith('http://localhost')) {
+        return trimmed.replaceFirst('http://localhost', host);
       }
-      if (url.startsWith('http://127.0.0.1')) {
-        return url.replaceFirst('http://127.0.0.1', host);
+      if (trimmed.startsWith('http://127.0.0.1')) {
+        return trimmed.replaceFirst('http://127.0.0.1', host);
+      }
+      if (trimmed.startsWith('http://10.0.2.2')) {
+        return trimmed.replaceFirst('http://10.0.2.2', host);
+      }
+      if (trimmed.startsWith('/api/')) {
+        return '$host$trimmed';
+      }
+      if (trimmed.startsWith('api/')) {
+        return '$host/$trimmed';
+      }
+      if (trimmed.startsWith('payment/') || trimmed.contains('/storage/payment/')) {
+        return '$host/api/payment-setting/qr-code';
+      }
+      if (trimmed.startsWith('/storage/')) {
+        return '$host$trimmed';
+      }
+      if (trimmed.startsWith('storage/')) {
+        return '$host/$trimmed';
       }
     } catch (_) {}
-    return url;
+    return trimmed;
   }
 }
