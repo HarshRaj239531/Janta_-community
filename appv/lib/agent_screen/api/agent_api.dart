@@ -12,10 +12,37 @@ class AgentApi {
     return AgentDashboardModel.fromJson(response as Map<String, dynamic>);
   }
 
+  static String _cleanSearchQuery(String query) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return '';
+
+    // Extract numeric ID if user typed #MEM-30, MEM-30, #30, mem 30, etc.
+    final memIdRegex = RegExp(
+      r'^(?:#|mem|#mem|cust|client|customer|id)?[-\s:#]*(\d+)$',
+      caseSensitive: false,
+    );
+    final match = memIdRegex.firstMatch(trimmed);
+    if (match != null) {
+      return match.group(1)!;
+    }
+
+    // Check if formatted phone number e.g. +91 98765 43210 or 98765-43210
+    final digits = trimmed.replaceAll(RegExp(r'\D'), '');
+    if (digits.length >= 10 &&
+        (trimmed.startsWith('+') ||
+            trimmed.contains(' ') ||
+            trimmed.contains('-') ||
+            trimmed.startsWith('0'))) {
+      return digits.length > 10 ? digits.substring(digits.length - 10) : digits;
+    }
+
+    return trimmed;
+  }
+
   static Future<AgentClientSummaryModel> getClients({String? search}) async {
     final Map<String, String> queryParams = {};
-    if (search != null && search.isNotEmpty) {
-      queryParams['search'] = search;
+    if (search != null && search.trim().isNotEmpty) {
+      queryParams['search'] = _cleanSearchQuery(search);
     }
     
     final uri = Uri(path: '/agent/clients', queryParameters: queryParams);
@@ -29,12 +56,33 @@ class AgentApi {
   }
 
   static Future<List<AgentSearchMemberModel>> searchMember(String query) async {
-    final response = await ApiHelper.get('/agent/search-member?query=${Uri.encodeComponent(query)}');
-    if (response is List) {
-      return response
-          .map((e) => AgentSearchMemberModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return [];
+
+    final cleanQuery = _cleanSearchQuery(trimmed);
+
+    // 1. Primary attempt with clean query (e.g. numeric ID '30' or clean phone)
+    try {
+      final response = await ApiHelper.get('/agent/search-member?query=${Uri.encodeComponent(cleanQuery)}');
+      if (response is List && response.isNotEmpty) {
+        return response
+            .map((e) => AgentSearchMemberModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } catch (_) {}
+
+    // 2. Fallback attempt with original trimmed query if different
+    if (cleanQuery != trimmed) {
+      try {
+        final fallbackResponse = await ApiHelper.get('/agent/search-member?query=${Uri.encodeComponent(trimmed)}');
+        if (fallbackResponse is List && fallbackResponse.isNotEmpty) {
+          return fallbackResponse
+              .map((e) => AgentSearchMemberModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      } catch (_) {}
     }
+
     return [];
   }
 

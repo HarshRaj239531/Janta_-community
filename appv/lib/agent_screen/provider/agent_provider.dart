@@ -103,8 +103,10 @@ class AgentProvider with ChangeNotifier {
   }
 
   Future<void> searchMembers(String query) async {
-    if (query.trim().isEmpty) {
+    final cleanQuery = query.trim();
+    if (cleanQuery.isEmpty) {
       _searchResults = [];
+      _searchError = null;
       notifyListeners();
       return;
     }
@@ -114,11 +116,19 @@ class AgentProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _searchResults = await AgentApi.searchMember(query);
+      _searchResults = await AgentApi.searchMember(cleanQuery);
       _isSearchLoading = false;
       notifyListeners();
     } on ApiException catch (e) {
-      _searchError = e.message;
+      // Treat 404 or "not found" gracefully as empty results instead of an error state
+      if (e.statusCode == 404 ||
+          e.message.toLowerCase().contains('not found') ||
+          e.message.toLowerCase().contains('no member')) {
+        _searchResults = [];
+        _searchError = null;
+      } else {
+        _searchError = e.message;
+      }
       _isSearchLoading = false;
       notifyListeners();
     } catch (e) {

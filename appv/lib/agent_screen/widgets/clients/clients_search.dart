@@ -33,7 +33,7 @@ class ClientsSearch extends StatelessWidget {
             color: AgentColors.textSecondary,
             size: 22,
           ),
-          hintText: 'Find members by name or ID...',
+          hintText: 'Search by name, phone or ID...',
           hintStyle: GoogleFonts.outfit(
             color: AgentColors.textMuted,
             fontSize: 15,
