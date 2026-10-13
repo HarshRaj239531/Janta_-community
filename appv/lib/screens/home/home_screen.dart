@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import '../../widgets/custom_bottom_navbar.dart';
 import '../../widgets/animated_background.dart';
 import '../../provider/dashboard_provider.dart';
+import '../../provider/committee_provider.dart';
+import '../../provider/installment_provider.dart';
 import '../../provider/material_provider.dart';
 import '../../models/material_model.dart';
 import '../community/community_screen.dart';
@@ -173,25 +175,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Consumer<DashboardProvider>(
       builder: (context, dashboardProvider, child) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 1. Dynamic Header based on Active Tab
-                _selectedTabIndex == 0
-                    ? _buildTraderHeader(dashboardProvider)
-                    : _buildOtherHeader(dashboardProvider),
-                const SizedBox(height: 16),
+        return RefreshIndicator(
+          onRefresh: () async {
+            await Future.wait([
+              dashboardProvider.fetchDashboard(),
+              Provider.of<CommitteeProvider>(context, listen: false).fetchMyCommittees(),
+              Provider.of<InstallmentProvider>(context, listen: false).fetchPending(),
+              Provider.of<InstallmentProvider>(context, listen: false).fetchPaid(),
+            ]);
+          },
+          color: AppColors.primaryGreen,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Dynamic Header based on Active Tab
+                  _selectedTabIndex == 0
+                      ? _buildTraderHeader(dashboardProvider)
+                      : _buildOtherHeader(dashboardProvider),
+                  const SizedBox(height: 16),
 
-                // 2. Custom Slider Tab Switcher (Trader vs Other)
-                _buildTabSwitcher(),
-                const SizedBox(height: 16),
+                  // 2. Custom Slider Tab Switcher (Trader vs Other)
+                  _buildTabSwitcher(),
+                  const SizedBox(height: 16),
 
-                // 3. Dynamic Tab Content
-                _selectedTabIndex == 0 ? const TraderTab() : const OtherTab(),
-              ],
+                  // 3. Dynamic Tab Content
+                  _selectedTabIndex == 0 ? const TraderTab() : const OtherTab(),
+                ],
+              ),
             ),
           ),
         );
