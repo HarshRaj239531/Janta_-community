@@ -70,7 +70,7 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Community Details',
+          'Committee Details',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.primary,

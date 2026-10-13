@@ -457,7 +457,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 8),
                 _buildSettingsTile(
                   icon: Icons.info_outline_rounded,
-                  title: 'About Janta community',
+                  title: 'About Janta Committee',
                   subtitle: 'App info, policies & helpline',
                   onTap: () => _showAboutDialog(context),
                 ),
@@ -515,7 +515,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Janta community is a transparent and community-driven financial platform empowering members with savings, loans, and lottery programs.',
+              'Janta Committee is a transparent and committee-driven financial platform empowering members with savings, loans, and lottery programs.',
               style: GoogleFonts.outfit(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
             ),
             const SizedBox(height: 16),

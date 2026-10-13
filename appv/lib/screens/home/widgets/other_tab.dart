@@ -256,7 +256,7 @@ class _OtherTabState extends State<OtherTab> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Your Community',
+                  'Your Committee',
                   style: GoogleFonts.outfit(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -268,7 +268,7 @@ class _OtherTabState extends State<OtherTab> {
                     HomeScreen.activeTabNotifier.value = 1;
                   },
                   child: Text(
-                    'View Community Details',
+                    'View Committee Details',
                     style: GoogleFonts.outfit(
                       color: AppColors.primaryGreen,
                       fontSize: 12,
@@ -291,7 +291,7 @@ class _OtherTabState extends State<OtherTab> {
                 ),
                 child: Center(
                   child: Text(
-                    'No communities joined yet',
+                    'No committees joined yet',
                     style: GoogleFonts.outfit(
                       fontSize: 14,
                       color: AppColors.textMuted,

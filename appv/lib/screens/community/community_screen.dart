@@ -364,7 +364,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           const SizedBox(height: 12),
           _buildBenefitItem(
             Icons.verified_user_outlined,
-            '100% Verified Community',
+            '100% Verified Committee',
             'Safe, collaborative peer-to-peer savings plans.',
           ),
           const SizedBox(height: 8),
@@ -892,7 +892,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Admin is currently setting up upcoming community savings plans. Please check back shortly.',
+            'Admin is currently setting up upcoming committee savings plans. Please check back shortly.',
             textAlign: TextAlign.center,
             style: GoogleFonts.outfit(
               fontSize: 12,

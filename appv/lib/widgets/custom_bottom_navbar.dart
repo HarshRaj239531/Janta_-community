@@ -31,7 +31,7 @@ class CustomBottomNavBar extends StatelessWidget {
         children: showAllTabs
             ? [
                 Expanded(child: _buildNavItem(context, 0, Icons.home_rounded, 'Home')),
-                Expanded(child: _buildNavItem(context, 1, Icons.people_alt_rounded, 'Community')),
+                Expanded(child: _buildNavItem(context, 1, Icons.people_alt_rounded, 'Committee')),
                 Expanded(child: _buildNavItem(context, 2, Icons.local_activity_rounded, 'Lottery')),
                 Expanded(child: _buildNavItem(context, 3, Icons.monetization_on_rounded, 'Loan')),
                 Expanded(child: _buildNavItem(context, 4, Icons.settings_rounded, 'Settings')),

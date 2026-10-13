@@ -722,7 +722,7 @@ class LoanDetailTab extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'COMMUNITY FINANCIAL AID',
+                      'COMMITTEE FINANCIAL AID',
                       style: GoogleFonts.outfit(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -816,7 +816,7 @@ class LoanDetailTab extends StatelessWidget {
               child: _buildBenefitCard(
                 icon: Icons.bolt_rounded,
                 title: 'Quick Verification',
-                desc: 'Fast approval by community admins',
+                desc: 'Fast approval by committee admins',
                 theme: theme,
               ),
             ),
@@ -1181,7 +1181,7 @@ class LoanDetailTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Apply for a new community loan easily',
+                  'Apply for a new committee loan easily',
                   style: GoogleFonts.outfit(
                     fontSize: 11,
                     color: AppColors.textSecondary,

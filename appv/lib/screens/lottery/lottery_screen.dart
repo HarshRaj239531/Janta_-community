@@ -338,7 +338,7 @@ class _LotteryScreenState extends State<LotteryScreen> {
                               flex: 4,
                               child: Center(
                                 child: Text(
-                                  'COMMUNITY',
+                                  'COMMITTEE',
                                   style: GoogleFonts.outfit(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,

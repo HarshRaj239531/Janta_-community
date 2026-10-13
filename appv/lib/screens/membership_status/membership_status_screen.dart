@@ -278,7 +278,7 @@ class MembershipStatusScreen extends StatelessWidget {
                   },
                   icon: const Icon(Icons.explore_rounded, color: Colors.white, size: 18),
                   label: Text(
-                    'Explore Other Communities',
+                    'Explore Other Committees',
                     style: GoogleFonts.outfit(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,

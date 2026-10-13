@@ -45,7 +45,7 @@ class SupportHelper {
   }) async {
     final raw = (phone ?? phoneNumber).replaceAll(RegExp(r'[^\d]'), '');
     final cleanPhone = raw.length == 10 ? '91$raw' : raw;
-    final msg = message ?? 'Hello Support, I need help with my Janta Community account.';
+    final msg = message ?? 'Hello Support, I need help with my Janta Committee account.';
     final whatsappUrl = Uri.parse('https://wa.me/$cleanPhone?text=${Uri.encodeComponent(msg)}');
 
     try {
@@ -73,7 +73,7 @@ class SupportHelper {
   static Future<void> sendEmail(BuildContext context, [String? targetEmail]) async {
     final mail = targetEmail ?? email;
     final uri = Uri.parse(
-      'mailto:$mail?subject=${Uri.encodeComponent("Support Request - Janta Community")}',
+      'mailto:$mail?subject=${Uri.encodeComponent("Support Request - Janta Committee")}',
     );
     try {
       if (await canLaunchUrl(uri)) {

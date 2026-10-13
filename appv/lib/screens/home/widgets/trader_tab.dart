@@ -177,7 +177,7 @@ class TraderTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Join the trader community',
+                  'Join the trader committee',
                   style: GoogleFonts.outfit(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
