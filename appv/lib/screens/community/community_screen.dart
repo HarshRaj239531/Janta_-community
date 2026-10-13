@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../../provider/committee_provider.dart';
+import '../../provider/installment_provider.dart';
 import '../../models/committee_model.dart';
 import '../community_details/community_details_screen.dart';
 
@@ -35,9 +36,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   Future<void> _refreshData() async {
     final cp = Provider.of<CommitteeProvider>(context, listen: false);
+    final ip = Provider.of<InstallmentProvider>(context, listen: false);
     await Future.wait([
       cp.fetchCommittees(),
       cp.fetchMyCommittees(),
+      ip.fetchPending(),
+      ip.fetchPaid(),
     ]);
   }
 
@@ -767,10 +771,97 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       ],
                     ),
                   ],
+                  if (hasEnrolled) ...[
+                    const SizedBox(height: 10),
+                    const Divider(color: Color(0xFFE5E7EB), height: 1),
+                    const SizedBox(height: 10),
+                    Consumer<InstallmentProvider>(
+                      builder: (context, ip, _) {
+                        final pendingList = (ip.pending?.committeeInstallments ?? [])
+                            .where((i) => i.committeeId == committee.id)
+                            .toList();
+                        final paidList = (ip.paid?.committeeInstallments ?? [])
+                            .where((i) => i.committeeId == committee.id)
+                            .toList();
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0FDF4),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFBBF7D0)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.receipt_long_rounded,
+                                    size: 14,
+                                    color: Color(0xFF15803D),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Installments:',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF166534),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFDCFCE7),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${paidList.length} Paid',
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: const Color(0xFF15803D),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: pendingList.isNotEmpty
+                                          ? const Color(0xFFFEF3C7)
+                                          : const Color(0xFFE5E7EB),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${pendingList.length} Pending',
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: pendingList.isNotEmpty
+                                            ? const Color(0xFFB45309)
+                                            : const Color(0xFF6B7280),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
-          ),          // Bottom Action Button
+          ),
+          // Bottom Action Button
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
@@ -791,7 +882,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   children: [
                     Icon(
                       hasEnrolled
-                          ? Icons.remove_red_eye_rounded
+                          ? Icons.receipt_long_rounded
                           : Icons.login_rounded,
                       color: Colors.white,
                       size: 16,
@@ -799,7 +890,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     const SizedBox(width: 8),
                     Text(
                       hasEnrolled
-                          ? 'View Committee Details'
+                          ? 'View Committee Details & History'
                           : 'Join Committee',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
