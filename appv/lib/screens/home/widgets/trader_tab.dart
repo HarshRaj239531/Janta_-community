@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../constants/app_colors.dart';
 import '../../../provider/dashboard_provider.dart';
+import '../../../provider/installment_provider.dart';
 import '../home_screen.dart';
 
 class TraderTab extends StatelessWidget {
@@ -30,8 +31,8 @@ class TraderTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DashboardProvider>(
-      builder: (context, dp, child) {
+    return Consumer2<DashboardProvider, InstallmentProvider>(
+      builder: (context, dp, ip, child) {
         if (dp.isLoading && dp.dashboard == null) {
           return const Center(
             child: Padding(
@@ -43,13 +44,39 @@ class TraderTab extends StatelessWidget {
 
         final error = dp.error;
         final wallet = dp.wallet;
-        final totalBalance = wallet?.totalBalance ?? 0;
-        final credits = wallet?.credits ?? 0;
-        final debits = wallet?.debits ?? 0;
         final recentActivity = dp.dashboard?.recentActivity ?? [];
+
+        final allPending = ip.allPending;
+        final allPaid = ip.allPaid;
+        final totalPaidAmount = allPaid.fold<double>(
+          0.0,
+          (sum, i) => sum + (i.amount ?? 0.0),
+        );
+        final totalPendingAmount = allPending.fold<double>(
+          0.0,
+          (sum, i) => sum + (i.amount ?? 0.0),
+        );
+
+        // Dynamic Credits (Total Paid/Deposited)
+        final credits = (wallet != null && wallet.credits > 0)
+            ? wallet.credits
+            : totalPaidAmount;
+
+        // Dynamic Debits (Total Pending/Due)
+        final debits = (wallet != null && wallet.debits > 0)
+            ? wallet.debits
+            : totalPendingAmount;
+
+        // Dynamic Digital Passbook Balance
+        final totalBalance = (wallet != null && wallet.totalBalance > 0)
+            ? wallet.totalBalance
+            : credits;
+
         final paidRatio = (credits + debits) > 0
             ? credits / (credits + debits)
-            : 0.0;
+            : (allPaid.length + allPending.length > 0
+                ? allPaid.length / (allPaid.length + allPending.length)
+                : 0.0);
 
         final items = <Widget>[
           // Subtle offline/error warning banner instead of a blocking page
@@ -354,8 +381,8 @@ class TraderTab extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Recent Activity Items from API
-          if (recentActivity.isEmpty)
+          // Recent Activity Items from API (with fallback to paid installments)
+          if (recentActivity.isEmpty && allPaid.isEmpty)
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -373,7 +400,7 @@ class TraderTab extends StatelessWidget {
                 ),
               ),
             )
-          else
+          else if (recentActivity.isNotEmpty)
             ...recentActivity.map(
               (txn) => _buildHistoryItem(
                 context,
@@ -386,6 +413,20 @@ class TraderTab extends StatelessWidget {
                 icon: txn.isCredit
                     ? Icons.arrow_downward_rounded
                     : Icons.arrow_upward_rounded,
+              ),
+            )
+          else
+            ...allPaid.take(5).map(
+              (inst) => _buildHistoryItem(
+                context,
+                title: inst.committeeName != 'N/A'
+                    ? 'Paid: ${inst.committeeName}'
+                    : inst.loanLabel,
+                date: _formatDate(inst.paidDate ?? inst.dueDate),
+                amount: '+ ${_formatCurrency(inst.amount ?? 0)}',
+                status: 'PAID',
+                isSuccess: true,
+                icon: Icons.arrow_downward_rounded,
               ),
             ),
           const SizedBox(height: 16),

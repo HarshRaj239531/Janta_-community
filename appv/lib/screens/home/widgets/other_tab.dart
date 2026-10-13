@@ -21,6 +21,7 @@ class _OtherTabState extends State<OtherTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DashboardProvider>(context, listen: false).fetchDashboard();
       Provider.of<CommitteeProvider>(
         context,
         listen: false,
@@ -56,11 +57,6 @@ class _OtherTabState extends State<OtherTab> {
         final wallet = dp.wallet;
         final stats = dp.stats;
         final userName = dp.userName;
-        final totalBalance = wallet?.totalBalance ?? 0;
-        final credits = wallet?.credits ?? 0;
-        final debits = wallet?.debits ?? 0;
-        final activeCommittees = stats?.activeCommittees ?? 0;
-        final activeLoans = stats?.activeLoans ?? 0;
         final myCommittees = cp.myCommittees;
 
         final allPending = ip.allPending;
@@ -69,6 +65,45 @@ class _OtherTabState extends State<OtherTab> {
         final paidRatio = totalInstallments > 0
             ? allPaid.length / totalInstallments
             : 0.0;
+
+        // Dynamic Calculations from Live Installments & Wallet Data
+        final totalPaidAmount = allPaid.fold<double>(
+          0.0,
+          (sum, i) => sum + (i.amount ?? 0.0),
+        );
+        final totalPendingAmount = allPending.fold<double>(
+          0.0,
+          (sum, i) => sum + (i.amount ?? 0.0),
+        );
+
+        // Dynamic Credits (Total Amount Paid/Deposited by User)
+        final credits = (wallet != null && wallet.credits > 0)
+            ? wallet.credits
+            : totalPaidAmount;
+
+        // Dynamic Debits (Total Amount Pending/Due from User)
+        final debits = (wallet != null && wallet.debits > 0)
+            ? wallet.debits
+            : totalPendingAmount;
+
+        // Dynamic Digital Passbook Balance
+        final totalBalance = (wallet != null && wallet.totalBalance > 0)
+            ? wallet.totalBalance
+            : credits;
+
+        // Dynamic Active Committees Count
+        final activeCommittees = (stats != null && stats.activeCommittees > 0)
+            ? stats.activeCommittees
+            : (myCommittees.where((c) => (c.status ?? '').toLowerCase() == 'active').isNotEmpty
+                ? myCommittees.where((c) => (c.status ?? '').toLowerCase() == 'active').length
+                : myCommittees.length);
+
+        // Dynamic Active Loans Count
+        final activeLoans = (stats != null && stats.activeLoans > 0)
+            ? stats.activeLoans
+            : (allPending.any((i) => i.loanId != null) || allPaid.any((i) => i.loanId != null)
+                ? 1
+                : 0);
 
         // Find next due date
         String nextDueDate = 'N/A';
