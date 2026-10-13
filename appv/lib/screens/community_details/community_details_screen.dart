@@ -15,6 +15,7 @@ class CommunityDetailsScreen extends StatefulWidget {
   final String? startDate;
   final String? endDate;
   final String? period;
+  final bool isJoined;
 
   const CommunityDetailsScreen({
     super.key,
@@ -28,6 +29,7 @@ class CommunityDetailsScreen extends StatefulWidget {
     this.startDate,
     this.endDate,
     this.period,
+    this.isJoined = false,
   });
 
   @override
@@ -203,26 +205,40 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                     // 5. Monthly Declaration Box
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.containerBgSoft,
+                        color: widget.isJoined ? const Color(0xFFECFDF5) : AppColors.containerBgSoft,
                         borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(12),
                           bottomRight: Radius.circular(12),
                         ),
                         border: Border(
                           left: BorderSide(
-                            color: theme.colorScheme.primary,
+                            color: widget.isJoined ? const Color(0xFF059669) : theme.colorScheme.primary,
                             width: 4,
                           ),
                         ),
                       ),
                       padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'By confirming, you agree to start your monthly contribution of ${widget.plan.replaceAll('Monthly ', '').replaceAll('Daily ', '')} to the ${widget.name} pool. Your first contribution will be debited within 24 hours.',
-                        style: GoogleFonts.outfit(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                          height: 1.4,
-                        ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (widget.isJoined) ...[
+                            const Icon(Icons.verified_rounded, color: Color(0xFF059669), size: 20),
+                            const SizedBox(width: 10),
+                          ],
+                          Expanded(
+                            child: Text(
+                              widget.isJoined
+                                  ? 'You are actively enrolled in ${widget.name}. Your periodic savings are in progress according to the ${widget.plan} schedule.'
+                                  : 'By confirming, you agree to start your monthly contribution of ${widget.plan.replaceAll('Monthly ', '').replaceAll('Daily ', '')} to the ${widget.name} pool. Your first contribution will be debited within 24 hours.',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                color: widget.isJoined ? const Color(0xFF065F46) : AppColors.textSecondary,
+                                height: 1.4,
+                                fontWeight: widget.isJoined ? FontWeight.w600 : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -231,21 +247,43 @@ class _CommunityDetailsScreenState extends State<CommunityDetailsScreen> {
                     SizedBox(
                       height: 52,
                       child: ElevatedButton(
-                        onPressed: _confirmMembership,
+                        onPressed: widget.isJoined
+                            ? () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'You are already an active member of ${widget.name}!',
+                                      style: GoogleFonts.outfit(),
+                                    ),
+                                    backgroundColor: const Color(0xFF059669),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            : _confirmMembership,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
+                          backgroundColor: widget.isJoined ? const Color(0xFF059669) : theme.colorScheme.primary,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: Text(
-                          'Confirm Membership',
-                          style: GoogleFonts.outfit(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (widget.isJoined) ...[
+                              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                              const SizedBox(width: 8),
+                            ],
+                            Text(
+                              widget.isJoined ? 'Active Member • Enrolled' : 'Confirm Membership',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
