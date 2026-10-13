@@ -8,14 +8,21 @@ class PaymentApi {
     required String type,
     required int installmentId,
     required double amount,
+    int? agentId,
+    String paymentMode = 'cash',
   }) async {
+    final payload = <String, dynamic>{
+      'type': type,
+      'installment_id': installmentId,
+      'amount': amount,
+      'payment_mode': paymentMode,
+    };
+    if (agentId != null) {
+      payload['agent_id'] = agentId;
+    }
     await ApiHelper.post(
       ApiConstants.pay,
-      body: {
-        'type': type,
-        'installment_id': installmentId,
-        'amount': amount,
-      },
+      body: payload,
     );
   }
 

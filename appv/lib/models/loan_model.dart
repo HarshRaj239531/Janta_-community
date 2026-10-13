@@ -33,17 +33,18 @@ class LoanModel {
           .toList();
     }
     return LoanModel(
-      id: json['id'] ?? 0,
-      userId: json['user_id'],
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      userId: int.tryParse(json['user_id']?.toString() ?? ''),
       amount: double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
       interestRate: double.tryParse(json['interest_rate']?.toString() ?? '') ??
                     double.tryParse(json['interest_rate_percent']?.toString() ?? ''),
-      duration: json['duration'] as int? ?? json['duration_months'] as int?,
-      status: json['status'],
-      installmentsCount: json['installments_count'],
+      duration: int.tryParse(json['duration']?.toString() ?? '') ??
+                int.tryParse(json['duration_months']?.toString() ?? ''),
+      status: json['status']?.toString(),
+      installmentsCount: int.tryParse(json['installments_count']?.toString() ?? ''),
       installments: installmentList,
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
     );
   }
 

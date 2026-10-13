@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../../provider/loan_provider.dart';
 import '../../provider/profile_provider.dart';
-import '../../provider/installment_provider.dart';
 import '../../models/loan_model.dart';
 import '../home/home_screen.dart';
 import 'widgets/loan_detail_tab.dart';
@@ -13,6 +11,7 @@ import 'widgets/payment_history_tab.dart';
 import 'widgets/documents_tab.dart';
 import 'widgets/basic_details_tab.dart';
 import 'widgets/apply_loan_bottom_sheet.dart';
+import 'widgets/pay_emi_bottom_sheet.dart';
 import '../../services/local_notification_service.dart';
 
 class LoanDetailsScreen extends StatefulWidget {
@@ -51,7 +50,6 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
   }
 
   void _showPayEmiBottomSheet() {
-    final theme = Theme.of(context);
     final loanProvider = Provider.of<LoanProvider>(context, listen: false);
     final loan = loanProvider.selectedLoan;
 
@@ -68,7 +66,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
       return;
     }
 
-    // Find first pending installment
+    // Find pending installments
     final pendingInstallments = loan.installments!.where((i) => i.status == 'pending').toList();
     if (pendingInstallments.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,350 +81,25 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen> {
       return;
     }
 
+    // Sort chronologically by due date, then by ID
+    pendingInstallments.sort((a, b) {
+      final aDate = a.dueDate ?? '';
+      final bDate = b.dueDate ?? '';
+      final dateComp = aDate.compareTo(bDate);
+      if (dateComp != 0) return dateComp;
+      return a.id.compareTo(b.id);
+    });
+
     final nextInstallment = pendingInstallments.first;
-    final totalPendingAmount = pendingInstallments.fold<double>(
-      0.0,
-      (sum, item) => sum + (item.amount ?? 0.0),
-    );
-    final remainingAfterPayment = totalPendingAmount - (nextInstallment.amount ?? 0.0);
 
-    String dueDateText = 'N/A';
-    if (nextInstallment.dueDate != null) {
-      try {
-        dueDateText = DateFormat('dd MMM, yyyy').format(DateTime.parse(nextInstallment.dueDate!));
-      } catch (_) {
-        dueDateText = nextInstallment.dueDate!;
-      }
-    }
-
-    final amountFormatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 2,
-    );
-
-    showModalBottomSheet(
+    PayEmiBottomSheet.show(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        bool isPayingLocal = false;
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 50,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withAlpha(25),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.payments_rounded,
-                            color: theme.colorScheme.primary,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Repay Upcoming EMI',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              Text(
-                                'Loan Ref #${loan.id} • Due $dueDateText',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 12,
-                                  color: AppColors.textSecondary,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0F4C3A), Color(0xFF1E3A2F)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF0F4C3A).withValues(alpha: 0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                          )
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'EMI Installment',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 13,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              Text(
-                                '#${loan.paidCount + 1} of ${loan.installments?.length ?? loan.duration ?? 0}',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const Divider(color: Colors.white24, height: 1),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Amount Due',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                amountFormatter.format(nextInstallment.amount ?? 0),
-                                style: GoogleFonts.outfit(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF68D391), // light green
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Remaining Balance Later',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 11,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                Text(
-                                  amountFormatter.format(remainingAfterPayment),
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.security_rounded,
-                          color: Color(0xFF68D391),
-                          size: 14,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Secure Bank-Grade Verification Active',
-                          style: GoogleFonts.outfit(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: isPayingLocal ? null : () => Navigator.pop(context),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              side: const BorderSide(color: AppColors.borderLight),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Text(
-                              'Cancel',
-                              style: GoogleFonts.outfit(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: isPayingLocal
-                                ? null
-                                : () async {
-                                    setModalState(() {
-                                      isPayingLocal = true;
-                                    });
-                                    final ip = Provider.of<InstallmentProvider>(
-                                      context,
-                                      listen: false,
-                                    );
-                                    final paid = await ip.payInstallment(
-                                      type: 'loan',
-                                      installmentId: nextInstallment.id,
-                                      amount: nextInstallment.amount ?? 0,
-                                    );
-                                    if (context.mounted) {
-                                      Navigator.pop(context);
-                                      if (paid) {
-                                        // Refresh loan details
-                                        await loanProvider.fetchLoanDetails(loan.id);
-                                        _showEmiPaymentSuccess(
-                                          amountFormatter.format(nextInstallment.amount ?? 0),
-                                        );
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              ip.error ?? 'Payment failed',
-                                              style: GoogleFonts.outfit(),
-                                            ),
-                                            backgroundColor: AppColors.errorAccent,
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: isPayingLocal
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Text(
-                                    'Pay EMI',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showEmiPaymentSuccess(String amountFormatted) {
-    final theme = Theme.of(context);
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary, size: 28),
-              const SizedBox(width: 8),
-              Text(
-                'EMI Paid Successfully!',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Your monthly EMI payment of $amountFormatted has been debited successfully.',
-            style: GoogleFonts.outfit(fontSize: 14, color: AppColors.textSecondary),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Awesome',
-                style: GoogleFonts.outfit(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
+      loan: loan,
+      installment: nextInstallment,
+      pendingInstallments: pendingInstallments,
+      onPaymentSuccess: () async {
+        await loanProvider.fetchLoans();
+        await loanProvider.fetchLoanDetails(loan.id);
       },
     );
   }

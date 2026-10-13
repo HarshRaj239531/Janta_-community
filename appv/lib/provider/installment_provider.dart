@@ -73,6 +73,8 @@ class InstallmentProvider with ChangeNotifier {
     required String type,
     required int installmentId,
     required double amount,
+    int? agentId,
+    String paymentMode = 'cash',
   }) async {
     _isPaying = true;
     _error = null;
@@ -83,6 +85,8 @@ class InstallmentProvider with ChangeNotifier {
         type: type,
         installmentId: installmentId,
         amount: amount,
+        agentId: agentId,
+        paymentMode: paymentMode,
       );
       _isPaying = false;
       // Refresh both lists

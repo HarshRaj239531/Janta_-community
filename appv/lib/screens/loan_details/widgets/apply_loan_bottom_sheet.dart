@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -50,19 +51,29 @@ class _ApplyLoanBottomSheetState extends State<ApplyLoanBottomSheet> {
 
   double get _estimatedEmi {
     final P = _currentAmount;
-    final N = _selectedDuration;
-    if (P <= 0 || N <= 0) return 0.0;
+    final duration = _selectedDuration;
+    if (P <= 0 || duration <= 0) return 0.0;
 
-    const annualRate = 0.12; // 12% p.a. indicative
+    const rate = 12.0; // 12% p.a. indicative rate matching backend engine
+    double N;
+    double R;
+
     if (_selectedFrequency == 'monthly') {
-      final r = annualRate / 12;
-      return (P * r * (1 + r * N)) / N; // Approx simple EMI
+      N = duration.toDouble();
+      R = (rate / 12) / 100;
     } else if (_selectedFrequency == 'weekly') {
-      final totalWeeks = N * 4;
-      return (P * (1 + annualRate * (N / 12))) / totalWeeks;
+      N = (duration * 4).toDouble();
+      R = (rate / 52) / 100;
     } else {
-      final totalDays = N * 30;
-      return (P * (1 + annualRate * (N / 12))) / totalDays;
+      N = (duration * 30).toDouble();
+      R = (rate / 365) / 100;
+    }
+
+    if (R > 0) {
+      final pwr = pow(1 + R, N).toDouble();
+      return (P * R * pwr) / (pwr - 1);
+    } else {
+      return P / N;
     }
   }
 
@@ -444,7 +455,7 @@ class _ApplyLoanBottomSheetState extends State<ApplyLoanBottomSheet> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '~ ₹${_estimatedEmi.toStringAsFixed(0)} / ${_selectedFrequency.toLowerCase()}',
+                            '~ ${formatter.format(_estimatedEmi.round())} / ${_selectedFrequency.toLowerCase()}',
                             style: GoogleFonts.outfit(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,

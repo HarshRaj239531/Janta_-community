@@ -29,16 +29,20 @@ class InstallmentModel {
 
   factory InstallmentModel.fromJson(Map<String, dynamic> json) {
     return InstallmentModel(
-      id: json['id'] ?? 0,
-      userId: json['user_id'],
-      committeeId: json['committee_id'],
-      loanId: json['loan_id'],
+      id: int.tryParse(json['id']?.toString() ?? '') ??
+          int.tryParse(json['installment_id']?.toString() ?? '') ??
+          0,
+      userId: int.tryParse(json['user_id']?.toString() ?? ''),
+      committeeId: int.tryParse(json['committee_id']?.toString() ?? ''),
+      loanId: int.tryParse(json['loan_id']?.toString() ?? ''),
       amount: double.tryParse(json['amount']?.toString() ?? '') ??
-              double.tryParse(json['total_amount']?.toString() ?? '') ?? 0.0,
-      dueDate: json['due_date'],
-      status: json['status'],
-      paidDate: json['paid_date'],
-      createdAt: json['created_at'],
+              double.tryParse(json['total_amount']?.toString() ?? '') ??
+              double.tryParse(json['emi']?.toString() ?? '') ??
+              0.0,
+      dueDate: json['due_date']?.toString(),
+      status: json['status']?.toString(),
+      paidDate: json['paid_date']?.toString(),
+      createdAt: json['created_at']?.toString(),
       committee: json['committee'] as Map<String, dynamic>?,
       loan: json['loan'] as Map<String, dynamic>?,
     );

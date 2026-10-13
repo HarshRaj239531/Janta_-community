@@ -54,9 +54,10 @@ class ApiConstants {
   static const String lotteryHistory = '/user/lotteries/history';
   static const String lotterySetting = '/user/lotteries/setting';
 
-  // Payments
+  // Payments & Agents
   static const String pay = '/user/payments/pay';
   static const String paymentSetting = '/user/payment-setting';
+  static const String agents = '/user/agents';
 
   // Support & Helpline
   static const String supportPhone = '9661001833';
